@@ -17,19 +17,97 @@ export type Instrument =
   | 'Violino'
   | 'Produção';
 
+export type SkillLevel = 'Iniciante' | 'Intermediário' | 'Avançado' | 'Profissional';
+
+/** Dias da semana usados na grade de disponibilidade. */
+export type Weekday = 'Seg' | 'Ter' | 'Qua' | 'Qui' | 'Sex' | 'Sáb' | 'Dom';
+
+/** Faixas de horário usadas na grade de disponibilidade. */
+export type TimeSlot = 'Manhã' | 'Tarde' | 'Noite';
+
+/**
+ * Disponibilidade estruturada em grade dia x turno.
+ * Ex.: { 'Sáb': ['Tarde', 'Noite'], 'Dom': ['Manhã'] }
+ */
+export type AvailabilitySchedule = Partial<Record<Weekday, TimeSlot[]>>;
+
+/** O que o músico tem disponível para ensaios e gravações. */
+export type EquipmentLevel =
+  | 'Estúdio próprio'
+  | 'Equipamento portátil'
+  | 'Apenas instrumento'
+  | 'Sem equipamento';
+
+/** Amostra artística: trecho de áudio ou vídeo do músico tocando. */
+export interface MediaSample {
+  id: string;
+  type: 'audio' | 'video';
+  /** URI local (file://) ou URL remota do arquivo. */
+  uri: string;
+  title: string;
+  /** Duração em segundos, quando conhecida. */
+  durationSec?: number;
+  /** Miniatura para amostras de vídeo. */
+  thumbnailUri?: string;
+}
+
+/** Histórico de experiência de banda/palco do músico. */
+export interface BandExperience {
+  /** Já tocou ao vivo em shows. */
+  playedLive: boolean;
+  /** Já gravou em estúdio ou de forma independente. */
+  recorded: boolean;
+  /** Anos de experiência em bandas anteriores. */
+  yearsInBands: number;
+  /** Descrição livre das bandas/projetos anteriores. */
+  notes?: string;
+}
+
+/**
+ * Soft skills autodeclaradas, cada uma em escala 1-5.
+ * Usadas tanto na vitrine do perfil quanto como sinal para o algoritmo.
+ */
+export interface SoftSkills {
+  /** Pontualidade e confiabilidade de agenda. */
+  punctuality: number;
+  /** Nível de comprometimento com os projetos. */
+  commitment: number;
+  /** Abertura a experimentar novos estilos e ideias. */
+  openness: number;
+}
+
 export interface Artist {
   id: string;
   name: string;
   age: number;
   role: string;
   instruments: Instrument[];
-  level: 'Iniciante' | 'Intermediário' | 'Avançado' | 'Profissional';
+  level: SkillLevel;
   genres: string[];
   influences: string[];
   location: string;
   coordinates: { lat: number; lng: number };
+
+  /**
+   * Disponibilidade em texto livre (legado, usado na UI atual).
+   * Será substituída gradualmente por `schedule`.
+   */
   availability: string[];
-  goal: CollabGoal;
+  /** Disponibilidade estruturada em grade dia x turno. */
+  schedule?: AvailabilitySchedule;
+
+  /** Objetivos de colaboração. Múltiplos são permitidos. */
+  goals: CollabGoal[];
+
+  /** Equipamento disponível para ensaios/gravações. */
+  equipment?: EquipmentLevel;
+  /** Histórico de experiência de banda e palco. */
+  bandExperience?: BandExperience;
+  /** Soft skills autodeclaradas. */
+  softSkills?: SoftSkills;
+  /** Amostras artísticas de áudio e vídeo. */
+  mediaSamples?: MediaSample[];
+
   connections: number;
   bio: string;
   vibeColor: string;
@@ -39,8 +117,12 @@ export interface Artist {
   socials: { instagram?: string; youtube?: string; spotify?: string };
   matchScore?: number;
   matchReasons?: string[];
+  /** Imagem exibida (URL do storage ou fallback mock). */
   avatar: string;
   coverImage: string;
+  /** URLs de mídia enviadas pelo usuário ao storage (undefined = ainda não enviou). */
+  avatarUrl?: string;
+  coverUrl?: string;
 }
 
 export const MOCK_ARTISTS: Artist[] = [
@@ -56,7 +138,14 @@ export const MOCK_ARTISTS: Artist[] = [
     location: 'São Paulo, SP',
     coordinates: { lat: -23.5505, lng: -46.6333 },
     availability: ['Fins de semana', 'Noites'],
-    goal: 'Banda Fixa',
+    schedule: { Sex: ['Noite'], Sáb: ['Tarde', 'Noite'], Dom: ['Tarde'] },
+    goals: ['Banda Fixa'],
+    equipment: 'Equipamento portátil',
+    bandExperience: { playedLive: true, recorded: true, yearsInBands: 8, notes: 'Vocalista de duas bandas de soul em SP.' },
+    softSkills: { punctuality: 5, commitment: 5, openness: 4 },
+    mediaSamples: [
+      { id: 's1a', type: 'audio', uri: 'https://example.com/samples/mariana-voz.mp3', title: 'Trecho - voz e violão', durationSec: 42 },
+    ],
     connections: 312,
     bio: 'Cantora independente apaixonada por soul e MPB. Buscando banda fixa para shows e gravações.',
     vibeColor: '#8B5CF6',
@@ -81,7 +170,14 @@ export const MOCK_ARTISTS: Artist[] = [
     location: 'São Paulo, SP',
     coordinates: { lat: -23.5489, lng: -46.6388 },
     availability: ['Noites', 'Fins de semana'],
-    goal: 'Colaboração Pontual',
+    schedule: { Qua: ['Noite'], Qui: ['Noite'], Sáb: ['Tarde', 'Noite'] },
+    goals: ['Colaboração Pontual', 'Jam Session'],
+    equipment: 'Estúdio próprio',
+    bandExperience: { playedLive: true, recorded: true, yearsInBands: 12, notes: '12 anos de estrada em bandas de rock e blues.' },
+    softSkills: { punctuality: 4, commitment: 4, openness: 5 },
+    mediaSamples: [
+      { id: 's2a', type: 'video', uri: 'https://example.com/samples/bruno-solo.mp4', title: 'Solo de guitarra - blues', durationSec: 58, thumbnailUri: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200' },
+    ],
     connections: 178,
     bio: 'Guitarrista com 12 anos de estrada. Aberto a gravações, shows e jams.',
     vibeColor: '#DC2626',
@@ -106,7 +202,12 @@ export const MOCK_ARTISTS: Artist[] = [
     location: 'Santo André, SP',
     coordinates: { lat: -23.6639, lng: -46.5383 },
     availability: ['Fins de semana'],
-    goal: 'Banda Fixa',
+    schedule: { Sáb: ['Manhã', 'Tarde'], Dom: ['Tarde'] },
+    goals: ['Banda Fixa'],
+    equipment: 'Apenas instrumento',
+    bandExperience: { playedLive: true, recorded: false, yearsInBands: 6, notes: 'Toquei em uma banda de indie no ABC por 3 anos.' },
+    softSkills: { punctuality: 5, commitment: 4, openness: 3 },
+    mediaSamples: [],
     connections: 89,
     bio: 'Baterista de 6 anos. Adoro pop e indie. Quero entrar numa banda séria.',
     vibeColor: '#059669',
@@ -131,7 +232,15 @@ export const MOCK_ARTISTS: Artist[] = [
     location: 'São Paulo, SP',
     coordinates: { lat: -23.5630, lng: -46.6543 },
     availability: ['Dias úteis', 'Noites'],
-    goal: 'Trabalho Remunerado',
+    schedule: { Seg: ['Noite'], Ter: ['Noite'], Qua: ['Noite'], Qui: ['Noite'] },
+    goals: ['Trabalho Remunerado', 'Substituição Temporária'],
+    equipment: 'Equipamento portátil',
+    bandExperience: { playedLive: true, recorded: true, yearsInBands: 10, notes: 'Baixista de sessão, mais de 200 shows e 15 gravações.' },
+    softSkills: { punctuality: 5, commitment: 5, openness: 4 },
+    mediaSamples: [
+      { id: 's4a', type: 'audio', uri: 'https://example.com/samples/rafael-groove.mp3', title: 'Groove de funk', durationSec: 35 },
+      { id: 's4b', type: 'video', uri: 'https://example.com/samples/rafael-live.mp4', title: 'Ao vivo - Sesc', durationSec: 71, thumbnailUri: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=200' },
+    ],
     connections: 521,
     bio: 'Baixista de sessão com 10 anos. Gravações, shows, tournês. Entre em contato!',
     vibeColor: '#D97706',
@@ -156,7 +265,14 @@ export const MOCK_ARTISTS: Artist[] = [
     location: 'Campinas, SP',
     coordinates: { lat: -22.9099, lng: -47.0626 },
     availability: ['Fins de semana', 'Remoto'],
-    goal: 'Colaboração Pontual',
+    schedule: { Sex: ['Tarde', 'Noite'], Sáb: ['Manhã', 'Tarde', 'Noite'] },
+    goals: ['Colaboração Pontual'],
+    equipment: 'Estúdio próprio',
+    bandExperience: { playedLive: false, recorded: true, yearsInBands: 5, notes: 'Produção e trilhas. Prefiro trabalho em estúdio e remoto.' },
+    softSkills: { punctuality: 4, commitment: 4, openness: 5 },
+    mediaSamples: [
+      { id: 's5a', type: 'audio', uri: 'https://example.com/samples/camila-synth.mp3', title: 'Textura de synth', durationSec: 48 },
+    ],
     connections: 203,
     bio: 'Produtora e tecladista. Faço trilhas, arranjos e colaborações remotas.',
     vibeColor: '#7C3AED',
@@ -271,7 +387,14 @@ export const MY_PROFILE: Artist = {
   location: 'São Paulo, SP',
   coordinates: { lat: -23.561, lng: -46.656 },
   availability: ['Fins de semana', 'Noites'],
-  goal: 'Colaboração Pontual',
+  schedule: { Sex: ['Noite'], Sáb: ['Tarde', 'Noite'], Dom: ['Manhã', 'Tarde'] },
+  goals: ['Colaboração Pontual'],
+  equipment: 'Equipamento portátil',
+  bandExperience: { playedLive: true, recorded: true, yearsInBands: 9, notes: 'Shows intimistas e projetos autorais.' },
+  softSkills: { punctuality: 4, commitment: 5, openness: 5 },
+  mediaSamples: [
+    { id: 'me1', type: 'audio', uri: 'https://example.com/samples/frank-demo.mp3', title: 'Demo autoral', durationSec: 55 },
+  ],
   connections: 345,
   bio: 'Cantor e compositor. Estilo ao vivo intimista. Gosto de colaborações inusitadas.',
   vibeColor: '#1A2C8E',
