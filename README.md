@@ -108,7 +108,25 @@ cd soundmatch
 npm install
 ```
 
-### 3. Inicie o servidor de desenvolvimento
+### 3. Configure o backend (Supabase)
+
+O app usa o Supabase para autenticação, banco de dados e storage de mídia.
+
+1. Crie um projeto em [supabase.com](https://supabase.com).
+2. No **SQL Editor**, rode os scripts desta ordem:
+   - `supabase/schema.sql` — tabela `profiles`, Row Level Security e triggers.
+   - `supabase/storage.sql` — buckets de mídia (`avatars`, `media-samples`) e policies.
+3. Em **Authentication → Sign In / Providers → Email**, desative **Confirm email** para testar em desenvolvimento.
+4. Crie um arquivo **`.env.local`** na raiz com as credenciais do projeto (encontradas em **Project Settings → API**):
+
+```
+EXPO_PUBLIC_SUPABASE_URL=https://SEU-PROJETO.supabase.co
+EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sua-chave-publica
+```
+
+> As duas chaves são públicas e seguras para o app cliente. O que protege os dados é a Row Level Security. Nunca coloque a chave `service_role` no app.
+
+### 4. Inicie o servidor de desenvolvimento
 
 ```bash
 npx expo start --clear
@@ -167,27 +185,28 @@ O roadmap está organizado em três fases. Cada fase pressupõe a anterior como 
 Objetivo: transformar o perfil de músico em uma representação confiável e diferenciada do artista.
 
 **Perfil expandido**
-- [ ] Tela de criação/edição de perfil guiada (onboarding step-by-step)
-- [ ] Upload de amostras de áudio — trechos tocando para validar nível real além do autodeclarado
-- [ ] Upload de clipes de vídeo curtos (estilo reel) como vitrine artística
-- [ ] Campo de disponibilidade semanal — dias e horários fixos, formato calendário
-- [ ] Campo de equipamento — estúdio próprio, equipamento portátil ou só instrumento
-- [ ] Campo de experiência de banda — tocou ao vivo, gravou, tempo de banda anterior
-- [ ] Soft skills declaradas — pontualidade, compromisso, abertura a novos estilos
+- [x] Tela de criação/edição de perfil guiada (onboarding step-by-step)
+- [x] Upload de amostras de áudio — trechos tocando para validar nível real além do autodeclarado
+- [x] Upload de clipes de vídeo curtos (estilo reel) como vitrine artística
+- [x] Campo de disponibilidade semanal — dias e horários fixos, formato calendário
+- [x] Campo de equipamento — estúdio próprio, equipamento portátil ou só instrumento
+- [x] Campo de experiência de banda — tocou ao vivo, gravou, tempo de banda anterior
+- [x] Soft skills declaradas — pontualidade, compromisso, abertura a novos estilos
 
 **Objetivo de colaboração**
-- [ ] Seleção explícita do objetivo ao criar o perfil, com descrição de cada modalidade:
+- [x] Seleção explícita do objetivo ao criar o perfil, com descrição de cada modalidade:
   - Banda fixa (longo prazo)
   - Colaboração pontual (uma música, um cover, um projeto)
   - Jam session casual
   - Session / gravação remunerada
   - Substituição temporária (dependência de show)
-- [ ] Possibilidade de marcar múltiplos objetivos simultaneamente
+- [x] Possibilidade de marcar múltiplos objetivos simultaneamente
 
 **Infraestrutura**
+- [x] Autenticação por e-mail e senha (Supabase Auth, sessão persistente)
 - [ ] Autenticação via login social (Google / Apple)
-- [ ] Backend inicial (Firebase ou Supabase) para persistência de perfis
-- [ ] Storage de mídia (áudio e vídeo) com CDN
+- [x] Backend inicial com Supabase (Postgres) para persistência de perfis, com Row Level Security
+- [x] Storage de mídia (áudio, vídeo, foto de perfil e banner) com URLs públicas (CDN do Supabase)
 
 ---
 
