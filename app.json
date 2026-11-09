@@ -7,7 +7,16 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "dark",
     "scheme": "soundmatch",
-    "plugins": ["expo-router"],
+    "plugins": [
+      "expo-router",
+      "expo-sqlite",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O SoundMatch usa sua galeria para você adicionar amostras de áudio e vídeo tocando."
+        }
+      ]
+    ],
     "ios": {
       "supportsTablet": true
     },
