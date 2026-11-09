@@ -14,6 +14,13 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MOCK_ARTISTS } from '../../src/data/mockData';
 import { Colors } from '../../src/constants/colors';
+import {
+  AvailabilityGrid,
+  EquipmentSection,
+  BandExperienceSection,
+  SoftSkillsSection,
+} from '../../src/components/ProfileSections';
+import { MediaSamplesSection } from '../../src/components/MediaSamplesSection';
 
 const { width: W } = Dimensions.get('window');
 const WIDGET_HALF = (W - 48) / 2;
@@ -147,14 +154,21 @@ export default function ArtistProfileScreen() {
 
         {/* Goal */}
         <View style={styles.section}>
-          <Text style={styles.sectionLabel}>OBJETIVO</Text>
-          <View
-            style={[
-              styles.goalBadge,
-              { backgroundColor: GOAL_COLORS[artist.goal] ?? Colors.teal },
-            ]}
-          >
-            <Text style={styles.goalText}>{artist.goal}</Text>
+          <Text style={styles.sectionLabel}>
+            {artist.goals.length > 1 ? 'OBJETIVOS' : 'OBJETIVO'}
+          </Text>
+          <View style={styles.tagsRow}>
+            {artist.goals.map((goal) => (
+              <View
+                key={goal}
+                style={[
+                  styles.goalBadge,
+                  { backgroundColor: GOAL_COLORS[goal] ?? Colors.teal },
+                ]}
+              >
+                <Text style={styles.goalText}>{goal}</Text>
+              </View>
+            ))}
           </View>
         </View>
 
@@ -186,6 +200,21 @@ export default function ArtistProfileScreen() {
             <Text style={styles.locationText}>{artist.location}</Text>
           </View>
         </View>
+
+        {/* Availability (grade visual) */}
+        <AvailabilityGrid schedule={artist.schedule} />
+
+        {/* Equipment */}
+        <EquipmentSection equipment={artist.equipment} />
+
+        {/* Band experience */}
+        <BandExperienceSection experience={artist.bandExperience} />
+
+        {/* Soft skills */}
+        <SoftSkillsSection skills={artist.softSkills} />
+
+        {/* Media samples (somente leitura) */}
+        <MediaSamplesSection samples={artist.mediaSamples ?? []} />
 
         <View style={{ height: 120 }} />
       </ScrollView>

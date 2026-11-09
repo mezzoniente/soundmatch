@@ -51,8 +51,11 @@ function ArtistCard({
 
       {/* Top bar */}
       <View style={styles.cardTop}>
-        <View style={[styles.goalBadge, { backgroundColor: GOAL_COLORS[artist.goal] ?? Colors.teal }]}>
-          <Text style={styles.goalText}>{artist.goal}</Text>
+        <View style={[styles.goalBadge, { backgroundColor: GOAL_COLORS[artist.goals[0]] ?? Colors.teal }]}>
+          <Text style={styles.goalText}>
+            {artist.goals[0]}
+            {artist.goals.length > 1 ? ` +${artist.goals.length - 1}` : ''}
+          </Text>
         </View>
         {artist.matchScore !== undefined && (
           <View style={styles.matchBadge}>

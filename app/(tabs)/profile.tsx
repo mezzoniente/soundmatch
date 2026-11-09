@@ -10,16 +10,34 @@ import {
   Platform,
   StatusBar as RNStatusBar,
   Dimensions,
+  Alert,
 } from 'react-native';
-import { MY_PROFILE } from '../../src/data/mockData';
+import { useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
+import { useProfile } from '../../src/state/ProfileContext';
+import { useAuth } from '../../src/state/AuthContext';
+import {
+  AvailabilityGrid,
+  EquipmentSection,
+  BandExperienceSection,
+  SoftSkillsSection,
+} from '../../src/components/ProfileSections';
+import { MediaSamplesSection } from '../../src/components/MediaSamplesSection';
 
 const { width: W } = Dimensions.get('window');
 const WIDGET_HALF = (W - 48) / 2;
-const WIDGET_THIRD = (W - 56) / 3;
 
 export default function MyProfileScreen() {
-  const p = MY_PROFILE;
+  const router = useRouter();
+  const { profile: p, addMediaSample, removeMediaSample } = useProfile();
+  const { signOut } = useAuth();
+
+  const handleSignOut = () => {
+    Alert.alert('Sair', 'Deseja sair da sua conta?', [
+      { text: 'Cancelar', style: 'cancel' },
+      { text: 'Sair', style: 'destructive', onPress: () => signOut() },
+    ]);
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -31,11 +49,11 @@ export default function MyProfileScreen() {
 
           {/* Top bar */}
           <View style={styles.heroTopBar}>
-            <TouchableOpacity style={styles.editBtn}>
+            <TouchableOpacity style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
               <Text style={styles.editBtnText}>Editar Perfil</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.backBtn}>
-              <Text style={styles.backBtnIcon}>◁</Text>
+            <TouchableOpacity style={styles.backBtn} onPress={handleSignOut}>
+              <Text style={styles.backBtnIcon}>⏻</Text>
             </TouchableOpacity>
           </View>
 
@@ -114,7 +132,7 @@ export default function MyProfileScreen() {
               ]}
             >
               <Text style={styles.widgetIcon}>🎯</Text>
-              <Text style={styles.widgetTiny}>{p.goal}</Text>
+              <Text style={styles.widgetTiny}>{p.goals.join(' · ')}</Text>
             </View>
 
             {/* Fav album widget */}
@@ -152,17 +170,24 @@ export default function MyProfileScreen() {
           </View>
         </View>
 
-        {/* Availability */}
-        <View style={styles.section}>
-          <Text style={styles.sectionLabel}>DISPONIBILIDADE</Text>
-          <View style={styles.tagsRow}>
-            {p.availability.map((a) => (
-              <View key={a} style={styles.availTag}>
-                <Text style={styles.availText}>🕐 {a}</Text>
-              </View>
-            ))}
-          </View>
-        </View>
+        {/* Availability (grade visual) */}
+        <AvailabilityGrid schedule={p.schedule} />
+
+        {/* Equipment */}
+        <EquipmentSection equipment={p.equipment} />
+
+        {/* Band experience */}
+        <BandExperienceSection experience={p.bandExperience} />
+
+        {/* Soft skills */}
+        <SoftSkillsSection skills={p.softSkills} />
+
+        {/* Media samples (editável) */}
+        <MediaSamplesSection
+          samples={p.mediaSamples ?? []}
+          onAdd={addMediaSample}
+          onRemove={removeMediaSample}
+        />
 
         <View style={{ height: 32 }} />
       </ScrollView>
@@ -369,13 +394,4 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   influenceText: { color: Colors.textPrimary, fontSize: 13, fontWeight: '500' },
-  availTag: {
-    backgroundColor: 'rgba(0, 212, 200, 0.1)',
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: Colors.teal,
-  },
-  availText: { color: Colors.teal, fontSize: 13, fontWeight: '600' },
 });
