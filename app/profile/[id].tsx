@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -14,6 +14,9 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MOCK_ARTISTS } from '../../src/data/mockData';
 import { Colors } from '../../src/constants/colors';
+import { useProfile } from '../../src/state/ProfileContext';
+import { computeMatch } from '../../src/lib/matchEngine';
+import { MatchBreakdown } from '../../src/components/MatchBreakdown';
 import {
   AvailabilityGrid,
   EquipmentSection,
@@ -36,7 +39,18 @@ const GOAL_COLORS: Record<string, string> = {
 export default function ArtistProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const artist = MOCK_ARTISTS.find((a) => a.id === id);
+  const { profile: me } = useProfile();
+  const baseArtist = MOCK_ARTISTS.find((a) => a.id === id);
+
+  // Recalcula a compatibilidade com o motor real, em vez dos valores do mock.
+  const match = useMemo(
+    () => (baseArtist ? computeMatch(me, baseArtist) : undefined),
+    [baseArtist, me]
+  );
+  const artist = useMemo(() => {
+    if (!baseArtist || !match) return undefined;
+    return { ...baseArtist, matchScore: match.score, matchReasons: match.topReasons };
+  }, [baseArtist, match]);
 
   if (!artist) {
     return (
@@ -100,20 +114,9 @@ export default function ArtistProfileScreen() {
         </View>
 
         {/* Match score */}
-        {artist.matchScore !== undefined && (
-          <View style={styles.matchSection}>
-            <View style={styles.matchScoreCard}>
-              <Text style={styles.matchScoreNumber}>{artist.matchScore}%</Text>
-              <Text style={styles.matchScoreLabel}>Compatibilidade</Text>
-            </View>
-            <View style={styles.matchReasons}>
-              {artist.matchReasons?.map((r) => (
-                <View key={r} style={styles.reasonRow}>
-                  <Text style={styles.reasonCheck}>✓</Text>
-                  <Text style={styles.reasonText}>{r}</Text>
-                </View>
-              ))}
-            </View>
+        {match && (
+          <View style={styles.matchWrapper}>
+            <MatchBreakdown result={match} />
           </View>
         )}
 
@@ -358,30 +361,7 @@ const styles = StyleSheet.create({
   socialsRow: { flexDirection: 'row', gap: 10 },
   socialIcon: { fontSize: 20 },
 
-  matchSection: {
-    margin: 20,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 20,
-    padding: 16,
-    flexDirection: 'row',
-    gap: 16,
-    borderWidth: 1,
-    borderColor: Colors.teal,
-  },
-  matchScoreCard: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: Colors.teal,
-    borderRadius: 16,
-    padding: 12,
-    minWidth: 72,
-  },
-  matchScoreNumber: { fontSize: 26, fontWeight: '900', color: Colors.bg },
-  matchScoreLabel: { fontSize: 10, fontWeight: '700', color: Colors.bg, marginTop: 2 },
-  matchReasons: { flex: 1, gap: 6, justifyContent: 'center' },
-  reasonRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
-  reasonCheck: { color: Colors.green, fontWeight: '800', fontSize: 14 },
-  reasonText: { color: Colors.textSecondary, fontSize: 13, flex: 1 },
+  matchWrapper: { margin: 20 },
 
   section: { paddingHorizontal: 20, paddingTop: 20 },
   sectionLabel: {

@@ -1,21 +1,32 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
-  ScrollView,
   Image,
   Animated,
   PanResponder,
   SafeAreaView,
   Platform,
   StatusBar as RNStatusBar,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
-import { MOCK_ARTISTS, Artist } from '../../src/data/mockData';
+import { MOCK_ARTISTS, MOCK_OPENINGS, Artist, Opening } from '../../src/data/mockData';
+import { useProfile } from '../../src/state/ProfileContext';
+import { useFilters } from '../../src/state/FilterContext';
+import {
+  rankCandidates,
+  applyFilters,
+  activeFilterCount,
+  rankOpenings,
+} from '../../src/lib/matchEngine';
+import { fetchOpenings } from '../../src/lib/openingsRepository';
+import { OpeningCard } from '../../src/components/OpeningCard';
 
 const { width: W, height: H } = Dimensions.get('window');
 const SWIPE_THRESHOLD = W * 0.35;
@@ -102,29 +113,161 @@ function ArtistCard({
   );
 }
 
+/**
+ * Wrapper que calcula a lista recomendada a partir do perfil + filtros.
+ * Usa uma `key` derivada dos filtros para remontar o feed (fila nova) quando
+ * os filtros mudam, evitando sincronizar estado via setState em effect.
+ */
+type SearchMode = 'people' | 'openings';
+
 export default function DiscoverScreen() {
+  const { profile } = useProfile();
+  const { filters } = useFilters();
+  const [mode, setMode] = useState<SearchMode>('people');
+
+  const recommended = useMemo(() => {
+    const pool = MOCK_ARTISTS.filter((a) => a.id !== profile.id);
+    const filtered = applyFilters(profile, pool, filters);
+    return rankCandidates(profile, filtered, { radiusKm: filters.radiusKm });
+  }, [profile, filters]);
+
+  const filterCount = activeFilterCount(filters);
+  // Muda sempre que o perfil ou os filtros mudam → remonta o feed.
+  const feedKey = `${profile.id}|${JSON.stringify(filters)}`;
+
+  return (
+    <SafeAreaView style={styles.container}>
+      {/* Toggle Pessoas / Vagas */}
+      <View style={styles.modeToggle}>
+        <TouchableOpacity
+          style={[styles.modeBtn, mode === 'people' && styles.modeBtnActive]}
+          onPress={() => setMode('people')}
+        >
+          <Text style={[styles.modeText, mode === 'people' && styles.modeTextActive]}>
+            👤 Pessoas
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.modeBtn, mode === 'openings' && styles.modeBtnActive]}
+          onPress={() => setMode('openings')}
+        >
+          <Text style={[styles.modeText, mode === 'openings' && styles.modeTextActive]}>
+            📋 Vagas
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {mode === 'people' ? (
+        <DiscoverFeed key={feedKey} recommended={recommended} filterCount={filterCount} />
+      ) : (
+        <OpeningsFeed />
+      )}
+    </SafeAreaView>
+  );
+}
+
+/** Feed de vagas abertas, ordenadas por relevância ao usuário. */
+function OpeningsFeed() {
   const router = useRouter();
-  const [queue, setQueue] = useState<Artist[]>(MOCK_ARTISTS);
+  const { profile } = useProfile();
+  const [openings, setOpenings] = useState<Opening[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadOpenings = useCallback(async () => {
+    setLoading(true);
+    const fetched = await fetchOpenings();
+    // Fallback para mocks enquanto não há vagas reais cadastradas.
+    const source = fetched.length > 0 ? fetched : MOCK_OPENINGS;
+    setOpenings(rankOpenings(profile, source));
+    setLoading(false);
+  }, [profile]);
+
+  // Recarrega sempre que a aba de vagas é focada.
+  useFocusEffect(
+    useCallback(() => {
+      loadOpenings();
+    }, [loadOpenings])
+  );
+
+  return (
+    <View style={styles.feedBody}>
+      <View style={styles.openingsHeader}>
+        <Text style={styles.openingsTitle}>Vagas abertas</Text>
+        <TouchableOpacity style={styles.postBtn} onPress={() => router.push('/post-opening')}>
+          <Text style={styles.postBtnText}>+ Postar vaga</Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <View style={styles.openingsLoading}>
+          <ActivityIndicator color={Colors.teal} />
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.openingsList}
+          showsVerticalScrollIndicator={false}
+        >
+          {openings.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>📋</Text>
+              <Text style={styles.emptyTitle}>Nenhuma vaga ainda</Text>
+              <Text style={styles.emptySubtitle}>Seja o primeiro a postar uma vaga.</Text>
+            </View>
+          ) : (
+            openings.map((o) => <OpeningCard key={o.id} opening={o} />)
+          )}
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+function DiscoverFeed({
+  recommended,
+  filterCount,
+}: {
+  recommended: Artist[];
+  filterCount: number;
+}) {
+  const router = useRouter();
+
+  const [queue, setQueue] = useState<Artist[]>(recommended);
   const [accepted, setAccepted] = useState<string[]>([]);
   const [actionFeedback, setActionFeedback] = useState<'accept' | 'pass' | null>(null);
 
-  const position = useRef(new Animated.ValueXY()).current;
-  const rotate = position.x.interpolate({
-    inputRange: [-W / 2, 0, W / 2],
-    outputRange: ['-12deg', '0deg', '12deg'],
-  });
-  const likeOpacity = position.x.interpolate({
-    inputRange: [0, W * 0.2],
-    outputRange: [0, 1],
-    extrapolate: 'clamp',
-  });
-  const nopeOpacity = position.x.interpolate({
-    inputRange: [-W * 0.2, 0],
-    outputRange: [1, 0],
-    extrapolate: 'clamp',
-  });
+  // Valor animado da posição do cartão. Guardado em state com inicializador
+  // preguiçoso (não é um ref) para que as interpolações derivadas possam ser
+  // criadas no render sem violar as regras de hooks.
+  const [position] = useState(() => new Animated.ValueXY());
+  const { rotate, likeOpacity, nopeOpacity } = useMemo(
+    () => ({
+      rotate: position.x.interpolate({
+        inputRange: [-W / 2, 0, W / 2],
+        outputRange: ['-12deg', '0deg', '12deg'],
+      }),
+      likeOpacity: position.x.interpolate({
+        inputRange: [0, W * 0.2],
+        outputRange: [0, 1],
+        extrapolate: 'clamp',
+      }),
+      nopeOpacity: position.x.interpolate({
+        inputRange: [-W * 0.2, 0],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+      }),
+    }),
+    [position]
+  );
 
-  const panResponder = useRef(
+  // Mantém as ações de swipe num ref para o PanResponder (criado uma vez)
+  // sempre enxergar a versão mais recente, sem recriar os handlers.
+  const actionsRef = useRef({ swipeRight: () => {}, swipeLeft: () => {} });
+
+  // actionsRef só é lido dentro dos callbacks (em tempo de interação), nunca
+  // durante o render; a leitura aqui é segura — por isso a regra é suprimida.
+  // eslint-disable-next-line react-hooks/refs
+  const [panResponder] = useState(() =>
     PanResponder.create({
       onStartShouldSetPanResponder: () => true,
       onPanResponderMove: (_e, g) => {
@@ -132,9 +275,9 @@ export default function DiscoverScreen() {
       },
       onPanResponderRelease: (_e, g) => {
         if (g.dx > SWIPE_THRESHOLD) {
-          swipeRight();
+          actionsRef.current.swipeRight();
         } else if (g.dx < -SWIPE_THRESHOLD) {
-          swipeLeft();
+          actionsRef.current.swipeLeft();
         } else {
           Animated.spring(position, {
             toValue: { x: 0, y: 0 },
@@ -143,7 +286,7 @@ export default function DiscoverScreen() {
         }
       },
     })
-  ).current;
+  );
 
   const swipeRight = () => {
     const current = queue[0];
@@ -174,24 +317,38 @@ export default function DiscoverScreen() {
   };
 
   const resetQueue = () => {
-    setQueue(MOCK_ARTISTS);
+    setQueue(recommended);
     setAccepted([]);
   };
+
+  // Mantém o ref de ações apontando para as versões atuais (feito em effect,
+  // não no corpo do render, conforme as regras de hooks).
+  useEffect(() => {
+    actionsRef.current.swipeRight = swipeRight;
+    actionsRef.current.swipeLeft = swipeLeft;
+  });
 
   const currentArtist = queue[0];
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.feedBody}>
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerBtn}>
           <Text style={styles.headerIcon}>⋯</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.searchBtn}>
-          <Text style={styles.searchText}>🔍  Buscar</Text>
+        <TouchableOpacity style={styles.searchBtn} onPress={() => router.push('/filters')}>
+          <Text style={styles.searchText}>
+            🔍  {filterCount > 0 ? `${filterCount} filtro(s) ativo(s)` : 'Buscar e filtrar'}
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.headerBtn}>
-          <Text style={styles.headerIcon}>◁</Text>
+        <TouchableOpacity style={styles.headerBtn} onPress={() => router.push('/filters')}>
+          <Text style={styles.headerIcon}>⚙</Text>
+          {filterCount > 0 && (
+            <View style={styles.filterBadge}>
+              <Text style={styles.filterBadgeText}>{filterCount}</Text>
+            </View>
+          )}
         </TouchableOpacity>
       </View>
 
@@ -199,16 +356,28 @@ export default function DiscoverScreen() {
       <View style={styles.cardsArea}>
         {queue.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>🎵</Text>
-            <Text style={styles.emptyTitle}>Você viu todos!</Text>
-            <Text style={styles.emptySubtitle}>
-              {accepted.length > 0
-                ? `Você conectou com ${accepted.length} músico(s).`
-                : 'Nenhuma conexão ainda.'}
+            <Text style={styles.emptyIcon}>{filterCount > 0 ? '🔍' : '🎵'}</Text>
+            <Text style={styles.emptyTitle}>
+              {filterCount > 0 && recommended.length === 0
+                ? 'Nenhum resultado'
+                : 'Você viu todos!'}
             </Text>
-            <TouchableOpacity style={styles.resetBtn} onPress={resetQueue}>
-              <Text style={styles.resetText}>Ver novamente</Text>
-            </TouchableOpacity>
+            <Text style={styles.emptySubtitle}>
+              {filterCount > 0 && recommended.length === 0
+                ? 'Nenhum músico corresponde aos filtros. Tente afrouxá-los.'
+                : accepted.length > 0
+                  ? `Você conectou com ${accepted.length} músico(s).`
+                  : 'Nenhuma conexão ainda.'}
+            </Text>
+            {filterCount > 0 ? (
+              <TouchableOpacity style={styles.resetBtn} onPress={() => router.push('/filters')}>
+                <Text style={styles.resetText}>Ajustar filtros</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.resetBtn} onPress={resetQueue}>
+                <Text style={styles.resetText}>Ver novamente</Text>
+              </TouchableOpacity>
+            )}
           </View>
         ) : (
           <>
@@ -287,7 +456,7 @@ export default function DiscoverScreen() {
           <Text style={[styles.feedbackText, { color: Colors.red }]}>PASSA ✕</Text>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -299,6 +468,43 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.bg,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
+  feedBody: { flex: 1 },
+
+  // Toggle Pessoas/Vagas
+  modeToggle: {
+    flexDirection: 'row',
+    gap: 8,
+    marginHorizontal: 20,
+    marginTop: 8,
+    marginBottom: 4,
+    backgroundColor: Colors.bgCard,
+    borderRadius: 14,
+    padding: 4,
+  },
+  modeBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
+  modeBtnActive: { backgroundColor: Colors.teal },
+  modeText: { color: Colors.textSecondary, fontSize: 14, fontWeight: '700' },
+  modeTextActive: { color: Colors.bg },
+
+  // Vagas
+  openingsHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+  },
+  openingsTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
+  postBtn: {
+    backgroundColor: Colors.teal,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 12,
+  },
+  postBtnText: { color: Colors.bg, fontSize: 13, fontWeight: '700' },
+  openingsLoading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  openingsList: { paddingHorizontal: 20, paddingTop: 4, gap: 12 },
+
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -315,6 +521,19 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerIcon: { fontSize: 18, color: Colors.textPrimary },
+  filterBadge: {
+    position: 'absolute',
+    top: 2,
+    right: 2,
+    minWidth: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: Colors.teal,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 4,
+  },
+  filterBadgeText: { color: Colors.bg, fontSize: 10, fontWeight: '800' },
   searchBtn: {
     flexDirection: 'row',
     alignItems: 'center',

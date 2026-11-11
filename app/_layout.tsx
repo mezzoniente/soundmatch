@@ -4,6 +4,7 @@ import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { ProfileProvider, useProfile } from '../src/state/ProfileContext';
 import { AuthProvider, useAuth } from '../src/state/AuthContext';
+import { FilterProvider } from '../src/state/FilterContext';
 import { Colors } from '../src/constants/colors';
 
 /**
@@ -64,6 +65,14 @@ function AuthGate() {
         name="edit-profile"
         options={{ headerShown: false, presentation: 'modal' }}
       />
+      <Stack.Screen
+        name="filters"
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
+      <Stack.Screen
+        name="post-opening"
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
     </Stack>
   );
 }
@@ -72,10 +81,12 @@ export default function RootLayout() {
   return (
     <AuthProvider>
       <ProfileProvider>
-        <View style={styles.root}>
-          <StatusBar style="light" />
-          <AuthGate />
-        </View>
+        <FilterProvider>
+          <View style={styles.root}>
+            <StatusBar style="light" />
+            <AuthGate />
+          </View>
+        </FilterProvider>
       </ProfileProvider>
     </AuthProvider>
   );

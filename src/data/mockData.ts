@@ -19,6 +19,30 @@ export type Instrument =
 
 export type SkillLevel = 'Iniciante' | 'Intermediário' | 'Avançado' | 'Profissional';
 
+/** Vaga aberta postada por um usuário ("procuramos baterista para indie rock"). */
+export interface Opening {
+  id: string;
+  authorId: string;
+  /** Nome do autor, para exibição (resolvido na leitura). */
+  authorName?: string;
+  authorAvatar?: string;
+  title: string;
+  description: string;
+  /** Instrumentos procurados. */
+  instruments: Instrument[];
+  genres: string[];
+  /** Nível desejado; undefined = qualquer. */
+  level?: SkillLevel;
+  goal: CollabGoal;
+  location: string;
+  coordinates?: { lat: number; lng: number };
+  isOpen: boolean;
+  createdAt?: string;
+  /** Relevância calculada para o usuário atual (0–100). */
+  matchScore?: number;
+  matchReasons?: string[];
+}
+
 /** Dias da semana usados na grade de disponibilidade. */
 export type Weekday = 'Seg' | 'Ter' | 'Qua' | 'Qui' | 'Sex' | 'Sáb' | 'Dom';
 
@@ -415,4 +439,53 @@ export const MAP_MARKERS = [
   { id: 'm6', type: 'event', name: 'Open Mic - Sesc Vila Mariana', lat: -23.598, lng: -46.638, intensity: 0.95 },
   { id: 'm7', type: 'artist', name: 'Lara Kim', lat: -23.664, lng: -46.538, intensity: 0.5 },
   { id: 'm8', type: 'vaga', name: 'Guitarrista p/ gravação', lat: -23.541, lng: -46.647, intensity: 0.75 },
+];
+
+export const MOCK_OPENINGS: Opening[] = [
+  {
+    id: 'op1',
+    authorId: '3',
+    authorName: 'Lara Kim',
+    authorAvatar: 'https://i.pravatar.cc/100?img=32',
+    title: 'Banda indie procura vocalista',
+    description:
+      'Temos base instrumental (bateria, baixo, guitarra) e buscamos voz para shows autorais. Ensaios aos sábados no ABC.',
+    instruments: ['Voz'],
+    genres: ['Indie', 'Pop'],
+    level: 'Intermediário',
+    goal: 'Banda Fixa',
+    location: 'Santo André, SP',
+    coordinates: { lat: -23.6639, lng: -46.5383 },
+    isOpen: true,
+  },
+  {
+    id: 'op2',
+    authorId: '4',
+    authorName: 'Rafael Torres',
+    authorAvatar: 'https://i.pravatar.cc/100?img=65',
+    title: 'Guitarrista para gravação remunerada',
+    description:
+      'Sessão de gravação de um EP de funk/jazz. Cachê combinado. Precisa ler cifra e ter equipamento próprio.',
+    instruments: ['Guitarra'],
+    genres: ['Funk', 'Jazz'],
+    level: 'Avançado',
+    goal: 'Trabalho Remunerado',
+    location: 'São Paulo, SP',
+    coordinates: { lat: -23.563, lng: -46.654 },
+    isOpen: true,
+  },
+  {
+    id: 'op3',
+    authorId: '2',
+    authorName: 'Bruno Carrasco',
+    authorAvatar: 'https://i.pravatar.cc/100?img=12',
+    title: 'Tecladista para jam de blues',
+    description: 'Jam casual de blues/rock nas noites de quarta. Sem compromisso, só diversão.',
+    instruments: ['Teclado'],
+    genres: ['Blues', 'Rock'],
+    goal: 'Jam Session',
+    location: 'São Paulo, SP',
+    coordinates: { lat: -23.5489, lng: -46.6388 },
+    isOpen: true,
+  },
 ];
