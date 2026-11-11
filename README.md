@@ -230,9 +230,9 @@ Objetivo: fazer o motor de match trabalhar com critérios musicais reais.
 - [x] Filtros de busca: instrumento, nível, gênero, localização, objetivo, disponibilidade
 
 **Resolução do cold start**
-- [ ] Perfil mínimo viável para entrar no feed de recomendações
-- [ ] Boost inicial para novos perfis aparecerem nas primeiras sessões de outros usuários
-- [ ] Sugestão de completar o perfil com gamificação (barra de progresso, pontos)
+- [x] Perfil mínimo viável para entrar no feed de recomendações
+- [x] Boost inicial para novos perfis aparecerem nas primeiras sessões de outros usuários
+- [x] Sugestão de completar o perfil com gamificação (barra de progresso, pontos)
 
 ---
 
