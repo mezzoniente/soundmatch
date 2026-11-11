@@ -116,6 +116,7 @@ O app usa o Supabase para autenticação, banco de dados e storage de mídia.
 2. No **SQL Editor**, rode os scripts desta ordem:
    - `supabase/schema.sql` — tabela `profiles`, Row Level Security e triggers.
    - `supabase/storage.sql` — buckets de mídia (`avatars`, `media-samples`) e policies.
+   - `supabase/openings.sql` — tabela `openings` (vagas abertas) e policies.
 3. Em **Authentication → Sign In / Providers → Email**, desative **Confirm email** para testar em desenvolvimento.
 4. Crie um arquivo **`.env.local`** na raiz com as credenciais do projeto (encontradas em **Project Settings → API**):
 
@@ -215,18 +216,18 @@ Objetivo: transformar o perfil de músico em uma representação confiável e di
 Objetivo: fazer o motor de match trabalhar com critérios musicais reais.
 
 **Motor de recomendação multicritério**
-- [ ] Complementaridade de instrumento — banda que precisa de baixista não recebe mais baixistas
-- [ ] Proximidade geográfica com raio ajustável pelo usuário
-- [ ] Sobreposição de gêneros e influências declaradas
-- [ ] Compatibilidade de nível — evitar frustração entre iniciante e avançado sem ser restritivo
-- [ ] Overlap de disponibilidade semanal entre os dois perfis
-- [ ] Histórico de avaliações de colaborações anteriores como fator de confiança
-- [ ] Explicação do match visível no cartão — "por que esse artista apareceu para você"
+- [x] Complementaridade de instrumento — banda que precisa de baixista não recebe mais baixistas
+- [x] Proximidade geográfica com raio ajustável pelo usuário
+- [x] Sobreposição de gêneros e influências declaradas
+- [x] Compatibilidade de nível — evitar frustração entre iniciante e avançado sem ser restritivo
+- [x] Overlap de disponibilidade semanal entre os dois perfis
+- [ ] Histórico de avaliações de colaborações anteriores como fator de confiança (depende da Fase 3)
+- [x] Explicação do match visível no cartão — "por que esse artista apareceu para você"
 
 **Busca por vaga vs busca por pessoa**
-- [ ] Bandas podem postar vagas abertas ("procuramos baterista para projeto de indie rock")
-- [ ] Músicos solo postam disponibilidade e são encontrados pelas vagas
-- [ ] Filtros de busca: instrumento, nível, gênero, localização, objetivo, disponibilidade
+- [x] Bandas podem postar vagas abertas ("procuramos baterista para projeto de indie rock")
+- [x] Músicos solo postam disponibilidade e são encontrados pelas vagas
+- [x] Filtros de busca: instrumento, nível, gênero, localização, objetivo, disponibilidade
 
 **Resolução do cold start**
 - [ ] Perfil mínimo viável para entrar no feed de recomendações
