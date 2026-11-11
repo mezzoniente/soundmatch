@@ -35,6 +35,7 @@ interface ProfileRow {
   avatar_url: string | null;
   cover_url: string | null;
   is_onboarded: boolean;
+  created_at: string | null;
 }
 
 /**
@@ -73,6 +74,7 @@ function rowToArtist(row: ProfileRow): Artist {
     coverImage: row.cover_url || MY_PROFILE.coverImage,
     avatarUrl: row.avatar_url ?? undefined,
     coverUrl: row.cover_url ?? undefined,
+    createdAt: row.created_at ?? undefined,
   };
 }
 

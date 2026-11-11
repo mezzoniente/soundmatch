@@ -147,6 +147,8 @@ export interface Artist {
   /** URLs de mídia enviadas pelo usuário ao storage (undefined = ainda não enviou). */
   avatarUrl?: string;
   coverUrl?: string;
+  /** Data de criação do perfil (ISO). Usada no boost de perfis novos. */
+  createdAt?: string;
 }
 
 export const MOCK_ARTISTS: Artist[] = [

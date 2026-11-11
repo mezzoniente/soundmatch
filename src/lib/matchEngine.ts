@@ -217,6 +217,26 @@ export interface MatchOptions {
   radiusKm?: number;
   /** Pesos customizados por critério. */
   weights?: Partial<Record<CriterionKey, number>>;
+  /** Aplica boost a perfis novos (cold start). Default: true. */
+  boostNewProfiles?: boolean;
+}
+
+/** Janela (dias) em que um perfil novo recebe boost, e o bônus máximo de score. */
+export const NEW_PROFILE_BOOST_DAYS = 14;
+const NEW_PROFILE_MAX_BONUS = 12;
+
+/**
+ * Bônus de score para perfis recém-criados, decaindo linearmente ao longo de
+ * NEW_PROFILE_BOOST_DAYS. Resolve parte do cold start: perfis novos aparecem
+ * mais no topo nas primeiras duas semanas.
+ */
+export function newProfileBonus(createdAt?: string): number {
+  if (!createdAt) return 0;
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return 0;
+  const ageDays = (Date.now() - created) / (1000 * 60 * 60 * 24);
+  if (ageDays < 0 || ageDays > NEW_PROFILE_BOOST_DAYS) return 0;
+  return Math.round(NEW_PROFILE_MAX_BONUS * (1 - ageDays / NEW_PROFILE_BOOST_DAYS));
 }
 
 /**
@@ -263,15 +283,19 @@ export function rankCandidates(
   candidates: Artist[],
   options: MatchOptions = {}
 ): Artist[] {
+  const boostEnabled = options.boostNewProfiles ?? true;
   return candidates
     .map((candidate) => {
       const result = computeMatch(me, candidate, options);
+      const bonus = boostEnabled ? newProfileBonus(candidate.createdAt) : 0;
+      // O boost afeta a ordenação, mas o score exibido fica limitado a 100.
+      const displayScore = Math.min(100, result.score + bonus);
       return {
-        artist: { ...candidate, matchScore: result.score, matchReasons: result.topReasons },
-        score: result.score,
+        artist: { ...candidate, matchScore: displayScore, matchReasons: result.topReasons },
+        rankScore: result.score + bonus,
       };
     })
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.rankScore - a.rankScore)
     .map((entry) => entry.artist);
 }
 

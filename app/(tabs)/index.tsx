@@ -27,6 +27,7 @@ import {
 } from '../../src/lib/matchEngine';
 import { fetchOpenings } from '../../src/lib/openingsRepository';
 import { OpeningCard } from '../../src/components/OpeningCard';
+import { evaluateCompleteness } from '../../src/lib/profileCompleteness';
 
 const { width: W, height: H } = Dimensions.get('window');
 const SWIPE_THRESHOLD = W * 0.35;
@@ -126,7 +127,11 @@ export default function DiscoverScreen() {
   const [mode, setMode] = useState<SearchMode>('people');
 
   const recommended = useMemo(() => {
-    const pool = MOCK_ARTISTS.filter((a) => a.id !== profile.id);
+    const pool = MOCK_ARTISTS.filter(
+      (a) =>
+        // Exclui o próprio perfil e perfis incompletos (cold start).
+        a.id !== profile.id && evaluateCompleteness(a).meetsMinimum
+    );
     const filtered = applyFilters(profile, pool, filters);
     return rankCandidates(profile, filtered, { radiusKm: filters.radiusKm });
   }, [profile, filters]);

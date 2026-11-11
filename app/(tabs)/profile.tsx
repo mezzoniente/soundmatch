@@ -23,6 +23,8 @@ import {
   SoftSkillsSection,
 } from '../../src/components/ProfileSections';
 import { MediaSamplesSection } from '../../src/components/MediaSamplesSection';
+import { CompletenessCard } from '../../src/components/CompletenessCard';
+import { evaluateCompleteness } from '../../src/lib/profileCompleteness';
 
 const { width: W } = Dimensions.get('window');
 const WIDGET_HALF = (W - 48) / 2;
@@ -31,6 +33,7 @@ export default function MyProfileScreen() {
   const router = useRouter();
   const { profile: p, addMediaSample, removeMediaSample } = useProfile();
   const { signOut } = useAuth();
+  const completeness = evaluateCompleteness(p);
 
   const handleSignOut = () => {
     Alert.alert('Sair', 'Deseja sair da sua conta?', [
@@ -78,6 +81,9 @@ export default function MyProfileScreen() {
             </View>
           </View>
         </View>
+
+        {/* Completude do perfil (gamificação do cold start) */}
+        <CompletenessCard result={completeness} />
 
         {/* Traits grid */}
         <View style={styles.section}>
