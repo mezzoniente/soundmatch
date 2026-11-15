@@ -73,6 +73,11 @@ function AuthGate() {
         name="post-opening"
         options={{ headerShown: false, presentation: 'modal' }}
       />
+      <Stack.Screen
+        name="review/[id]"
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
+      <Stack.Screen name="chat/[id]" options={{ headerShown: false }} />
     </Stack>
   );
 }

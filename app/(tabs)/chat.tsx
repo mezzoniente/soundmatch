@@ -12,12 +12,13 @@ import {
   TextInput,
   KeyboardAvoidingView,
 } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
 import { MOCK_JAMS, MOCK_DMS, JamRoom, DMConversation } from '../../src/data/mockData';
 
-function JamCard({ jam }: { jam: JamRoom }) {
+function JamCard({ jam, onPress }: { jam: JamRoom; onPress: () => void }) {
   return (
-    <TouchableOpacity style={styles.conversationCard} activeOpacity={0.8}>
+    <TouchableOpacity style={styles.conversationCard} activeOpacity={0.8} onPress={onPress}>
       <Image source={{ uri: jam.cover }} style={styles.conversationCover} />
       <View style={styles.conversationInfo}>
         <View style={styles.conversationHeader}>
@@ -52,9 +53,9 @@ function JamCard({ jam }: { jam: JamRoom }) {
   );
 }
 
-function DMCard({ dm }: { dm: DMConversation }) {
+function DMCard({ dm, onPress }: { dm: DMConversation; onPress: () => void }) {
   return (
-    <TouchableOpacity style={styles.conversationCard} activeOpacity={0.8}>
+    <TouchableOpacity style={styles.conversationCard} activeOpacity={0.8} onPress={onPress}>
       <Image source={{ uri: dm.avatar }} style={styles.dmAvatar} />
       <View style={styles.conversationInfo}>
         <View style={styles.conversationHeader}>
@@ -79,6 +80,7 @@ function DMCard({ dm }: { dm: DMConversation }) {
 }
 
 export default function ChatScreen() {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredJams = MOCK_JAMS.filter((j) =>
@@ -127,7 +129,9 @@ export default function ChatScreen() {
           </View>
 
           {filteredJams.length > 0 ? (
-            filteredJams.map((jam) => <JamCard key={jam.id} jam={jam} />)
+            filteredJams.map((jam) => (
+              <JamCard key={jam.id} jam={jam} onPress={() => router.push(`/chat/${jam.id}`)} />
+            ))
           ) : (
             <Text style={styles.emptyText}>Nenhuma jam encontrada</Text>
           )}
@@ -138,7 +142,9 @@ export default function ChatScreen() {
           </View>
 
           {filteredDMs.length > 0 ? (
-            filteredDMs.map((dm) => <DMCard key={dm.id} dm={dm} />)
+            filteredDMs.map((dm) => (
+              <DMCard key={dm.id} dm={dm} onPress={() => router.push(`/chat/${dm.id}`)} />
+            ))
           ) : (
             <Text style={styles.emptyText}>Nenhuma DM encontrada</Text>
           )}
