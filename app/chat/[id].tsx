@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -13,13 +13,29 @@ import {
   Image,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as DocumentPicker from 'expo-document-picker';
 import { Colors } from '../../src/constants/colors';
 import { MessageBubble } from '../../src/components/MessageBubble';
-import { MOCK_DMS, MOCK_JAMS, MOCK_MESSAGES, type ChatMessage } from '../../src/data/mockData';
+import { useAuth } from '../../src/state/AuthContext';
+import {
+  fetchMessages,
+  sendMessage,
+  subscribeToMessages,
+} from '../../src/lib/messagesRepository';
+import { notifyLocal } from '../../src/lib/notifications';
+import {
+  MOCK_DMS,
+  MOCK_JAMS,
+  MOCK_MESSAGES,
+  type ChatMessage,
+  type MessageAudio,
+} from '../../src/data/mockData';
 
 export default function ConversationScreen() {
   const router = useRouter();
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { user } = useAuth();
+  const conversationId = id ?? '';
 
   // Resolve o título e avatar a partir dos mocks de DM/Jam.
   const dm = MOCK_DMS.find((d) => d.id === id);
@@ -27,25 +43,87 @@ export default function ConversationScreen() {
   const title = dm?.name ?? jam?.name ?? 'Conversa';
   const subtitle = jam ? `${jam.participants.length} participante(s)` : undefined;
 
-  const [messages, setMessages] = useState<ChatMessage[]>(
-    // Mensagens mais recentes embaixo; FlatList invertida renderiza do fim p/ o topo.
-    [...(MOCK_MESSAGES[id ?? ''] ?? [])].reverse()
-  );
+  // Lista em ordem cronológica crescente no estado; a FlatList inverte para render.
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [draft, setDraft] = useState('');
+  // Áudio anexado, aguardando envio.
+  const [pendingAudio, setPendingAudio] = useState<MessageAudio | null>(null);
   const listRef = useRef<FlatList<ChatMessage>>(null);
 
-  const send = () => {
-    const text = draft.trim();
-    if (!text) return;
-    const message: ChatMessage = {
-      id: `local-${Date.now()}`,
-      senderId: 'me',
-      senderName: 'Você',
-      text,
-      createdAt: new Date().toISOString(),
+  // Carrega o histórico do banco; cai nos mocks se a conversa ainda não tem nada.
+  useEffect(() => {
+    if (!user) return;
+    let active = true;
+    (async () => {
+      const remote = await fetchMessages(conversationId, user.id);
+      if (!active) return;
+      setMessages(remote.length > 0 ? remote : (MOCK_MESSAGES[conversationId] ?? []));
+    })();
+    return () => {
+      active = false;
     };
-    setMessages((prev) => [message, ...prev]);
+  }, [conversationId, user]);
+
+  // Assina novas mensagens em tempo real.
+  useEffect(() => {
+    if (!conversationId) return;
+    const unsubscribe = subscribeToMessages(conversationId, (row) => {
+      const fromOther = row.sender_id !== user?.id;
+      setMessages((prev) => {
+        // Evita duplicar uma mensagem que o próprio cliente acabou de inserir.
+        if (prev.some((m) => m.id === row.id)) return prev;
+        const name = fromOther ? 'Músico' : 'Você';
+        return [
+          ...prev,
+          {
+            id: row.id,
+            senderId: row.sender_id,
+            senderName: name,
+            text: row.text,
+            audio: row.audio ?? undefined,
+            createdAt: row.created_at,
+          },
+        ];
+      });
+      // Notificação local para mensagens recebidas de outra pessoa.
+      if (fromOther) {
+        notifyLocal(title, row.text || 'Enviou um áudio', { conversationId });
+      }
+    });
+    return unsubscribe;
+  }, [conversationId, user?.id, title]);
+
+  const attachAudio = async () => {
+    const result = await DocumentPicker.getDocumentAsync({
+      type: 'audio/*',
+      copyToCacheDirectory: true,
+    });
+    if (result.canceled || result.assets.length === 0) return;
+    const asset = result.assets[0];
+    setPendingAudio({ uri: asset.uri, title: asset.name ?? 'Áudio' });
+  };
+
+  const send = async () => {
+    const text = draft.trim();
+    if ((!text && !pendingAudio) || !user) return;
+    const audio = pendingAudio ?? undefined;
     setDraft('');
+    setPendingAudio(null);
+    // A mensagem aparece via Realtime; o fallback local cobre o caso offline.
+    const { error } = await sendMessage(conversationId, user.id, text, audio);
+    if (error) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `local-${Date.now()}`,
+          senderId: 'me',
+          senderName: 'Você',
+          text,
+          audio,
+          createdAt: new Date().toISOString(),
+        },
+      ]);
+    }
   };
 
   return (
@@ -76,18 +154,37 @@ export default function ConversationScreen() {
         {/* Mensagens */}
         <FlatList
           ref={listRef}
-          data={messages}
+          data={[...messages].reverse()}
           keyExtractor={(m) => m.id}
           renderItem={({ item }) => (
-            <MessageBubble message={item} isMine={item.senderId === 'me'} showSender={Boolean(jam)} />
+            <MessageBubble
+              message={item}
+              isMine={item.senderId === 'me' || item.senderId === user?.id}
+              showSender={Boolean(jam)}
+            />
           )}
           inverted
           contentContainerStyle={styles.messagesList}
           showsVerticalScrollIndicator={false}
         />
 
+        {/* Áudio anexado, aguardando envio */}
+        {pendingAudio ? (
+          <View style={styles.pendingAudio}>
+            <Text style={styles.pendingText} numberOfLines={1}>
+              🎵 {pendingAudio.title}
+            </Text>
+            <TouchableOpacity onPress={() => setPendingAudio(null)}>
+              <Text style={styles.pendingRemove}>✕</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+
         {/* Composer */}
         <View style={styles.composer}>
+          <TouchableOpacity style={styles.attachBtn} onPress={attachAudio}>
+            <Text style={styles.attachIcon}>🎵</Text>
+          </TouchableOpacity>
           <TextInput
             style={styles.input}
             placeholder="Mensagem..."
@@ -97,9 +194,9 @@ export default function ConversationScreen() {
             multiline
           />
           <TouchableOpacity
-            style={[styles.sendBtn, !draft.trim() && styles.sendBtnDisabled]}
+            style={[styles.sendBtn, !draft.trim() && !pendingAudio && styles.sendBtnDisabled]}
             onPress={send}
-            disabled={!draft.trim()}
+            disabled={!draft.trim() && !pendingAudio}
           >
             <Text style={styles.sendIcon}>➤</Text>
           </TouchableOpacity>
@@ -133,6 +230,22 @@ const styles = StyleSheet.create({
 
   messagesList: { padding: 16, gap: 8 },
 
+  pendingAudio: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 10,
+    marginHorizontal: 12,
+    marginBottom: 4,
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    backgroundColor: Colors.bgCard,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.teal,
+  },
+  pendingText: { flex: 1, color: Colors.textPrimary, fontSize: 13 },
+  pendingRemove: { color: Colors.textSecondary, fontSize: 16, paddingHorizontal: 4 },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
@@ -142,6 +255,17 @@ const styles = StyleSheet.create({
     borderTopColor: Colors.border,
     backgroundColor: Colors.bg,
   },
+  attachBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: Colors.bgCard,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  attachIcon: { fontSize: 18 },
   input: {
     flex: 1,
     maxHeight: 120,

@@ -351,6 +351,12 @@ export interface DMConversation {
   unread?: number;
 }
 
+/** Anexo de áudio de uma mensagem (referência musical). */
+export interface MessageAudio {
+  uri: string;
+  title: string;
+}
+
 /** Mensagem de uma conversa (DM ou Jam). */
 export interface ChatMessage {
   id: string;
@@ -359,6 +365,8 @@ export interface ChatMessage {
   senderName: string;
   senderAvatar?: string;
   text: string;
+  /** Anexo de áudio opcional, tocável direto no balão. */
+  audio?: MessageAudio;
   /** Timestamp ISO. */
   createdAt: string;
 }
@@ -609,6 +617,22 @@ export const MOCK_MESSAGES: Record<string, ChatMessage[]> = {
       senderAvatar: 'https://i.pravatar.cc/100?img=12',
       text: 'Posso levar minha pedaleira?',
       createdAt: '2026-11-08T12:48:00Z',
+    },
+    {
+      id: 'm_d1_4',
+      senderId: '2',
+      senderName: 'Bruno Carrasco',
+      senderAvatar: 'https://i.pravatar.cc/100?img=12',
+      text: 'Ouve essa referência de tom:',
+      audio: { uri: 'https://example.com/samples/bruno-ref.mp3', title: 'Referência - tom da música' },
+      createdAt: '2026-11-08T12:50:00Z',
+    },
+    {
+      id: 'm_d1_5',
+      senderId: 'me',
+      senderName: 'Você',
+      text: 'Curti! Lembrou essa: https://open.spotify.com/track/exemplo',
+      createdAt: '2026-11-08T12:52:00Z',
     },
   ],
   d3: [

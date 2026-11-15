@@ -6,6 +6,10 @@ import { ProfileProvider, useProfile } from '../src/state/ProfileContext';
 import { AuthProvider, useAuth } from '../src/state/AuthContext';
 import { FilterProvider } from '../src/state/FilterContext';
 import { Colors } from '../src/constants/colors';
+import { configureNotificationHandler, registerPushToken } from '../src/lib/notifications';
+
+// Define como as notificações aparecem com o app aberto (executa uma vez).
+configureNotificationHandler();
 
 /**
  * Redireciona com base na sessão e no estado de onboarding:
@@ -14,10 +18,15 @@ import { Colors } from '../src/constants/colors';
  * - logado e com perfil -> app (tabs)
  */
 function AuthGate() {
-  const { session, isLoading } = useAuth();
+  const { session, user, isLoading } = useAuth();
   const { isOnboarded, isHydrating } = useProfile();
   const segments = useSegments();
   const router = useRouter();
+
+  // Registra o push token ao logar (tolerante ao Expo Go: no-op se indisponível).
+  useEffect(() => {
+    if (user) registerPushToken(user.id);
+  }, [user]);
 
   useEffect(() => {
     // Aguarda tanto a sessão quanto o perfil carregarem antes de decidir a rota.
