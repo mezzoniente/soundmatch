@@ -7,14 +7,12 @@ import {
   SafeAreaView,
   Platform,
   StatusBar as RNStatusBar,
-  Dimensions,
   ScrollView,
 } from 'react-native';
 import MapView, { Marker, Circle, PROVIDER_DEFAULT } from 'react-native-maps';
+import { useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
 import { MAP_MARKERS } from '../../src/data/mockData';
-
-const { width: W } = Dimensions.get('window');
 
 const SCALES = ['1:500', '1:1000', '1:5000', '1:10000'];
 
@@ -33,6 +31,7 @@ const MARKER_ICONS: Record<string, string> = {
 type FilterType = 'all' | 'artist' | 'event' | 'vaga';
 
 export default function MapScreen() {
+  const router = useRouter();
   const [scaleIdx, setScaleIdx] = useState(1);
   const [filter, setFilter] = useState<FilterType>('all');
   const [selected, setSelected] = useState<string | null>(null);
@@ -166,8 +165,9 @@ export default function MapScreen() {
 
       {/* Bottom buttons */}
       <View style={styles.bottomBtns}>
-        <TouchableOpacity style={styles.bottomBtn}>
-          <Text style={styles.bottomBtnIcon}>⚓</Text>
+        <TouchableOpacity style={styles.studiosBtn} onPress={() => router.push('/studios')}>
+          <Text style={styles.studiosIcon}>🎛️</Text>
+          <Text style={styles.studiosLabel}>Estúdios perto</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomBtn}>
           <Text style={styles.bottomBtnIcon}>📍</Text>
@@ -319,6 +319,17 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   bottomBtnIcon: { fontSize: 22 },
+  studiosBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    height: 52,
+    paddingHorizontal: 18,
+    borderRadius: 26,
+    backgroundColor: Colors.teal,
+  },
+  studiosIcon: { fontSize: 20 },
+  studiosLabel: { color: Colors.bg, fontSize: 14, fontWeight: '800' },
 });
 
 // Dark map style matching the app theme

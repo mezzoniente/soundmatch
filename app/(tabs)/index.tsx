@@ -16,7 +16,14 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
-import { MOCK_ARTISTS, MOCK_OPENINGS, Artist, Opening } from '../../src/data/mockData';
+import {
+  MOCK_ARTISTS,
+  MOCK_OPENINGS,
+  MOCK_EVENTS,
+  Artist,
+  Opening,
+  MusicEvent,
+} from '../../src/data/mockData';
 import { useProfile } from '../../src/state/ProfileContext';
 import { useFilters } from '../../src/state/FilterContext';
 import {
@@ -24,9 +31,12 @@ import {
   applyFilters,
   activeFilterCount,
   rankOpenings,
+  rankEvents,
 } from '../../src/lib/matchEngine';
 import { fetchOpenings } from '../../src/lib/openingsRepository';
+import { fetchEvents } from '../../src/lib/eventsRepository';
 import { OpeningCard } from '../../src/components/OpeningCard';
+import { EventCard } from '../../src/components/EventCard';
 import { evaluateCompleteness } from '../../src/lib/profileCompleteness';
 
 const { width: W, height: H } = Dimensions.get('window');
@@ -119,7 +129,7 @@ function ArtistCard({
  * Usa uma `key` derivada dos filtros para remontar o feed (fila nova) quando
  * os filtros mudam, evitando sincronizar estado via setState em effect.
  */
-type SearchMode = 'people' | 'openings';
+type SearchMode = 'people' | 'openings' | 'events';
 
 export default function DiscoverScreen() {
   const { profile } = useProfile();
@@ -142,7 +152,7 @@ export default function DiscoverScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Toggle Pessoas / Vagas */}
+      {/* Toggle Pessoas / Vagas / Eventos */}
       <View style={styles.modeToggle}>
         <TouchableOpacity
           style={[styles.modeBtn, mode === 'people' && styles.modeBtnActive]}
@@ -160,12 +170,22 @@ export default function DiscoverScreen() {
             📋 Vagas
           </Text>
         </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.modeBtn, mode === 'events' && styles.modeBtnActive]}
+          onPress={() => setMode('events')}
+        >
+          <Text style={[styles.modeText, mode === 'events' && styles.modeTextActive]}>
+            🎪 Eventos
+          </Text>
+        </TouchableOpacity>
       </View>
 
       {mode === 'people' ? (
         <DiscoverFeed key={feedKey} recommended={recommended} filterCount={filterCount} />
-      ) : (
+      ) : mode === 'openings' ? (
         <OpeningsFeed />
+      ) : (
+        <EventsFeed />
       )}
     </SafeAreaView>
   );
@@ -220,6 +240,61 @@ function OpeningsFeed() {
             </View>
           ) : (
             openings.map((o) => <OpeningCard key={o.id} opening={o} />)
+          )}
+          <View style={{ height: 24 }} />
+        </ScrollView>
+      )}
+    </View>
+  );
+}
+
+/** Feed de eventos/demandas, ordenados por relevância ao usuário. */
+function EventsFeed() {
+  const router = useRouter();
+  const { profile } = useProfile();
+  const [events, setEvents] = useState<MusicEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const loadEvents = useCallback(async () => {
+    setLoading(true);
+    const fetched = await fetchEvents();
+    const source = fetched.length > 0 ? fetched : MOCK_EVENTS;
+    setEvents(rankEvents(profile, source));
+    setLoading(false);
+  }, [profile]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadEvents();
+    }, [loadEvents])
+  );
+
+  return (
+    <View style={styles.feedBody}>
+      <View style={styles.openingsHeader}>
+        <Text style={styles.openingsTitle}>Eventos</Text>
+        <TouchableOpacity style={styles.postBtn} onPress={() => router.push('/post-event')}>
+          <Text style={styles.postBtnText}>+ Postar evento</Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <View style={styles.openingsLoading}>
+          <ActivityIndicator color={Colors.teal} />
+        </View>
+      ) : (
+        <ScrollView
+          contentContainerStyle={styles.openingsList}
+          showsVerticalScrollIndicator={false}
+        >
+          {events.length === 0 ? (
+            <View style={styles.emptyState}>
+              <Text style={styles.emptyIcon}>🎪</Text>
+              <Text style={styles.emptyTitle}>Nenhum evento ainda</Text>
+              <Text style={styles.emptySubtitle}>Poste uma demanda para encontrar músicos.</Text>
+            </View>
+          ) : (
+            events.map((e) => <EventCard key={e.id} event={e} />)
           )}
           <View style={{ height: 24 }} />
         </ScrollView>
