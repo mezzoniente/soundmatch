@@ -12,7 +12,7 @@ import {
   Dimensions,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { MOCK_ARTISTS } from '../../src/data/mockData';
+import { MOCK_ARTISTS, MOCK_REVIEWS } from '../../src/data/mockData';
 import { Colors } from '../../src/constants/colors';
 import { useProfile } from '../../src/state/ProfileContext';
 import { computeMatch } from '../../src/lib/matchEngine';
@@ -24,6 +24,10 @@ import {
   SoftSkillsSection,
 } from '../../src/components/ProfileSections';
 import { MediaSamplesSection } from '../../src/components/MediaSamplesSection';
+import { ReviewsSection } from '../../src/components/ReviewsSection';
+import { CollaborationsSection } from '../../src/components/CollaborationsSection';
+import { VerifiedBadge } from '../../src/components/VerifiedBadge';
+import { isVerified, collaborationsFromReviews } from '../../src/lib/trust';
 
 const { width: W } = Dimensions.get('window');
 const WIDGET_HALF = (W - 48) / 2;
@@ -65,6 +69,9 @@ export default function ArtistProfileScreen() {
     );
   }
 
+  const verified = isVerified(artist);
+  const reviews = MOCK_REVIEWS[artist.id] ?? [];
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -89,6 +96,11 @@ export default function ArtistProfileScreen() {
           {/* Name hero */}
           <View style={styles.heroName}>
             <Text style={styles.heroNameText}>{artist.name}</Text>
+            {verified && (
+              <View style={styles.verifiedRow}>
+                <VerifiedBadge />
+              </View>
+            )}
           </View>
 
           {/* Photo card */}
@@ -219,6 +231,17 @@ export default function ArtistProfileScreen() {
         {/* Media samples (somente leitura) */}
         <MediaSamplesSection samples={artist.mediaSamples ?? []} />
 
+        {/* Avaliações / reputação */}
+        <ReviewsSection
+          ratingAvg={artist.ratingAvg ?? 0}
+          ratingCount={artist.ratingCount ?? 0}
+          reviews={reviews}
+          onAddReview={() => router.push(`/review/${artist.id}`)}
+        />
+
+        {/* Histórico de colaborações (derivado das avaliações) */}
+        <CollaborationsSection collaborations={collaborationsFromReviews(reviews)} />
+
         <View style={{ height: 120 }} />
       </ScrollView>
 
@@ -315,6 +338,7 @@ const styles = StyleSheet.create({
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
+  verifiedRow: { flexDirection: 'row', marginTop: 8 },
 
   photoCard: {
     marginHorizontal: 20,

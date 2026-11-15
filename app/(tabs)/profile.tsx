@@ -25,6 +25,8 @@ import {
 import { MediaSamplesSection } from '../../src/components/MediaSamplesSection';
 import { CompletenessCard } from '../../src/components/CompletenessCard';
 import { evaluateCompleteness } from '../../src/lib/profileCompleteness';
+import { VerifiedBadge } from '../../src/components/VerifiedBadge';
+import { isVerified } from '../../src/lib/trust';
 
 const { width: W } = Dimensions.get('window');
 const WIDGET_HALF = (W - 48) / 2;
@@ -76,8 +78,11 @@ export default function MyProfileScreen() {
           {/* Name */}
           <View style={styles.heroBottom}>
             <Text style={styles.heroName}>{p.name}</Text>
-            <View style={styles.roleBadge}>
-              <Text style={styles.roleText}>{p.role}</Text>
+            <View style={styles.roleBadgeRow}>
+              <View style={styles.roleBadge}>
+                <Text style={styles.roleText}>{p.role}</Text>
+              </View>
+              {isVerified(p) && <VerifiedBadge />}
             </View>
           </View>
         </View>
@@ -299,11 +304,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 24,
-    marginTop: 8,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   roleText: { color: Colors.textPrimary, fontWeight: '600', fontSize: 14 },
+  roleBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' },
 
   // Sections
   section: { padding: 20, paddingTop: 24 },

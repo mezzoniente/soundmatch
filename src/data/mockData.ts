@@ -19,6 +19,20 @@ export type Instrument =
 
 export type SkillLevel = 'Iniciante' | 'Intermediário' | 'Avançado' | 'Profissional';
 
+/** Avaliação pós-colaboração (nota + comentário de um músico sobre outro). */
+export interface Review {
+  id: string;
+  reviewerId: string;
+  revieweeId: string;
+  /** Nome/foto do autor, resolvidos na leitura. */
+  reviewerName?: string;
+  reviewerAvatar?: string;
+  rating: number;
+  comment: string;
+  context: string;
+  createdAt?: string;
+}
+
 /** Vaga aberta postada por um usuário ("procuramos baterista para indie rock"). */
 export interface Opening {
   id: string;
@@ -149,6 +163,10 @@ export interface Artist {
   coverUrl?: string;
   /** Data de criação do perfil (ISO). Usada no boost de perfis novos. */
   createdAt?: string;
+  /** Média de avaliações recebidas (0 se nunca foi avaliado). */
+  ratingAvg?: number;
+  /** Quantidade de avaliações recebidas. */
+  ratingCount?: number;
 }
 
 export const MOCK_ARTISTS: Artist[] = [
@@ -333,6 +351,18 @@ export interface DMConversation {
   unread?: number;
 }
 
+/** Mensagem de uma conversa (DM ou Jam). */
+export interface ChatMessage {
+  id: string;
+  /** id do remetente ('me' para o usuário atual). */
+  senderId: string;
+  senderName: string;
+  senderAvatar?: string;
+  text: string;
+  /** Timestamp ISO. */
+  createdAt: string;
+}
+
 export const MOCK_JAMS: JamRoom[] = [
   {
     id: 'j1',
@@ -491,3 +521,121 @@ export const MOCK_OPENINGS: Opening[] = [
     isOpen: true,
   },
 ];
+
+/**
+ * Reputação demonstrativa por artista (preenchida nos mocks abaixo).
+ * Em produção, vem das colunas rating_avg/rating_count da tabela profiles.
+ */
+const MOCK_RATINGS: Record<string, { ratingAvg: number; ratingCount: number }> = {
+  '1': { ratingAvg: 4.8, ratingCount: 12 },
+  '2': { ratingAvg: 4.3, ratingCount: 7 },
+  '3': { ratingAvg: 4.0, ratingCount: 3 },
+  '4': { ratingAvg: 4.9, ratingCount: 21 },
+  '5': { ratingAvg: 4.5, ratingCount: 9 },
+};
+
+// Aplica a reputação demonstrativa aos mocks (não polui cada objeto acima).
+MOCK_ARTISTS.forEach((a) => {
+  const r = MOCK_RATINGS[a.id];
+  if (r) {
+    a.ratingAvg = r.ratingAvg;
+    a.ratingCount = r.ratingCount;
+  }
+});
+
+/** Avaliações demonstrativas exibidas no perfil de alguns artistas. */
+export const MOCK_REVIEWS: Record<string, Review[]> = {
+  '1': [
+    {
+      id: 'r1',
+      reviewerId: '2',
+      revieweeId: '1',
+      reviewerName: 'Bruno Carrasco',
+      reviewerAvatar: 'https://i.pravatar.cc/100?img=12',
+      rating: 5,
+      comment: 'Voz incrível e super pontual. Fechamos vários ensaios sem atraso.',
+      context: 'Banda de soul',
+      createdAt: '2026-09-10T20:00:00Z',
+    },
+    {
+      id: 'r2',
+      reviewerId: '4',
+      revieweeId: '1',
+      reviewerName: 'Rafael Torres',
+      reviewerAvatar: 'https://i.pravatar.cc/100?img=65',
+      rating: 5,
+      comment: 'Profissionalismo de sobra. Recomendo para qualquer projeto autoral.',
+      context: 'Gravação de single',
+      createdAt: '2026-08-02T15:30:00Z',
+    },
+  ],
+  '4': [
+    {
+      id: 'r3',
+      reviewerId: '1',
+      revieweeId: '4',
+      reviewerName: 'Mariana Luz',
+      reviewerAvatar: 'https://i.pravatar.cc/100?img=47',
+      rating: 5,
+      comment: 'Baixista impecável, leu tudo de primeira na sessão.',
+      context: 'Sessão de gravação',
+      createdAt: '2026-07-21T18:00:00Z',
+    },
+  ],
+};
+
+/** Mensagens iniciais por conversa (chave = id da DM ou Jam). */
+export const MOCK_MESSAGES: Record<string, ChatMessage[]> = {
+  d1: [
+    {
+      id: 'm_d1_1',
+      senderId: '2',
+      senderName: 'Bruno Carrasco',
+      senderAvatar: 'https://i.pravatar.cc/100?img=12',
+      text: 'E aí! Vi seu perfil, curti demais o som.',
+      createdAt: '2026-11-08T12:40:00Z',
+    },
+    {
+      id: 'm_d1_2',
+      senderId: 'me',
+      senderName: 'Você',
+      text: 'Valeu! Também curti suas gravações. Bora marcar uma jam?',
+      createdAt: '2026-11-08T12:44:00Z',
+    },
+    {
+      id: 'm_d1_3',
+      senderId: '2',
+      senderName: 'Bruno Carrasco',
+      senderAvatar: 'https://i.pravatar.cc/100?img=12',
+      text: 'Posso levar minha pedaleira?',
+      createdAt: '2026-11-08T12:48:00Z',
+    },
+  ],
+  d3: [
+    {
+      id: 'm_d3_1',
+      senderId: '4',
+      senderName: 'Rafael Torres',
+      senderAvatar: 'https://i.pravatar.cc/100?img=65',
+      text: 'Fechado! 500 por show.',
+      createdAt: '2026-11-07T19:00:00Z',
+    },
+  ],
+  j1: [
+    {
+      id: 'm_j1_1',
+      senderId: '1',
+      senderName: 'Mariana Luz',
+      senderAvatar: 'https://i.pravatar.cc/100?img=47',
+      text: 'Galera, subi a base nova no drive.',
+      createdAt: '2026-11-08T14:20:00Z',
+    },
+    {
+      id: 'm_j1_2',
+      senderId: 'cj',
+      senderName: 'CJ',
+      text: 'kd o frank oceano?',
+      createdAt: '2026-11-08T14:32:00Z',
+    },
+  ],
+};
