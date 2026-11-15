@@ -117,6 +117,7 @@ O app usa o Supabase para autenticação, banco de dados e storage de mídia.
    - `supabase/schema.sql` — tabela `profiles`, Row Level Security e triggers.
    - `supabase/storage.sql` — buckets de mídia (`avatars`, `media-samples`) e policies.
    - `supabase/openings.sql` — tabela `openings` (vagas abertas) e policies.
+   - `supabase/reviews.sql` — tabela `reviews` (avaliações), policies e trigger de reputação.
 3. Em **Authentication → Sign In / Providers → Email**, desative **Confirm email** para testar em desenvolvimento.
 4. Crie um arquivo **`.env.local`** na raiz com as credenciais do projeto (encontradas em **Project Settings → API**):
 
@@ -241,12 +242,12 @@ Objetivo: fazer o motor de match trabalhar com critérios musicais reais.
 Objetivo: transformar o primeiro match em uma colaboração real e sustentável.
 
 **Sistema de confiança**
-- [ ] Avaliação pós-colaboração (modelo Uber / Airbnb) — nota e comentário após cada parceria
-- [ ] Badge de "perfil verificado" para quem subiu amostra de áudio ou vídeo
-- [ ] Histórico público de colaborações concluídas no perfil
+- [x] Avaliação pós-colaboração (modelo Uber / Airbnb) — nota e comentário após cada parceria
+- [x] Badge de "perfil verificado" para quem subiu amostra de áudio ou vídeo
+- [x] Histórico público de colaborações concluídas no perfil
 
 **Chat aprimorado**
-- [ ] Tela interna de conversa com mensagens em tempo real
+- [~] Tela interna de conversa (envio de mensagens funcional; tempo real ainda pendente)
 - [ ] Preview de áudio embutido no chat — trocar referências musicais direto na conversa
 - [ ] Compartilhamento de links do Spotify / YouTube / SoundCloud inline
 - [ ] Notificações push para novos matches e mensagens
