@@ -57,6 +57,51 @@ export interface Opening {
   matchReasons?: string[];
 }
 
+/**
+ * Evento / demanda de contratante com data marcada
+ * ("preciso de banda cover para casamento no dia X").
+ */
+export interface MusicEvent {
+  id: string;
+  authorId: string;
+  authorName?: string;
+  authorAvatar?: string;
+  title: string;
+  description: string;
+  /** Tipo do evento: Casamento, Festa, Bar, Corporativo, etc. */
+  eventType: string;
+  instruments: Instrument[];
+  genres: string[];
+  /** Data do evento (ISO yyyy-mm-dd). */
+  eventDate?: string;
+  /** Cachê oferecido (texto livre). */
+  budget: string;
+  location: string;
+  coordinates?: { lat: number; lng: number };
+  isOpen: boolean;
+  createdAt?: string;
+  matchScore?: number;
+  matchReasons?: string[];
+}
+
+/** Estúdio ou espaço de ensaio parceiro (conteúdo curado pela plataforma). */
+export interface Studio {
+  id: string;
+  name: string;
+  /** Tipo: Estúdio de gravação, Sala de ensaio, Espaço para eventos... */
+  kind: string;
+  description: string;
+  address: string;
+  coordinates: { lat: number; lng: number };
+  /** Faixa de preço (texto livre: "R$ 40/h", "a partir de R$ 300"). */
+  price: string;
+  /** Comodidades principais. */
+  amenities: string[];
+  image: string;
+  /** Distância em km até o usuário (calculada na listagem). */
+  distanceKm?: number;
+}
+
 /** Dias da semana usados na grade de disponibilidade. */
 export type Weekday = 'Seg' | 'Ter' | 'Qua' | 'Qui' | 'Sex' | 'Sáb' | 'Dom';
 
@@ -663,3 +708,115 @@ export const MOCK_MESSAGES: Record<string, ChatMessage[]> = {
     },
   ],
 };
+
+/** Tipos de evento sugeridos no formulário. */
+export const EVENT_TYPES: string[] = [
+  'Casamento',
+  'Festa',
+  'Bar / Restaurante',
+  'Corporativo',
+  'Aniversário',
+  'Formatura',
+  'Culto / Igreja',
+];
+
+/** Eventos demonstrativos para o feed. */
+export const MOCK_EVENTS: MusicEvent[] = [
+  {
+    id: 'ev1',
+    authorId: '4',
+    authorName: 'Rafael Torres',
+    authorAvatar: 'https://i.pravatar.cc/100?img=65',
+    title: 'Banda cover para casamento',
+    description:
+      'Casamento no fim de tarde, repertório MPB e pop romântico. Precisamos de banda completa para 3h de show.',
+    eventType: 'Casamento',
+    instruments: ['Voz', 'Violão', 'Teclado'],
+    genres: ['MPB', 'Pop'],
+    eventDate: '2026-12-13',
+    budget: 'R$ 2.500',
+    location: 'São Paulo, SP',
+    coordinates: { lat: -23.5505, lng: -46.6333 },
+    isOpen: true,
+  },
+  {
+    id: 'ev2',
+    authorId: '2',
+    authorName: 'Bruno Carrasco',
+    authorAvatar: 'https://i.pravatar.cc/100?img=12',
+    title: 'Noite de blues em bar',
+    description: 'Bar no centro procura duo/trio de blues para sexta à noite. Som fornecido pela casa.',
+    eventType: 'Bar / Restaurante',
+    instruments: ['Guitarra', 'Voz'],
+    genres: ['Blues', 'Rock'],
+    eventDate: '2026-11-27',
+    budget: 'R$ 600',
+    location: 'São Paulo, SP',
+    coordinates: { lat: -23.5489, lng: -46.6388 },
+    isOpen: true,
+  },
+  {
+    id: 'ev3',
+    authorId: '1',
+    authorName: 'Mariana Luz',
+    authorAvatar: 'https://i.pravatar.cc/100?img=47',
+    title: 'Evento corporativo - jazz ao vivo',
+    description: 'Coquetel corporativo precisa de jazz instrumental para ambientação. 2h de música.',
+    eventType: 'Corporativo',
+    instruments: ['Saxofone', 'Teclado', 'Baixo'],
+    genres: ['Jazz'],
+    eventDate: '2026-12-05',
+    budget: 'a combinar',
+    location: 'Campinas, SP',
+    coordinates: { lat: -22.9099, lng: -47.0626 },
+    isOpen: true,
+  },
+];
+
+/** Estúdios/espaços parceiros demonstrativos (conteúdo curado). */
+export const MOCK_STUDIOS: Studio[] = [
+  {
+    id: 'st1',
+    name: 'Estúdio Harmonia',
+    kind: 'Estúdio de gravação',
+    description: 'Estúdio profissional com sala de captação, mixagem e masterização.',
+    address: 'Vila Madalena, São Paulo, SP',
+    coordinates: { lat: -23.5546, lng: -46.6896 },
+    price: 'R$ 120/h',
+    amenities: ['Sala tratada', 'Técnico incluso', 'Estacionamento'],
+    image: 'https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=500',
+  },
+  {
+    id: 'st2',
+    name: 'Ensaio 24h',
+    kind: 'Sala de ensaio',
+    description: 'Salas de ensaio com backline completo, abertas 24 horas.',
+    address: 'Pinheiros, São Paulo, SP',
+    coordinates: { lat: -23.5629, lng: -46.6825 },
+    price: 'R$ 40/h',
+    amenities: ['Backline', 'Ar-condicionado', 'Aberto 24h'],
+    image: 'https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=500',
+  },
+  {
+    id: 'st3',
+    name: 'Casa do Som',
+    kind: 'Espaço para eventos',
+    description: 'Espaço para shows e eventos com palco, PA e camarim.',
+    address: 'Centro, São Paulo, SP',
+    coordinates: { lat: -23.5505, lng: -46.6333 },
+    price: 'a partir de R$ 800',
+    amenities: ['Palco', 'PA profissional', 'Camarim'],
+    image: 'https://images.unsplash.com/photo-1501612780327-45045538702b?w=500',
+  },
+  {
+    id: 'st4',
+    name: 'Bunker Rehearsal',
+    kind: 'Sala de ensaio',
+    description: 'Salas acústicas para bandas, com gravação de ensaio opcional.',
+    address: 'Santo André, SP',
+    coordinates: { lat: -23.6639, lng: -46.5383 },
+    price: 'R$ 55/h',
+    amenities: ['Isolamento acústico', 'Gravação de ensaio'],
+    image: 'https://images.unsplash.com/photo-1511192336575-5a79af67a629?w=500',
+  },
+];

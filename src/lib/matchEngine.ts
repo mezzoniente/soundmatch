@@ -3,8 +3,10 @@ import type {
   AvailabilitySchedule,
   CollabGoal,
   Instrument,
+  MusicEvent,
   Opening,
   SkillLevel,
+  Studio,
   TimeSlot,
   Weekday,
 } from '../data/mockData';
@@ -504,4 +506,111 @@ export function rankOpenings(me: Artist, openings: Opening[]): Opening[] {
     })
     .sort((a, b) => b.score - a.score)
     .map((e) => e.opening);
+}
+
+// ---------- Relevância de eventos ----------
+
+/** Mapeia o dia da semana de uma data (0=domingo) para o rótulo usado na grade. */
+const WEEKDAY_LABEL: Weekday[] = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+function weekdayOf(dateIso?: string): Weekday | null {
+  if (!dateIso) return null;
+  const d = new Date(`${dateIso}T12:00:00`);
+  if (Number.isNaN(d.getTime())) return null;
+  return WEEKDAY_LABEL[d.getDay()];
+}
+
+/**
+ * Relevância de um evento para o usuário. Além de instrumento/estilo/proximidade,
+ * o diferencial é a DISPONIBILIDADE NA DATA: o músico tem algum turno livre no
+ * dia da semana do evento?
+ */
+export function computeEventMatch(me: Artist, event: MusicEvent): MatchResult {
+  // Instrumento procurado
+  const iPlay = new Set(me.instruments.map((i) => i.toLowerCase()));
+  const wanted = event.instruments.map((i) => i.toLowerCase());
+  const plays = wanted.some((w) => iPlay.has(w));
+  const instrument: CriterionScore = {
+    key: 'instrument',
+    label: 'Instrumento',
+    score: wanted.length === 0 ? 0.5 : plays ? 1 : 0,
+    weight: 0.3,
+    reason: plays ? `Você toca ${event.instruments.join(', ')}` : `Procuram ${event.instruments.join(', ')}`,
+  };
+
+  // Estilo
+  const genreHits = overlapCount(me.genres, event.genres);
+  const genres: CriterionScore = {
+    key: 'genres',
+    label: 'Estilo',
+    score: event.genres.length === 0 ? 0.5 : Math.min(1, genreHits / 1),
+    weight: 0.2,
+    reason: genreHits > 0 ? `Gêneros em comum (${genreHits})` : 'Estilos diferentes',
+  };
+
+  // Disponibilidade na data do evento
+  const day = weekdayOf(event.eventDate);
+  const freeThatDay = day ? (me.schedule?.[day]?.length ?? 0) > 0 : false;
+  const availability: CriterionScore = {
+    key: 'availability',
+    label: 'Disponibilidade',
+    score: !day ? 0.5 : freeThatDay ? 1 : 0.2,
+    weight: 0.3,
+    reason: !day
+      ? 'Data a confirmar'
+      : freeThatDay
+        ? `Livre em ${day}`
+        : `Sem agenda em ${day}`,
+  };
+
+  // Proximidade
+  let proximityScore = 0.5;
+  let proximityReason = 'Localização a confirmar';
+  if (event.coordinates) {
+    const dist = distanceKm(me.coordinates, event.coordinates);
+    proximityScore = Math.max(0, 1 - dist / DEFAULT_RADIUS_KM);
+    proximityReason = dist < 1 ? 'Na sua região' : `A ~${Math.round(dist)} km`;
+  }
+  const proximity: CriterionScore = {
+    key: 'proximity',
+    label: 'Proximidade',
+    score: proximityScore,
+    weight: 0.2,
+    reason: proximityReason,
+  };
+
+  const criteria = [instrument, genres, availability, proximity];
+  const totalWeight = criteria.reduce((s, c) => s + c.weight, 0) || 1;
+  const weighted = criteria.reduce((s, c) => s + c.score * c.weight, 0);
+  const score = Math.round((weighted / totalWeight) * 100);
+  const breakdown = [...criteria].sort((a, b) => b.score * b.weight - a.score * a.weight);
+  const topReasons = breakdown
+    .filter((c) => c.score >= 0.5)
+    .slice(0, 3)
+    .map((c) => c.reason);
+
+  return { score, breakdown, topReasons };
+}
+
+/** Ordena eventos pela relevância ao usuário. */
+export function rankEvents(me: Artist, events: MusicEvent[]): MusicEvent[] {
+  return events
+    .map((e) => {
+      const result = computeEventMatch(me, e);
+      return { event: { ...e, matchScore: result.score, matchReasons: result.topReasons }, score: result.score };
+    })
+    .sort((a, b) => b.score - a.score)
+    .map((entry) => entry.event);
+}
+
+// ---------- Estúdios parceiros ----------
+
+/**
+ * Ordena estúdios/espaços pela proximidade ao usuário, anexando a distância.
+ * Usado para sugerir locais de ensaio/gravação perto do músico.
+ */
+export function rankStudiosByProximity(me: Artist, studios: Studio[]): Studio[] {
+  return studios
+    .map((s) => ({ ...s, distanceKm: distanceKm(me.coordinates, s.coordinates) }))
+    .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
 }
