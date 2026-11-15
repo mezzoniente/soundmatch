@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { Colors } from '../constants/colors';
+import { ChatAudioPreview } from './ChatAudioPreview';
+import { ChatLinkCard } from './ChatLinkCard';
+import { extractLink } from '../lib/linkDetection';
 import type { ChatMessage } from '../data/mockData';
 
 interface MessageBubbleProps {
@@ -19,6 +22,9 @@ function formatTime(iso: string): string {
 
 /** Balão de mensagem de chat. */
 export function MessageBubble({ message, isMine, showSender }: MessageBubbleProps) {
+  // Separa um eventual link do texto para exibi-lo como cartão.
+  const { text: displayText, link } = extractLink(message.text);
+
   return (
     <View style={[styles.row, isMine ? styles.rowMine : styles.rowTheirs]}>
       {!isMine && showSender && message.senderAvatar ? (
@@ -28,7 +34,26 @@ export function MessageBubble({ message, isMine, showSender }: MessageBubbleProp
         {!isMine && showSender ? (
           <Text style={styles.sender}>{message.senderName}</Text>
         ) : null}
-        <Text style={[styles.text, isMine && styles.textMine]}>{message.text}</Text>
+
+        {/* Texto (sem a URL, que vira cartão abaixo) */}
+        {displayText.length > 0 ? (
+          <Text style={[styles.text, isMine && styles.textMine]}>{displayText}</Text>
+        ) : null}
+
+        {/* Anexo de áudio */}
+        {message.audio ? (
+          <View style={styles.attachment}>
+            <ChatAudioPreview audio={message.audio} mine={isMine} />
+          </View>
+        ) : null}
+
+        {/* Cartão de link musical */}
+        {link ? (
+          <View style={styles.attachment}>
+            <ChatLinkCard link={link} mine={isMine} />
+          </View>
+        ) : null}
+
         <Text style={[styles.time, isMine && styles.timeMine]}>{formatTime(message.createdAt)}</Text>
       </View>
     </View>
@@ -54,6 +79,7 @@ const styles = StyleSheet.create({
   },
   sender: { fontSize: 12, fontWeight: '700', color: Colors.teal, marginBottom: 2 },
   text: { fontSize: 15, color: Colors.textPrimary, lineHeight: 20 },
+  attachment: { marginTop: 6 },
   textMine: { color: Colors.bg },
   time: { fontSize: 10, color: Colors.textSecondary, marginTop: 3, alignSelf: 'flex-end' },
   timeMine: { color: 'rgba(10,14,26,0.6)' },
