@@ -16,7 +16,8 @@ export type CriterionKey =
   | 'genres'
   | 'level'
   | 'availability'
-  | 'goals';
+  | 'goals'
+  | 'reputation';
 
 /** Resultado de um único critério. */
 export interface CriterionScore {
@@ -42,12 +43,13 @@ export interface MatchResult {
 
 /** Pesos padrão de cada critério (somam 1). */
 export const DEFAULT_WEIGHTS: Record<CriterionKey, number> = {
-  instrument: 0.25,
-  proximity: 0.2,
-  genres: 0.2,
-  level: 0.15,
-  availability: 0.1,
-  goals: 0.1,
+  instrument: 0.22,
+  proximity: 0.18,
+  genres: 0.18,
+  level: 0.14,
+  availability: 0.09,
+  goals: 0.09,
+  reputation: 0.1,
 };
 
 const LEVEL_RANK: Record<SkillLevel, number> = {
@@ -210,6 +212,43 @@ function scoreGoals(me: Artist, other: Artist): CriterionScore {
   return { key: 'goals', label: 'Objetivo', score, weight: DEFAULT_WEIGHTS.goals, reason };
 }
 
+/**
+ * Reputação do candidato a partir das avaliações recebidas.
+ * Combina a nota média com a confiança (quantas avaliações): poucas avaliações
+ * puxam o score para um valor neutro, evitando que 1 nota 5 valha como 20.
+ * Quem ainda não tem avaliações recebe um valor NEUTRO (0.6), para não penalizar
+ * perfis novos — isso se complementa com o boost de cold start.
+ */
+function scoreReputation(other: Artist): CriterionScore {
+  const avg = other.ratingAvg ?? 0;
+  const count = other.ratingCount ?? 0;
+
+  if (count === 0) {
+    return {
+      key: 'reputation',
+      label: 'Reputação',
+      score: 0.6,
+      weight: DEFAULT_WEIGHTS.reputation,
+      reason: 'Sem avaliações ainda',
+    };
+  }
+
+  // Fator de confiança: satura em ~5 avaliações.
+  const confidence = Math.min(1, count / 5);
+  // Nota normalizada (1–5 -> 0–1), ponderada pela confiança rumo ao neutro (0.6).
+  const normalized = (avg - 1) / 4;
+  const score = 0.6 + (normalized - 0.6) * confidence + 0.4 * confidence * normalized;
+  const clamped = Math.max(0, Math.min(1, score));
+
+  return {
+    key: 'reputation',
+    label: 'Reputação',
+    score: clamped,
+    weight: DEFAULT_WEIGHTS.reputation,
+    reason: `${avg.toFixed(1)}★ em ${count} avaliação(ões)`,
+  };
+}
+
 // ---------- Motor ----------
 
 export interface MatchOptions {
@@ -254,6 +293,7 @@ export function computeMatch(me: Artist, other: Artist, options: MatchOptions = 
     scoreLevel(me, other),
     scoreAvailability(me, other),
     scoreGoals(me, other),
+    scoreReputation(other),
   ].map((c) => ({ ...c, weight: weights[c.key] }));
 
   const totalWeight = criteria.reduce((sum, c) => sum + c.weight, 0) || 1;

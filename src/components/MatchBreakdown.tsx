@@ -10,6 +10,7 @@ const CRITERION_ICON: Record<CriterionKey, string> = {
   level: '⭐',
   availability: '🗓️',
   goals: '🎯',
+  reputation: '🏅',
 };
 
 /** Cor da barra conforme a força do critério. */
