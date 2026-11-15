@@ -36,6 +36,8 @@ interface ProfileRow {
   cover_url: string | null;
   is_onboarded: boolean;
   created_at: string | null;
+  rating_avg: number | null;
+  rating_count: number | null;
 }
 
 /**
@@ -75,6 +77,8 @@ function rowToArtist(row: ProfileRow): Artist {
     avatarUrl: row.avatar_url ?? undefined,
     coverUrl: row.cover_url ?? undefined,
     createdAt: row.created_at ?? undefined,
+    ratingAvg: row.rating_avg ?? 0,
+    ratingCount: row.rating_count ?? 0,
   };
 }
 
