@@ -119,6 +119,7 @@ O app usa o Supabase para autenticação, banco de dados e storage de mídia.
    - `supabase/openings.sql` — tabela `openings` (vagas abertas) e policies.
    - `supabase/reviews.sql` — tabela `reviews` (avaliações), policies e trigger de reputação.
    - `supabase/messages.sql` — tabela `messages` (chat), policies e publicação Realtime.
+   - `supabase/events.sql` — tabela `events` (demandas de contratantes) e policies.
    - `supabase/push_tokens.sql` — tabela `push_tokens` (opcional; para push remoto futuro).
 3. Em **Authentication → Sign In / Providers → Email**, desative **Confirm email** para testar em desenvolvimento.
 4. Crie um arquivo **`.env.local`** na raiz com as credenciais do projeto (encontradas em **Project Settings → API**):
@@ -255,9 +256,9 @@ Objetivo: transformar o primeiro match em uma colaboração real e sustentável.
 - [~] Notificações para novos matches e mensagens (notificações locais prontas; push remoto requer development build + FCM/APNs)
 
 **Match para oportunidades e eventos**
-- [ ] Contratantes postam demandas: "preciso de banda cover para casamento no dia X"
-- [ ] Match de músicos com eventos por disponibilidade, estilo e localização
-- [ ] Espaços e estúdios parceiros sugeridos próximos ao match geográfico
+- [x] Contratantes postam demandas: "preciso de banda cover para casamento no dia X"
+- [x] Match de músicos com eventos por disponibilidade, estilo e localização
+- [x] Espaços e estúdios parceiros sugeridos próximos ao match geográfico
 
 **Monetização**
 - [ ] Plano gratuito com limite de swipes diários
