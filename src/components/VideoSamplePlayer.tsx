@@ -2,6 +2,8 @@ import React from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useVideoPlayer, VideoView } from 'expo-video';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Icon } from './Icon';
 import type { MediaSample } from '../data/mockData';
 
 interface VideoSamplePlayerProps {
@@ -30,12 +32,13 @@ export function VideoSamplePlayer({ sample, onRemove }: VideoSamplePlayerProps) 
         />
       </View>
       <View style={styles.footer}>
+        <Icon name="film" size={14} color={Colors.textSecondary} style={styles.titleIcon} />
         <Text style={styles.title} numberOfLines={1}>
-          🎬 {sample.title}
+          {sample.title}
         </Text>
         {onRemove ? (
           <Pressable onPress={onRemove} style={styles.removeBtn} accessibilityLabel="Remover amostra">
-            <Text style={styles.removeIcon}>✕</Text>
+            <Icon name="close" size={14} color={Colors.textSecondary} />
           </Pressable>
         ) : null}
       </View>
@@ -45,8 +48,8 @@ export function VideoSamplePlayer({ sample, onRemove }: VideoSamplePlayerProps) 
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border,
@@ -60,18 +63,18 @@ const styles = StyleSheet.create({
   footer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    gap: Spacing.xs + 2,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm + 2,
   },
+  titleIcon: { marginRight: 0 },
   title: { color: Colors.textPrimary, fontSize: 14, fontWeight: '600', flex: 1 },
   removeBtn: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.bg,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.base,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  removeIcon: { color: Colors.textSecondary, fontSize: 14 },
 });

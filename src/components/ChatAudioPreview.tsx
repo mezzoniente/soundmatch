@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { Colors } from '../constants/colors';
+import { Spacing } from '../constants/theme';
+import { Icon } from './Icon';
 import type { MessageAudio } from '../data/mockData';
 
 /**
@@ -37,8 +39,8 @@ export function ChatAudioPreview({ audio, mine }: { audio: MessageAudio; mine: b
     }
   };
 
-  const fg = mine ? Colors.bg : Colors.teal;
-  const track = mine ? 'rgba(10,14,26,0.25)' : Colors.bg;
+  const fg = mine ? Colors.base : Colors.accent;
+  const track = mine ? 'rgba(8,11,20,0.25)' : Colors.base;
 
   return (
     <View style={styles.container}>
@@ -48,12 +50,15 @@ export function ChatAudioPreview({ audio, mine }: { audio: MessageAudio; mine: b
         accessibilityRole="button"
         accessibilityLabel={isPlaying ? 'Pausar áudio' : 'Tocar áudio'}
       >
-        <Text style={[styles.playIcon, { color: fg }]}>{isPlaying ? '❚❚' : '▶'}</Text>
+        <Icon name={isPlaying ? 'pause' : 'play'} size={14} color={fg} />
       </Pressable>
       <View style={styles.info}>
-        <Text style={[styles.title, { color: mine ? Colors.bg : Colors.textPrimary }]} numberOfLines={1}>
-          🎵 {audio.title}
-        </Text>
+        <View style={styles.titleRow}>
+          <Icon name="musical-note" size={12} color={mine ? Colors.base : Colors.accent} />
+          <Text style={[styles.title, { color: mine ? Colors.base : Colors.textPrimary }]} numberOfLines={1}>
+            {audio.title}
+          </Text>
+        </View>
         {hasError ? (
           <Text style={styles.error}>Não foi possível tocar</Text>
         ) : (
@@ -67,7 +72,7 @@ export function ChatAudioPreview({ audio, mine }: { audio: MessageAudio; mine: b
 }
 
 const styles = StyleSheet.create({
-  container: { flexDirection: 'row', alignItems: 'center', gap: 10, minWidth: 180, paddingVertical: 2 },
+  container: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm + 2, minWidth: 180, paddingVertical: 2 },
   playBtn: {
     width: 32,
     height: 32,
@@ -76,10 +81,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  playIcon: { fontSize: 12, fontWeight: '900' },
   info: { flex: 1, gap: 5 },
-  title: { fontSize: 13, fontWeight: '600' },
+  titleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
+  title: { fontSize: 13, fontWeight: '600', flex: 1 },
   track: { height: 5, borderRadius: 3, overflow: 'hidden' },
   fill: { height: 5, borderRadius: 3 },
-  error: { fontSize: 11, color: Colors.red },
+  error: { fontSize: 11, color: Colors.danger },
 });

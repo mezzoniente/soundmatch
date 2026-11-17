@@ -1,3 +1,5 @@
+import type { IconName } from '../components/Icon';
+
 export type LinkProvider = 'spotify' | 'youtube' | 'soundcloud' | 'generic';
 
 export interface DetectedLink {
@@ -29,16 +31,16 @@ export function extractLink(text: string): { text: string; link: DetectedLink | 
   return { text: stripped, link: { url, provider: providerFor(url) } };
 }
 
-/** Rótulo e ícone amigáveis por provedor. */
-export function providerMeta(provider: LinkProvider): { label: string; icon: string } {
+/** Rótulo, ícone (Ionicons) e cor de acento por provedor. */
+export function providerMeta(provider: LinkProvider): { label: string; icon: IconName; color: string } {
   switch (provider) {
     case 'spotify':
-      return { label: 'Spotify', icon: '🟢' };
+      return { label: 'Spotify', icon: 'musical-note', color: '#1DB954' };
     case 'youtube':
-      return { label: 'YouTube', icon: '▶️' };
+      return { label: 'YouTube', icon: 'logo-youtube', color: '#FF0000' };
     case 'soundcloud':
-      return { label: 'SoundCloud', icon: '🟠' };
+      return { label: 'SoundCloud', icon: 'cloud', color: '#FF7700' };
     default:
-      return { label: 'Link', icon: '🔗' };
+      return { label: 'Link', icon: 'link', color: '#00D4C8' };
   }
 }

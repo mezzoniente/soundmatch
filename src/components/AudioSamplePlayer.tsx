@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 import { useAudioPlayer, useAudioPlayerStatus } from 'expo-audio';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Icon } from './Icon';
 import type { MediaSample } from '../data/mockData';
 
 interface AudioSamplePlayerProps {
@@ -58,7 +60,7 @@ export function AudioSamplePlayer({ sample, onRemove }: AudioSamplePlayerProps) 
         accessibilityRole="button"
         accessibilityLabel={isPlaying ? 'Pausar amostra' : 'Tocar amostra'}
       >
-        <Text style={styles.playIcon}>{isPlaying ? '❚❚' : '▶'}</Text>
+        <Icon name={isPlaying ? 'pause' : 'play'} size={16} color={Colors.base} />
       </Pressable>
 
       <View style={styles.info}>
@@ -81,7 +83,7 @@ export function AudioSamplePlayer({ sample, onRemove }: AudioSamplePlayerProps) 
 
       {onRemove ? (
         <Pressable onPress={onRemove} style={styles.removeBtn} accessibilityLabel="Remover amostra">
-          <Text style={styles.removeIcon}>✕</Text>
+          <Icon name="close" size={14} color={Colors.textSecondary} />
         </Pressable>
       ) : null}
     </View>
@@ -92,40 +94,38 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 14,
-    padding: 12,
+    gap: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   playBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.teal,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  playIcon: { color: Colors.bg, fontSize: 16, fontWeight: '900' },
   info: { flex: 1 },
-  title: { color: Colors.textPrimary, fontSize: 14, fontWeight: '600', marginBottom: 6 },
+  title: { color: Colors.textPrimary, fontSize: 14, fontWeight: '600', marginBottom: Spacing.xs + 2 },
   progressTrack: {
     height: 6,
     borderRadius: 3,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     overflow: 'hidden',
   },
-  progressFill: { height: 6, borderRadius: 3, backgroundColor: Colors.teal },
-  time: { color: Colors.textSecondary, fontSize: 11, marginTop: 4 },
-  errorText: { color: Colors.red, fontSize: 12 },
+  progressFill: { height: 6, borderRadius: 3, backgroundColor: Colors.accent },
+  time: { color: Colors.textSecondary, fontSize: 11, marginTop: Spacing.xs },
+  errorText: { color: Colors.danger, fontSize: 12 },
   removeBtn: {
     width: 32,
     height: 32,
-    borderRadius: 16,
-    backgroundColor: Colors.bg,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.base,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  removeIcon: { color: Colors.textSecondary, fontSize: 14 },
 });

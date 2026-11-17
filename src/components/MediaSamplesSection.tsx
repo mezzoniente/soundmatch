@@ -3,6 +3,9 @@ import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import * as DocumentPicker from 'expo-document-picker';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Typography } from '../constants/typography';
+import { Icon } from './Icon';
 import { AudioSamplePlayer } from './AudioSamplePlayer';
 import { VideoSamplePlayer } from './VideoSamplePlayer';
 import { uploadFile } from '../lib/storage';
@@ -122,14 +125,28 @@ export function MediaSamplesSection({ samples, onAdd, onRemove }: MediaSamplesSe
               disabled={picking !== null}
               style={[styles.addBtn, picking !== null && styles.addBtnDisabled]}
             >
-              <Text style={styles.addText}>{picking === 'audio' ? '...' : '＋ Áudio'}</Text>
+              {picking === 'audio' ? (
+                <Text style={styles.addText}>...</Text>
+              ) : (
+                <>
+                  <Icon name="musical-note" size={13} color={Colors.base} />
+                  <Text style={styles.addText}>Áudio</Text>
+                </>
+              )}
             </Pressable>
             <Pressable
               onPress={pickVideo}
               disabled={picking !== null}
               style={[styles.addBtn, picking !== null && styles.addBtnDisabled]}
             >
-              <Text style={styles.addText}>{picking === 'video' ? '...' : '＋ Vídeo'}</Text>
+              {picking === 'video' ? (
+                <Text style={styles.addText}>...</Text>
+              ) : (
+                <>
+                  <Icon name="videocam" size={13} color={Colors.base} />
+                  <Text style={styles.addText}>Vídeo</Text>
+                </>
+              )}
             </Pressable>
           </View>
         ) : null}
@@ -165,33 +182,31 @@ export function MediaSamplesSection({ samples, onAdd, onRemove }: MediaSamplesSe
 }
 
 const styles = StyleSheet.create({
-  section: { paddingHorizontal: 20, paddingTop: 20 },
+  section: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 1.5,
-  },
-  addButtons: { flexDirection: 'row', gap: 8 },
+  sectionLabel: { ...Typography.label },
+  addButtons: { flexDirection: 'row', gap: Spacing.sm },
   addBtn: {
-    backgroundColor: Colors.teal,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
+    borderRadius: Radius.sm,
   },
   addBtnDisabled: { opacity: 0.5 },
-  addText: { color: Colors.bg, fontSize: 12, fontWeight: '700' },
-  list: { gap: 10 },
+  addText: { color: Colors.base, fontSize: 12, fontWeight: '700' },
+  list: { gap: Spacing.sm + 2 },
   empty: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 14,
-    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
     borderStyle: 'dashed',
