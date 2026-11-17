@@ -19,8 +19,8 @@ Pilares:
 
 - **Glassmorphism com propósito.** Superfícies de vidro (blur + translucidez + borda
   sutil de luz) para barras, modais e cards em destaque — dando profundidade sem peso.
-- **Tipografia limpa + destaque.** Uma sans neutra e legível (Inter / SF) para a
-  interface, combinada com uma fonte de **display** (a definir) para nomes e títulos.
+- **Tipografia limpa + destaque.** **Inter** para a interface (neutra e legível),
+  combinada com **Clash Display** para nomes de artistas e grandes títulos.
 - **Paleta pensada, não acumulada.** Um sistema de cores coerente: neutros profundos,
   o **teal** como acento de identidade e acentos semânticos com papéis claros.
 - **Cantos arredondados e consistentes.** Uma escala de raios aplicada em todo o app.
@@ -52,19 +52,42 @@ Por isso adotamos **dois níveis de "glass"**, aplicados conforme o contexto:
 Diretriz: blur é um recurso caro e pontual; a maior parte da sensação "glass" vem da
 translucidez + borda de luz + profundidade de sombra, não do blur em si.
 
+**Implementação (`src/components/GlassView.tsx`).** Os dois níveis vivem num só
+componente: `variant="blur"` (real, `expo-blur`, `tint="dark"`, `intensity` configurável
+— o piloto usa `75`) e `variant="translucent"` (falso, sem blur). O componente aplica a
+borda de luz, `overflow: 'hidden'` (para o raio recortar o conteúdo) e a elevação, de
+modo que as telas não repitam esses detalhes. Aceita `tintColor` para receber o
+tingimento adaptativo da vibe (ver 3.3).
+
 ---
 
 ## 3. Design system
 
-### 3.1 Estado atual (`src/constants/`)
+### 3.1 Estado atual (`src/constants/` + `src/lib/`)
 
-- **Cores:** paleta escura funcional (`bg #0A0E1A`, `bgCard #111827`, acento `teal
-  #00D4C8`, + blue/gold/red/green). Alguns tokens definidos e não usados
-  (`tealDark`, `blueLight`, `borderLight`).
-- **Tipografia:** escala definida (`hero`/`h1`/`h2`/`h3`/`body`/`caption`/`label`), mas
-  **quase nenhuma tela a usa** — fontes definidas inline, com divergências. Só fontes de
-  sistema; nenhuma fonte customizada carregada.
-- **Espaçamento/raios:** sem escala formal; valores ad-hoc por tela.
+Os fundamentos (V1), a tipografia (V2) e o sistema de glass (V3) já estão implementados.
+A tela-piloto é o **Perfil** (`app/(tabs)/profile.tsx`), onde a direção foi validada
+antes de propagar para o resto do app.
+
+- **Cores (`colors.ts`):** paleta em papéis — neutros em camadas (`base`/`surface`/
+  `elevated`/`elevatedHigh`), superfícies de vidro (`glass`/`glassStrong`/`glassBorder`/
+  `glassTintDark`), acento (`accent #00D4C8` + `accentDark`/`accentSoft`), semânticos
+  (`success`/`warning`/`danger` + variantes `*Soft`), texto (`textPrimary`/
+  `textSecondary`/`textMuted`), bordas e overlays. Os nomes antigos (`bg`, `bgCard`,
+  `teal`, etc.) permanecem como **aliases** para as telas ainda não migradas.
+- **Tipografia (`typography.ts` + `src/lib/fonts.ts`):** **Inter** (corpo/UI) via
+  `@expo-google-fonts/inter` e **Clash Display** (display) via arquivos locais em
+  `assets/fonts/`, carregadas com `useFonts` no layout raiz (funciona no Expo Go). Escala
+  por tokens (`display`/`h1`/`h2`/`h3`/`body`/`bodyStrong`/`caption`/`label`/`button`).
+- **Espaçamento/raios/elevação (`theme.ts`):** escalas formais `Spacing`
+  (4/8/12/16/24/32/48), `Radius` (sm 10 / md 16 / lg 24 / xl 28 / pill 999) e `Elevation`
+  (none/sm/md/lg).
+- **Glass (`src/components/GlassView.tsx`):** componente único com dois modos — `blur`
+  (real, via `expo-blur`) e `translucent` (falso, rgba + borda). Centraliza borda de luz,
+  `overflow: 'hidden'`, raio e sombra.
+- **Paleta adaptativa (`src/lib/adaptiveColor.ts`):** deriva uma paleta da "cor de vibe"
+  do artista (`vibeColor`) — fundo/glass/borda tingidos e cor de texto legível por
+  contraste. Ver seção 3.3.
 
 ### 3.2 Alvo
 
@@ -80,9 +103,9 @@ translucidez + borda de luz + profundidade de sombra, não do blur em si.
 - Todos os pares texto/fundo validados para **contraste WCAG AA**.
 
 **Tipografia** — pares de fonte via `expo-font`:
-- **Interface/corpo:** Inter (ou SF no iOS) — limpa e altamente legível.
-- **Display/destaque:** uma fonte expressiva para nomes de artistas e grandes títulos —
-  **a definir na Fase V2** (avaliar opções serifada/condensada/geométrica).
+- **Interface/corpo:** **Inter** — limpa e altamente legível.
+- **Display/destaque:** **Clash Display** (grotesca geométrica, expressiva) para nomes de
+  artistas e grandes títulos.
 - Escala tipográfica única, aplicada por tokens em todas as telas.
 
 **Espaçamento** — escala fixa (ex: `4 / 8 / 12 / 16 / 24 / 32 / 48`).
@@ -91,6 +114,26 @@ translucidez + borda de luz + profundidade de sombra, não do blur em si.
 generosos como assinatura visual.
 
 **Elevação** — níveis de sombra/translucidez padronizados para a hierarquia de camadas.
+
+### 3.3 Paleta adaptativa (a tela segue a cor do artista)
+
+A interface se adapta à identidade cromática do artista em foco: o Perfil tinge o hero e
+os realces, e o feed de swipe muda o fundo conforme o card atual, sempre preservando
+contraste e legibilidade.
+
+- **Fonte da cor — `vibeColor`, não extração da foto.** Extrair a cor dominante real de
+  uma imagem exige um módulo nativo (ex.: `react-native-image-colors`), que **não roda no
+  Expo Go** (pede development build). Como cada artista já tem um `vibeColor` que
+  representa sua identidade, usamos essa cor como fonte — determinística e com contraste
+  controlado. Extração real fica como evolução futura (quando houver dev build).
+- **Derivação (`src/lib/adaptiveColor.ts`).** `paletteFromVibe()` produz `tintedBg`,
+  `tintedGlass`, `tintedBorder`, `halo` (a vibe em baixa opacidade sobre o fundo escuro) e
+  `onBase` (preto/branco por luminância WCAG, para texto legível sobre a cor pura).
+- **Intensidade do tingimento:** sutil por design — ~12% no Perfil, ~16% no fundo do
+  swipe. O suficiente para "sentir" a cor sem comprometer a leitura.
+- **Transição no swipe:** o fundo faz fade-in via `Animated` + `key={vibe}` a cada card
+  (sem guardar estado de cor no render, respeitando as regras estritas do
+  eslint-config-expo).
 
 ---
 
@@ -125,33 +168,42 @@ Fases incrementais, dos fundamentos ao polimento. Cada fase é revisável de for
 independente; mudanças partem sempre dos **tokens** (`src/constants/`) para propagar com
 consistência.
 
+> **Ordem de execução adotada:** V1 (fundamentos) → V3 (sistema glass) → V2 (tipografia)
+> → V4 (ícones) → propagação para o resto do app → V5+ (layout, movimento, polimento).
+> V3 veio antes de V2 para que o componente de glass já existisse quando a propagação
+> começasse. A validação ocorre na tela-piloto (Perfil) antes de espalhar.
+
 ### Fase V0 — Auditoria
-- [ ] Mapear telas e catalogar contraste, sobreposição, espaçamento e alinhamento
+- [x] Mapear telas e catalogar contraste, sobreposição, espaçamento e alinhamento (ver seção 4)
 - [ ] Rodar em Android e iOS, anotar divergências (especialmente emojis e futuro blur)
 - [ ] Capturar o "antes" de cada tela
 
-### Fase V1 — Fundamentos do design system
-- [ ] Nova **paleta** com papéis claros (neutros em camadas, glass, acento, semânticos), validada em contraste AA
-- [ ] Escala de **espaçamento** em `src/constants/`
-- [ ] Escala de **raios** (cantos arredondados como assinatura)
-- [ ] Níveis de **elevação** (sombra/translucidez) padronizados
-- [ ] Remover/realocar tokens de cor não usados
+### Fase V1 — Fundamentos do design system ✅
+- [x] Nova **paleta** com papéis claros (neutros em camadas, glass, acento, semânticos) — `colors.ts`, com aliases legados
+- [x] Escala de **espaçamento** (`Spacing` em `theme.ts`)
+- [x] Escala de **raios** (`Radius` em `theme.ts`)
+- [x] Níveis de **elevação** (`Elevation` em `theme.ts`)
+- [x] Aplicados na tela-piloto (Perfil); tokens antigos mantidos como aliases até a propagação
+- [x] **Paleta adaptativa** por vibe do artista (`adaptiveColor.ts`) — hero do Perfil e fundo do swipe
 
-### Fase V2 — Tipografia
-- [ ] Carregar **Inter** (corpo/interface) via `expo-font`
-- [ ] Escolher e carregar uma **fonte display** para nomes e títulos (decisão aberta, avaliada nesta fase)
-- [ ] Consolidar a escala tipográfica em tokens e **aplicá-la em todas as telas**
-- [ ] Ajustar `line-height` e `letter-spacing`
+### Fase V2 — Tipografia ✅
+- [x] Carregar **Inter** (corpo/interface) via `@expo-google-fonts/inter` + `useFonts`
+- [x] **Fonte display escolhida: Clash Display** (Fontshare / ITF Free Font License), arquivos locais em `assets/fonts/` (pesos Medium/Semibold/Bold)
+- [x] Carregamento com `SplashScreen` no layout raiz (segura a UI até as fontes prontas) — funciona no Expo Go
+- [x] Escala tipográfica consolidada em tokens (`typography.ts`) com `line-height`/`letter-spacing`; display = Clash, resto = Inter
+- [ ] Aplicar a escala em **todas as telas** (parte da propagação pós-V4)
 
-### Fase V3 — Sistema glass
-- [ ] Instalar e configurar `expo-blur` (com suporte Android via `BlurTargetView`)
-- [ ] Componente **`GlassSurface`** reutilizável (glass real onde vale; fallback translúcido no resto)
-- [ ] Aplicar glass real na **tab bar**, **headers** e **modais/paywall**
-- [ ] Migrar os cards para o padrão de superfície translúcida consistente
+### Fase V3 — Sistema glass ✅
+- [x] `expo-blur` instalado e validado no Expo Go (iOS direto; Android funciona com `tint="dark"`)
+- [x] Componente **`GlassView`** reutilizável (`variant="blur"` real / `variant="translucent"` fallback)
+- [x] Aplicado na tela-piloto (controles e badges do hero do Perfil)
+- [ ] Aplicar glass real na **tab bar**, **headers** e **modais/paywall** (parte da propagação)
+- [ ] Migrar os cards para o padrão translúcido consistente (parte da propagação)
 
 ### Fase V4 — Ícones
 - [ ] Substituir emojis por ícones vetoriais (`@expo/vector-icons`)
 - [ ] Padronizar tamanho, peso e alinhamento na navegação e ações
+- [ ] Pré-carregar a fonte de ícones no layout raiz (evitar "ícone invisível" no primeiro load)
 
 ### Fase V5 — Correção de layout e estrutura
 - [ ] Corrigir sobreposições (hero do perfil, overlays dos cartões de swipe)
@@ -174,12 +226,16 @@ consistência.
 
 ## 6. Dependências visuais previstas
 
-| Pacote | Uso | Observação |
-|--------|-----|------------|
-| `expo-blur` | Glassmorphism (blur real) | Expo Go; Android requer `BlurTargetView` |
-| `expo-font` | Carregar Inter + fonte display | Já disponível no projeto |
-| `@expo/vector-icons` | Ícones vetoriais (substituir emojis) | Vem com o Expo |
-| `react-native-reanimated` *(a avaliar)* | Animações fluidas | Foi removido antes por incompatibilidade com Expo Go; reavaliar só se o `Animated` nativo não bastar |
+| Pacote | Uso | Status |
+|--------|-----|--------|
+| `expo-blur` | Glassmorphism (blur real) | ✅ Instalado; usado no `GlassView` (Expo Go) |
+| `expo-font` | Carregar fontes customizadas | ✅ Instalado |
+| `expo-splash-screen` | Segurar a UI até as fontes carregarem | ✅ Instalado |
+| `@expo-google-fonts/inter` | Fonte de corpo/UI (Inter) | ✅ Instalado |
+| Clash Display (Fontshare / ITF Free Font) | Fonte display (títulos, nomes) | ✅ Arquivos locais em `assets/fonts/` |
+| `@expo/vector-icons` | Ícones vetoriais (substituir emojis) | Vem com o Expo — usar na V4 |
+| `react-native-image-colors` *(futuro)* | Extração de cor real da foto | Exige development build; hoje usamos `vibeColor` |
+| `react-native-reanimated` *(a avaliar)* | Animações fluidas | Removido antes por incompatibilidade com Expo Go; reavaliar só se o `Animated` nativo não bastar |
 
 ---
 
