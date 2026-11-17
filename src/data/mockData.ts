@@ -212,7 +212,12 @@ export interface Artist {
   ratingAvg?: number;
   /** Quantidade de avaliações recebidas. */
   ratingCount?: number;
+  /** Plano de assinatura do usuário. */
+  plan?: SubscriptionPlan;
 }
+
+/** Plano de assinatura: gratuito ou pago. */
+export type SubscriptionPlan = 'free' | 'pro';
 
 export const MOCK_ARTISTS: Artist[] = [
   {

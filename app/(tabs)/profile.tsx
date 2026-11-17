@@ -90,6 +90,21 @@ export default function MyProfileScreen() {
         {/* Completude do perfil (gamificação do cold start) */}
         <CompletenessCard result={completeness} />
 
+        {/* Plano de assinatura */}
+        <TouchableOpacity style={styles.planCard} onPress={() => router.push('/upgrade')}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.planTitle}>
+              {p.plan === 'pro' ? '🏅 SoundMatch Pro' : 'Plano gratuito'}
+            </Text>
+            <Text style={styles.planSubtitle}>
+              {p.plan === 'pro'
+                ? 'Recomendações ilimitadas e destaque no feed'
+                : 'Assine o Pro para swipes ilimitados'}
+            </Text>
+          </View>
+          <Text style={styles.planArrow}>›</Text>
+        </TouchableOpacity>
+
         {/* Traits grid */}
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>PERFIL ARTÍSTICO</Text>
@@ -309,6 +324,22 @@ const styles = StyleSheet.create({
   },
   roleText: { color: Colors.textPrimary, fontWeight: '600', fontSize: 14 },
   roleBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' },
+
+  // Plano
+  planCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginHorizontal: 20,
+    marginTop: 16,
+    backgroundColor: Colors.bgCard,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: Colors.teal,
+  },
+  planTitle: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
+  planSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  planArrow: { fontSize: 26, color: Colors.teal, fontWeight: '300' },
 
   // Sections
   section: { padding: 20, paddingTop: 24 },

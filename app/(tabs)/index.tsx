@@ -26,6 +26,8 @@ import {
 } from '../../src/data/mockData';
 import { useProfile } from '../../src/state/ProfileContext';
 import { useFilters } from '../../src/state/FilterContext';
+import { useUsage } from '../../src/state/UsageContext';
+import { canSwipe, FREE_DAILY_SWIPES } from '../../src/lib/monetization';
 import {
   rankCandidates,
   applyFilters,
@@ -311,6 +313,11 @@ function DiscoverFeed({
   filterCount: number;
 }) {
   const router = useRouter();
+  const { profile } = useProfile();
+  const { swipesToday, recordSwipe } = useUsage();
+
+  const plan = profile.plan ?? 'free';
+  const limitReached = !canSwipe(plan, swipesToday);
 
   const [queue, setQueue] = useState<Artist[]>(recommended);
   const [accepted, setAccepted] = useState<string[]>([]);
@@ -369,8 +376,10 @@ function DiscoverFeed({
   );
 
   const swipeRight = () => {
+    if (limitReached) return;
     const current = queue[0];
     setActionFeedback('accept');
+    recordSwipe();
     Animated.timing(position, {
       toValue: { x: W * 1.5, y: 0 },
       duration: 280,
@@ -384,7 +393,9 @@ function DiscoverFeed({
   };
 
   const swipeLeft = () => {
+    if (limitReached) return;
     setActionFeedback('pass');
+    recordSwipe();
     Animated.timing(position, {
       toValue: { x: -W * 1.5, y: 0 },
       duration: 280,
@@ -434,7 +445,19 @@ function DiscoverFeed({
 
       {/* Cards area */}
       <View style={styles.cardsArea}>
-        {queue.length === 0 ? (
+        {limitReached ? (
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyIcon}>⏳</Text>
+            <Text style={styles.emptyTitle}>Limite diário atingido</Text>
+            <Text style={styles.emptySubtitle}>
+              Você usou seus {FREE_DAILY_SWIPES} swipes de hoje. Assine o Pro para
+              recomendações ilimitadas.
+            </Text>
+            <TouchableOpacity style={styles.resetBtn} onPress={() => router.push('/upgrade')}>
+              <Text style={styles.resetText}>Conhecer o Pro</Text>
+            </TouchableOpacity>
+          </View>
+        ) : queue.length === 0 ? (
           <View style={styles.emptyState}>
             <Text style={styles.emptyIcon}>{filterCount > 0 ? '🔍' : '🎵'}</Text>
             <Text style={styles.emptyTitle}>

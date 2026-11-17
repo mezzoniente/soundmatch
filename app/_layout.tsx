@@ -5,6 +5,7 @@ import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { ProfileProvider, useProfile } from '../src/state/ProfileContext';
 import { AuthProvider, useAuth } from '../src/state/AuthContext';
 import { FilterProvider } from '../src/state/FilterContext';
+import { UsageProvider } from '../src/state/UsageContext';
 import { Colors } from '../src/constants/colors';
 import { configureNotificationHandler, registerPushToken } from '../src/lib/notifications';
 
@@ -91,6 +92,10 @@ function AuthGate() {
         options={{ headerShown: false, presentation: 'modal' }}
       />
       <Stack.Screen
+        name="upgrade"
+        options={{ headerShown: false, presentation: 'modal' }}
+      />
+      <Stack.Screen
         name="review/[id]"
         options={{ headerShown: false, presentation: 'modal' }}
       />
@@ -104,10 +109,12 @@ export default function RootLayout() {
     <AuthProvider>
       <ProfileProvider>
         <FilterProvider>
-          <View style={styles.root}>
-            <StatusBar style="light" />
-            <AuthGate />
-          </View>
+          <UsageProvider>
+            <View style={styles.root}>
+              <StatusBar style="light" />
+              <AuthGate />
+            </View>
+          </UsageProvider>
         </FilterProvider>
       </ProfileProvider>
     </AuthProvider>
