@@ -2,15 +2,20 @@ import { useEffect } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
 import { ProfileProvider, useProfile } from '../src/state/ProfileContext';
 import { AuthProvider, useAuth } from '../src/state/AuthContext';
 import { FilterProvider } from '../src/state/FilterContext';
 import { UsageProvider } from '../src/state/UsageContext';
 import { Colors } from '../src/constants/colors';
 import { configureNotificationHandler, registerPushToken } from '../src/lib/notifications';
+import { useAppFonts } from '../src/lib/fonts';
 
 // Define como as notificações aparecem com o app aberto (executa uma vez).
 configureNotificationHandler();
+
+// Segura a splash screen nativa até as fontes do Design System carregarem.
+SplashScreen.preventAutoHideAsync();
 
 /**
  * Redireciona com base na sessão e no estado de onboarding:
@@ -105,6 +110,16 @@ function AuthGate() {
 }
 
 export default function RootLayout() {
+  const fontsLoaded = useAppFonts();
+
+  // Esconde a splash assim que as fontes carregarem (ou falharem).
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  // Mantém a splash nativa visível até as fontes estarem prontas.
+  if (!fontsLoaded) return null;
+
   return (
     <AuthProvider>
       <ProfileProvider>

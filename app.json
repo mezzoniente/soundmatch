@@ -16,7 +16,9 @@
         {
           "photosPermission": "O SoundMatch usa sua galeria para você adicionar amostras de áudio e vídeo tocando."
         }
-      ]
+      ],
+      "expo-font",
+      "expo-splash-screen"
     ],
     "ios": {
       "supportsTablet": true
