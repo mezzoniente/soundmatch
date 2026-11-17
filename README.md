@@ -120,6 +120,7 @@ O app usa o Supabase para autenticação, banco de dados e storage de mídia.
    - `supabase/reviews.sql` — tabela `reviews` (avaliações), policies e trigger de reputação.
    - `supabase/messages.sql` — tabela `messages` (chat), policies e publicação Realtime.
    - `supabase/events.sql` — tabela `events` (demandas de contratantes) e policies.
+   - `supabase/monetization.sql` — coluna `plan` em `profiles` e tabela `paid_sessions`.
    - `supabase/push_tokens.sql` — tabela `push_tokens` (opcional; para push remoto futuro).
 3. Em **Authentication → Sign In / Providers → Email**, desative **Confirm email** para testar em desenvolvimento.
 4. Crie um arquivo **`.env.local`** na raiz com as credenciais do projeto (encontradas em **Project Settings → API**):
@@ -261,9 +262,9 @@ Objetivo: transformar o primeiro match em uma colaboração real e sustentável.
 - [x] Espaços e estúdios parceiros sugeridos próximos ao match geográfico
 
 **Monetização**
-- [ ] Plano gratuito com limite de swipes diários
-- [ ] Plano pago com recomendações ilimitadas, destaque no feed e acesso a vagas pagas
-- [ ] Comissão sobre sessões remuneradas mediadas pela plataforma
+- [x] Plano gratuito com limite de swipes diários
+- [~] Plano pago com recomendações ilimitadas, destaque no feed e acesso a vagas pagas (benefícios e paywall prontos; pagamento real requer gateway/in-app purchase)
+- [x] Comissão sobre sessões remuneradas mediadas pela plataforma (cálculo e registro; o repasse financeiro depende do gateway)
 
 ---
 
