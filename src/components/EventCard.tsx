@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Typography } from '../constants/typography';
+import { Icon } from './Icon';
 import type { MusicEvent } from '../data/mockData';
 
 /** Formata uma data ISO (yyyy-mm-dd) para exibição curta em pt-BR. */
@@ -31,11 +34,11 @@ export function EventCard({ event }: { event: MusicEvent }) {
       {/* Data + cachê em destaque */}
       <View style={styles.highlightRow}>
         <View style={styles.highlight}>
-          <Text style={styles.highlightIcon}>📅</Text>
+          <Icon name="calendar" size={14} color={Colors.textSecondary} />
           <Text style={styles.highlightText}>{formatDate(event.eventDate)}</Text>
         </View>
         <View style={styles.highlight}>
-          <Text style={styles.highlightIcon}>💰</Text>
+          <Icon name="cash" size={14} color={Colors.success} />
           <Text style={styles.highlightText}>{event.budget || 'a combinar'}</Text>
         </View>
       </View>
@@ -47,7 +50,8 @@ export function EventCard({ event }: { event: MusicEvent }) {
       <View style={styles.tagsRow}>
         {event.instruments.map((i) => (
           <View key={i} style={styles.instrumentTag}>
-            <Text style={styles.instrumentText}>🎯 {i}</Text>
+            <Icon name="musical-notes" size={11} color={Colors.accent} />
+            <Text style={styles.instrumentText}>{i}</Text>
           </View>
         ))}
         {event.genres.slice(0, 2).map((g) => (
@@ -57,7 +61,10 @@ export function EventCard({ event }: { event: MusicEvent }) {
         ))}
       </View>
 
-      <Text style={styles.location}>📍 {event.location}</Text>
+      <View style={styles.locationRow}>
+        <Icon name="location" size={13} color={Colors.textSecondary} />
+        <Text style={styles.location}>{event.location}</Text>
+      </View>
 
       <View style={styles.authorRow}>
         {event.authorAvatar ? (
@@ -75,57 +82,70 @@ export function EventCard({ event }: { event: MusicEvent }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 18,
-    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    gap: 10,
+    gap: Spacing.sm + 2,
   },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  typeBadge: { backgroundColor: Colors.gold, paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
-  typeText: { color: Colors.bg, fontSize: 11, fontWeight: '700' },
-  matchBadge: {
-    backgroundColor: 'rgba(0, 212, 200, 0.15)',
-    paddingHorizontal: 10,
+  typeBadge: {
+    backgroundColor: Colors.warning,
+    paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 5,
-    borderRadius: 10,
-    borderWidth: 1,
-    borderColor: Colors.teal,
+    borderRadius: Radius.sm,
   },
-  matchText: { color: Colors.teal, fontSize: 11, fontWeight: '700' },
-  title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
+  typeText: { color: Colors.base, fontSize: 11, fontWeight: '700' },
+  matchBadge: {
+    backgroundColor: Colors.accentSoft,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: 5,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+    borderColor: Colors.accent,
+  },
+  matchText: { color: Colors.accent, fontSize: 11, fontWeight: '700' },
+  title: { ...Typography.h3, fontSize: 17 },
 
-  highlightRow: { flexDirection: 'row', gap: 8 },
+  highlightRow: { flexDirection: 'row', gap: Spacing.sm },
   highlight: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: Colors.bgElevated,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 10,
+    gap: Spacing.xs + 2,
+    backgroundColor: Colors.elevated,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: Spacing.xs + 2,
+    borderRadius: Radius.sm,
   },
-  highlightIcon: { fontSize: 13 },
   highlightText: { color: Colors.textPrimary, fontSize: 13, fontWeight: '600' },
 
-  description: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
-  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  description: { ...Typography.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs + 2 },
   instrumentTag: {
-    backgroundColor: 'rgba(0, 212, 200, 0.12)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.accentSoft,
     borderWidth: 1,
-    borderColor: Colors.teal,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    borderColor: Colors.accent,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm - 2,
   },
-  instrumentText: { color: Colors.teal, fontSize: 12, fontWeight: '600' },
-  genreTag: { backgroundColor: Colors.bgElevated, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 },
+  instrumentText: { color: Colors.accent, fontSize: 12, fontWeight: '600' },
+  genreTag: {
+    backgroundColor: Colors.elevated,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm - 2,
+  },
   genreText: { color: Colors.textSecondary, fontSize: 12 },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
   location: { color: Colors.textSecondary, fontSize: 13 },
-  authorRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
-  authorAvatar: { width: 26, height: 26, borderRadius: 13 },
-  authorFallback: { backgroundColor: Colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
+  authorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: 2 },
+  authorAvatar: { width: 26, height: 26, borderRadius: Radius.pill },
+  authorFallback: { backgroundColor: Colors.elevated, alignItems: 'center', justifyContent: 'center' },
   authorInitial: { color: Colors.textPrimary, fontWeight: '700', fontSize: 12 },
   authorName: { color: Colors.textPrimary, fontSize: 13, fontWeight: '600' },
 });

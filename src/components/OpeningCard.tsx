@@ -1,13 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Typography } from '../constants/typography';
+import { Icon } from './Icon';
 import type { Opening } from '../data/mockData';
 
 const GOAL_COLORS: Record<string, string> = {
-  'Banda Fixa': Colors.teal,
+  'Banda Fixa': Colors.accent,
   'Colaboração Pontual': Colors.blue,
-  'Jam Session': Colors.gold,
-  'Trabalho Remunerado': Colors.green,
+  'Jam Session': Colors.warning,
+  'Trabalho Remunerado': Colors.success,
   'Substituição Temporária': '#E67E22',
 };
 
@@ -16,7 +19,7 @@ export function OpeningCard({ opening }: { opening: Opening }) {
   return (
     <View style={styles.card}>
       <View style={styles.topRow}>
-        <View style={[styles.goalBadge, { backgroundColor: GOAL_COLORS[opening.goal] ?? Colors.teal }]}>
+        <View style={[styles.goalBadge, { backgroundColor: GOAL_COLORS[opening.goal] ?? Colors.accent }]}>
           <Text style={styles.goalText}>{opening.goal}</Text>
         </View>
         {opening.matchScore !== undefined && (
@@ -35,7 +38,8 @@ export function OpeningCard({ opening }: { opening: Opening }) {
       <View style={styles.tagsRow}>
         {opening.instruments.map((i) => (
           <View key={i} style={styles.instrumentTag}>
-            <Text style={styles.instrumentText}>🎯 {i}</Text>
+            <Icon name="musical-notes" size={11} color={Colors.accent} />
+            <Text style={styles.instrumentText}>{i}</Text>
           </View>
         ))}
         {opening.genres.slice(0, 2).map((g) => (
@@ -45,7 +49,10 @@ export function OpeningCard({ opening }: { opening: Opening }) {
         ))}
       </View>
 
-      <Text style={styles.location}>📍 {opening.location}</Text>
+      <View style={styles.locationRow}>
+        <Icon name="location" size={13} color={Colors.textSecondary} />
+        <Text style={styles.location}>{opening.location}</Text>
+      </View>
 
       {/* Autor */}
       <View style={styles.authorRow}>
@@ -64,48 +71,52 @@ export function OpeningCard({ opening }: { opening: Opening }) {
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 18,
-    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    gap: 10,
+    gap: Spacing.sm + 2,
   },
   topRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  goalBadge: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: 10 },
+  goalBadge: { paddingHorizontal: Spacing.sm + 2, paddingVertical: 5, borderRadius: Radius.sm },
   goalText: { color: '#fff', fontSize: 11, fontWeight: '700' },
   matchBadge: {
-    backgroundColor: 'rgba(0, 212, 200, 0.15)',
-    paddingHorizontal: 10,
+    backgroundColor: Colors.accentSoft,
+    paddingHorizontal: Spacing.sm + 2,
     paddingVertical: 5,
-    borderRadius: 10,
+    borderRadius: Radius.sm,
     borderWidth: 1,
-    borderColor: Colors.teal,
+    borderColor: Colors.accent,
   },
-  matchText: { color: Colors.teal, fontSize: 11, fontWeight: '700' },
-  title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
-  description: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
-  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  matchText: { color: Colors.accent, fontSize: 11, fontWeight: '700' },
+  title: { ...Typography.h3, fontSize: 17 },
+  description: { ...Typography.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs + 2 },
   instrumentTag: {
-    backgroundColor: 'rgba(0, 212, 200, 0.12)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.accentSoft,
     borderWidth: 1,
-    borderColor: Colors.teal,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    borderColor: Colors.accent,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm - 2,
   },
-  instrumentText: { color: Colors.teal, fontSize: 12, fontWeight: '600' },
+  instrumentText: { color: Colors.accent, fontSize: 12, fontWeight: '600' },
   genreTag: {
-    backgroundColor: Colors.bgElevated,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    backgroundColor: Colors.elevated,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm - 2,
   },
   genreText: { color: Colors.textSecondary, fontSize: 12 },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
   location: { color: Colors.textSecondary, fontSize: 13 },
-  authorRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 },
-  authorAvatar: { width: 26, height: 26, borderRadius: 13 },
-  authorAvatarFallback: { backgroundColor: Colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
+  authorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: 2 },
+  authorAvatar: { width: 26, height: 26, borderRadius: Radius.pill },
+  authorAvatarFallback: { backgroundColor: Colors.elevated, alignItems: 'center', justifyContent: 'center' },
   authorInitial: { color: Colors.textPrimary, fontWeight: '700', fontSize: 12 },
   authorName: { color: Colors.textPrimary, fontSize: 13, fontWeight: '600' },
 });
