@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Typography } from '../constants/typography';
+import { Icon } from './Icon';
 import type { Review } from '../data/mockData';
 
 /** Renderiza estrelas preenchidas/vazias para uma nota de 0 a 5. */
@@ -9,9 +12,12 @@ export function Stars({ rating, size = 16 }: { rating: number; size?: number }) 
   return (
     <View style={styles.starsRow}>
       {[1, 2, 3, 4, 5].map((i) => (
-        <Text key={i} style={{ fontSize: size, color: i <= full ? Colors.gold : Colors.textMuted }}>
-          ★
-        </Text>
+        <Icon
+          key={i}
+          name={i <= full ? 'star' : 'star-outline'}
+          size={size}
+          color={i <= full ? Colors.warning : Colors.textMuted}
+        />
       ))}
     </View>
   );
@@ -33,7 +39,8 @@ export function ReviewsSection({ ratingAvg, ratingCount, reviews, onAddReview }:
         <Text style={styles.sectionLabel}>AVALIAÇÕES</Text>
         {onAddReview ? (
           <TouchableOpacity style={styles.addBtn} onPress={onAddReview}>
-            <Text style={styles.addText}>★ Avaliar</Text>
+            <Icon name="star" size={13} color={Colors.base} />
+            <Text style={styles.addText}>Avaliar</Text>
           </TouchableOpacity>
         ) : null}
       </View>
@@ -78,52 +85,50 @@ export function ReviewsSection({ ratingAvg, ratingCount, reviews, onAddReview }:
 }
 
 const styles = StyleSheet.create({
-  section: { paddingHorizontal: 20, paddingTop: 20 },
+  section: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 1.5,
-  },
+  sectionLabel: { ...Typography.label },
   addBtn: {
-    backgroundColor: Colors.gold,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.warning,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
+    borderRadius: Radius.sm,
   },
-  addText: { color: Colors.bg, fontSize: 12, fontWeight: '700' },
+  addText: { color: Colors.base, fontSize: 12, fontWeight: '700' },
 
   summary: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 16,
+    gap: Spacing.md + 2,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  avg: { fontSize: 36, fontWeight: '900', color: Colors.textPrimary },
+  avg: { ...Typography.display, fontSize: 36, lineHeight: 40 },
   starsRow: { flexDirection: 'row', gap: 2 },
-  count: { color: Colors.textSecondary, fontSize: 13, marginTop: 4 },
+  count: { color: Colors.textSecondary, fontSize: 13, marginTop: Spacing.xs },
 
-  list: { gap: 10, marginTop: 12 },
+  list: { gap: Spacing.sm + 2, marginTop: Spacing.md },
   reviewCard: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 14,
-    padding: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md + 2,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  reviewHeader: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 8 },
-  avatar: { width: 32, height: 32, borderRadius: 16 },
-  avatarFallback: { backgroundColor: Colors.bgElevated, alignItems: 'center', justifyContent: 'center' },
+  reviewHeader: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm + 2, marginBottom: Spacing.sm },
+  avatar: { width: 32, height: 32, borderRadius: Radius.pill },
+  avatarFallback: { backgroundColor: Colors.elevated, alignItems: 'center', justifyContent: 'center' },
   avatarInitial: { color: Colors.textPrimary, fontWeight: '700' },
   reviewerName: { color: Colors.textPrimary, fontSize: 14, fontWeight: '700' },
   context: { color: Colors.textSecondary, fontSize: 12, marginTop: 1 },

@@ -2,6 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Typography } from '../constants/typography';
+import { Icon } from './Icon';
 import { MINIMUM_COMPLETENESS, type CompletenessResult } from '../lib/profileCompleteness';
 
 /**
@@ -16,7 +19,7 @@ export function CompletenessCard({ result }: { result: CompletenessResult }) {
   if (result.missing.length === 0) return null;
 
   const next = result.missing[0];
-  const barColor = result.meetsMinimum ? Colors.teal : Colors.gold;
+  const barColor = result.meetsMinimum ? Colors.accent : Colors.warning;
 
   const goToNext = () => {
     if (next.key === 'samples') {
@@ -44,12 +47,15 @@ export function CompletenessCard({ result }: { result: CompletenessResult }) {
           Chegue a {MINIMUM_COMPLETENESS}% para aparecer nas recomendações de outros músicos.
         </Text>
       ) : (
-        <Text style={styles.ok}>✓ Seu perfil já aparece nas recomendações.</Text>
+        <View style={styles.okRow}>
+          <Icon name="checkmark-circle" size={14} color={Colors.accent} />
+          <Text style={styles.ok}>Seu perfil já aparece nas recomendações.</Text>
+        </View>
       )}
 
       <TouchableOpacity style={styles.nextBtn} onPress={goToNext} activeOpacity={0.8}>
         <Text style={styles.nextLabel}>Próximo: {next.label}</Text>
-        <Text style={styles.nextArrow}>→</Text>
+        <Icon name="arrow-forward" size={18} color={Colors.accent} />
       </TouchableOpacity>
     </View>
   );
@@ -57,32 +63,32 @@ export function CompletenessCard({ result }: { result: CompletenessResult }) {
 
 const styles = StyleSheet.create({
   card: {
-    marginHorizontal: 20,
-    marginTop: 20,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 16,
+    marginHorizontal: Spacing.xl,
+    marginTop: Spacing.xl,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
-    gap: 10,
+    gap: Spacing.sm + 2,
   },
   headerRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  title: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  title: { ...Typography.h3, fontSize: 15 },
   percent: { fontSize: 15, fontWeight: '900' },
-  barTrack: { height: 8, borderRadius: 4, backgroundColor: Colors.bg, overflow: 'hidden' },
+  barTrack: { height: 8, borderRadius: 4, backgroundColor: Colors.base, overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 4 },
   warning: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18 },
-  ok: { fontSize: 13, color: Colors.teal, fontWeight: '600' },
+  okRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs + 2 },
+  ok: { fontSize: 13, color: Colors.accent, fontWeight: '600' },
   nextBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    backgroundColor: Colors.bgElevated,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    backgroundColor: Colors.elevated,
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.md + 2,
+    paddingVertical: Spacing.md,
     marginTop: 2,
   },
   nextLabel: { color: Colors.textPrimary, fontSize: 14, fontWeight: '600' },
-  nextArrow: { color: Colors.teal, fontSize: 18, fontWeight: '800' },
 });

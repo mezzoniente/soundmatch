@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Icon } from './Icon';
 
 /**
  * Selo de perfil verificado (músico que subiu amostra de áudio/vídeo).
@@ -10,13 +12,13 @@ export function VerifiedBadge({ compact = false }: { compact?: boolean }) {
   if (compact) {
     return (
       <View style={styles.compact}>
-        <Text style={styles.compactIcon}>✓</Text>
+        <Icon name="checkmark" size={11} color={Colors.base} />
       </View>
     );
   }
   return (
     <View style={styles.badge}>
-      <Text style={styles.icon}>✓</Text>
+      <Icon name="checkmark-circle" size={13} color={Colors.accent} />
       <Text style={styles.text}>Verificado</Text>
     </View>
   );
@@ -26,23 +28,21 @@ const styles = StyleSheet.create({
   badge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    backgroundColor: 'rgba(0, 212, 200, 0.15)',
+    gap: Spacing.xs,
+    backgroundColor: Colors.accentSoft,
     borderWidth: 1,
-    borderColor: Colors.teal,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
+    borderColor: Colors.accent,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm,
   },
-  icon: { color: Colors.teal, fontSize: 12, fontWeight: '900' },
-  text: { color: Colors.teal, fontSize: 12, fontWeight: '700' },
+  text: { color: Colors.accent, fontSize: 12, fontWeight: '700' },
   compact: {
     width: 18,
     height: 18,
-    borderRadius: 9,
-    backgroundColor: Colors.teal,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  compactIcon: { color: Colors.bg, fontSize: 11, fontWeight: '900' },
 });
