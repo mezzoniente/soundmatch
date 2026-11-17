@@ -1,19 +1,26 @@
 import { Tabs } from 'expo-router';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../../src/constants/colors';
+import { Icon, IconName } from '../../src/components/Icon';
 
 function TabIcon({
   icon,
+  iconFocused,
   label,
   focused,
 }: {
-  icon: string;
+  icon: IconName;
+  iconFocused: IconName;
   label: string;
   focused: boolean;
 }) {
   return (
     <View style={styles.tabItem}>
-      <Text style={[styles.tabIcon, focused && styles.tabIconFocused]}>{icon}</Text>
+      <Icon
+        name={focused ? iconFocused : icon}
+        size={24}
+        color={focused ? Colors.accent : Colors.textMuted}
+      />
       <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>{label}</Text>
     </View>
   );
@@ -32,7 +39,7 @@ export default function TabsLayout() {
         name="index"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="⚡" label="Discover" focused={focused} />
+            <TabIcon icon="flash-outline" iconFocused="flash" label="Discover" focused={focused} />
           ),
         }}
       />
@@ -40,7 +47,7 @@ export default function TabsLayout() {
         name="map"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="🗺" label="Map" focused={focused} />
+            <TabIcon icon="map-outline" iconFocused="map" label="Map" focused={focused} />
           ),
         }}
       />
@@ -48,7 +55,12 @@ export default function TabsLayout() {
         name="chat"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="💬" label="Chat" focused={focused} />
+            <TabIcon
+              icon="chatbubble-outline"
+              iconFocused="chatbubble"
+              label="Chat"
+              focused={focused}
+            />
           ),
         }}
       />
@@ -56,7 +68,12 @@ export default function TabsLayout() {
         name="profile"
         options={{
           tabBarIcon: ({ focused }) => (
-            <TabIcon icon="👤" label="Perfil" focused={focused} />
+            <TabIcon
+              icon="person-outline"
+              iconFocused="person"
+              label="Perfil"
+              focused={focused}
+            />
           ),
         }}
       />
@@ -76,13 +93,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 3,
     paddingTop: 6,
-  },
-  tabIcon: {
-    fontSize: 22,
-    opacity: 0.45,
-  },
-  tabIconFocused: {
-    opacity: 1,
   },
   tabLabel: {
     fontSize: 10,
