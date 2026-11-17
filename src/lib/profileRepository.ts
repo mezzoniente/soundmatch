@@ -38,6 +38,7 @@ interface ProfileRow {
   created_at: string | null;
   rating_avg: number | null;
   rating_count: number | null;
+  plan: string | null;
 }
 
 /**
@@ -79,6 +80,7 @@ function rowToArtist(row: ProfileRow): Artist {
     createdAt: row.created_at ?? undefined,
     ratingAvg: row.rating_avg ?? 0,
     ratingCount: row.rating_count ?? 0,
+    plan: row.plan === 'pro' ? 'pro' : 'free',
   };
 }
 
@@ -106,6 +108,7 @@ function artistToRow(userId: string, artist: Artist, isOnboarded: boolean): Part
     avatar_url: artist.avatarUrl ?? null,
     cover_url: artist.coverUrl ?? null,
     is_onboarded: isOnboarded,
+    plan: artist.plan ?? 'free',
   };
 }
 
