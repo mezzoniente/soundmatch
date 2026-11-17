@@ -14,6 +14,11 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
+import { Spacing, Radius, Elevation } from '../../src/constants/theme';
+import { Typography } from '../../src/constants/typography';
+import { paletteFromVibe } from '../../src/lib/adaptiveColor';
+import { GlassView } from '../../src/components/GlassView';
+import { Icon } from '../../src/components/Icon';
 import { useProfile } from '../../src/state/ProfileContext';
 import { useAuth } from '../../src/state/AuthContext';
 import {
@@ -29,13 +34,16 @@ import { VerifiedBadge } from '../../src/components/VerifiedBadge';
 import { isVerified } from '../../src/lib/trust';
 
 const { width: W } = Dimensions.get('window');
-const WIDGET_HALF = (W - 48) / 2;
+const WIDGET_HALF = (W - Spacing.xl * 2 - Spacing.sm) / 2;
 
 export default function MyProfileScreen() {
   const router = useRouter();
   const { profile: p, addMediaSample, removeMediaSample } = useProfile();
   const { signOut } = useAuth();
   const completeness = evaluateCompleteness(p);
+
+  // Paleta adaptativa derivada da vibe do artista — tinge o hero e os realces.
+  const palette = paletteFromVibe(p.vibeColor);
 
   const handleSignOut = () => {
     Alert.alert('Sair', 'Deseja sair da sua conta?', [
@@ -50,28 +58,46 @@ export default function MyProfileScreen() {
         {/* Hero */}
         <View style={styles.heroSection}>
           <Image source={{ uri: p.coverImage }} style={styles.heroCover} resizeMode="cover" />
-          <View style={styles.heroOverlay} />
+          {/* Scrim em camadas + tingimento adaptativo com a vibe do artista */}
+          <View style={styles.heroScrimTop} />
+          <View style={styles.heroScrimBottom} />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: palette.tintedBg }]} />
 
-          {/* Top bar */}
+          {/* Top bar — controles com blur de vidro real */}
           <View style={styles.heroTopBar}>
-            <TouchableOpacity style={styles.editBtn} onPress={() => router.push('/edit-profile')}>
-              <Text style={styles.editBtnText}>Editar Perfil</Text>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/edit-profile')}>
+              <GlassView intensity={75} radius={Radius.pill} style={styles.glassPill}>
+                <Text style={styles.glassPillText}>Editar perfil</Text>
+              </GlassView>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.backBtn} onPress={handleSignOut}>
-              <Text style={styles.backBtnIcon}>⏻</Text>
+            <TouchableOpacity activeOpacity={0.85} onPress={handleSignOut}>
+              <GlassView intensity={75} radius={Radius.pill} style={styles.glassCircle}>
+                <Icon name="power" size={18} color={Colors.textPrimary} />
+              </GlassView>
             </TouchableOpacity>
           </View>
 
           {/* Avatar + connections */}
           <View style={styles.heroMid}>
-            <Image source={{ uri: p.avatar }} style={styles.heroAvatar} />
-            <View style={styles.connectionsBadge}>
-              <Text style={styles.connectionsText}>{p.connections} Conexões</Text>
+            <View style={[styles.avatarHalo, { backgroundColor: palette.halo }]}>
+              <Image
+                source={{ uri: p.avatar }}
+                style={[styles.heroAvatar, { borderColor: palette.base }]}
+              />
             </View>
+            <GlassView intensity={75} radius={Radius.pill} style={styles.connectionsBadge}>
+              <Text style={styles.connectionsText}>{p.connections} conexões</Text>
+            </GlassView>
             <View style={styles.socialsRow}>
-              {p.socials.instagram && <Text style={styles.socialIcon}>📷</Text>}
-              {p.socials.youtube && <Text style={styles.socialIcon}>▶️</Text>}
-              {p.socials.spotify && <Text style={styles.socialIcon}>🎵</Text>}
+              {p.socials.instagram && (
+                <Icon name="logo-instagram" size={20} color={Colors.textSecondary} />
+              )}
+              {p.socials.youtube && (
+                <Icon name="logo-youtube" size={20} color={Colors.textSecondary} />
+              )}
+              {p.socials.spotify && (
+                <Icon name="musical-notes" size={20} color={Colors.textSecondary} />
+              )}
             </View>
           </View>
 
@@ -79,9 +105,9 @@ export default function MyProfileScreen() {
           <View style={styles.heroBottom}>
             <Text style={styles.heroName}>{p.name}</Text>
             <View style={styles.roleBadgeRow}>
-              <View style={styles.roleBadge}>
+              <GlassView intensity={75} radius={Radius.pill} style={styles.roleBadge}>
                 <Text style={styles.roleText}>{p.role}</Text>
-              </View>
+              </GlassView>
               {isVerified(p) && <VerifiedBadge />}
             </View>
           </View>
@@ -91,10 +117,13 @@ export default function MyProfileScreen() {
         <CompletenessCard result={completeness} />
 
         {/* Plano de assinatura */}
-        <TouchableOpacity style={styles.planCard} onPress={() => router.push('/upgrade')}>
+        <TouchableOpacity style={styles.planCard} activeOpacity={0.85} onPress={() => router.push('/upgrade')}>
+          {p.plan === 'pro' && (
+            <Icon name="trophy" size={22} color={Colors.accent} style={styles.planIcon} />
+          )}
           <View style={{ flex: 1 }}>
             <Text style={styles.planTitle}>
-              {p.plan === 'pro' ? '🏅 SoundMatch Pro' : 'Plano gratuito'}
+              {p.plan === 'pro' ? 'SoundMatch Pro' : 'Plano gratuito'}
             </Text>
             <Text style={styles.planSubtitle}>
               {p.plan === 'pro'
@@ -102,7 +131,7 @@ export default function MyProfileScreen() {
                 : 'Assine o Pro para swipes ilimitados'}
             </Text>
           </View>
-          <Text style={styles.planArrow}>›</Text>
+          <Icon name="chevron-forward" size={22} color={Colors.accent} />
         </TouchableOpacity>
 
         {/* Traits grid */}
@@ -112,9 +141,12 @@ export default function MyProfileScreen() {
           <View style={styles.widgetGrid}>
             {/* Instrument widget */}
             <View style={[styles.widget, { width: WIDGET_HALF }]}>
-              <Text style={styles.widgetIcon}>
-                {p.instruments[0] === 'Voz' ? '🎤' : '🎸'}
-              </Text>
+              <Icon
+                name={p.instruments[0] === 'Voz' ? 'mic' : 'musical-notes'}
+                size={26}
+                color={Colors.accent}
+                style={styles.widgetIcon}
+              />
               <Text style={styles.widgetLabel}>{p.instruments.join(', ')}</Text>
             </View>
 
@@ -125,39 +157,29 @@ export default function MyProfileScreen() {
             </View>
 
             {/* Vibe color widget */}
-            <View
-              style={[
-                styles.widget,
-                { width: WIDGET_HALF * 1.4 + 8, backgroundColor: p.vibeColor },
-              ]}
-            >
+            <View style={[styles.widget, { width: WIDGET_HALF, backgroundColor: p.vibeColor }]}>
               <Text style={styles.widgetColorCode}>#{p.vibeColor.slice(1)}</Text>
-              <Text style={[styles.widgetLabel, { color: '#ffffffcc' }]}>{p.vibeColorName}</Text>
+              <Text style={[styles.widgetLabel, { color: 'rgba(255,255,255,0.85)' }]}>
+                {p.vibeColorName}
+              </Text>
             </View>
 
             {/* Level widget */}
-            <View style={[styles.widget, { width: WIDGET_HALF * 0.6 - 4 }]}>
-              <Text style={styles.widgetIcon}>⭐</Text>
+            <View style={[styles.widget, { width: WIDGET_HALF }]}>
+              <Icon name="star" size={26} color={Colors.warning} style={styles.widgetIcon} />
               <Text style={styles.widgetTiny}>{p.level}</Text>
             </View>
 
             {/* Genre widget */}
             <View style={[styles.widget, { width: WIDGET_HALF }]}>
-              <Text style={styles.widgetIcon}>🎵</Text>
+              <Icon name="disc" size={26} color={Colors.accent} style={styles.widgetIcon} />
               <Text style={styles.widgetLabel}>{p.genres[0]}</Text>
-              {p.genres[1] && (
-                <Text style={styles.widgetSubLabel}>{p.genres[1]}</Text>
-              )}
+              {p.genres[1] && <Text style={styles.widgetSubLabel}>{p.genres[1]}</Text>}
             </View>
 
             {/* Goal widget */}
-            <View
-              style={[
-                styles.widget,
-                { width: WIDGET_HALF, backgroundColor: Colors.blueMid },
-              ]}
-            >
-              <Text style={styles.widgetIcon}>🎯</Text>
+            <View style={[styles.widget, { width: WIDGET_HALF, backgroundColor: Colors.elevated }]}>
+              <Icon name="flag" size={26} color={Colors.accent} style={styles.widgetIcon} />
               <Text style={styles.widgetTiny}>{p.goals.join(' · ')}</Text>
             </View>
 
@@ -170,7 +192,7 @@ export default function MyProfileScreen() {
 
             {/* Location widget */}
             <View style={[styles.widget, { width: WIDGET_HALF }]}>
-              <Text style={styles.widgetIcon}>📍</Text>
+              <Icon name="location" size={26} color={Colors.accent} style={styles.widgetIcon} />
               <Text style={styles.widgetTiny}>{p.location}</Text>
             </View>
           </View>
@@ -215,7 +237,7 @@ export default function MyProfileScreen() {
           onRemove={removeMediaSample}
         />
 
-        <View style={{ height: 32 }} />
+        <View style={{ height: Spacing.xxl }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -224,214 +246,170 @@ export default function MyProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
 
   // Hero
-  heroSection: {
-    height: 480,
-    position: 'relative',
+  heroSection: { height: 470, position: 'relative' },
+  heroCover: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
+  heroScrimTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 140,
+    backgroundColor: 'rgba(8, 11, 20, 0.45)',
   },
-  heroCover: {
+  heroScrimBottom: {
     ...StyleSheet.absoluteFill,
-    width: '100%',
-    height: '100%',
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(10, 14, 26, 0.55)',
+    backgroundColor: 'rgba(8, 11, 20, 0.35)',
   },
   heroTopBar: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 20,
-    paddingTop: 16,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.lg,
   },
-  editBtn: {
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.3)',
+
+  // Glass controls (raio/borda/overflow vêm do GlassView)
+  glassPill: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm + 2,
   },
-  editBtnText: { color: Colors.textPrimary, fontWeight: '600', fontSize: 13 },
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+  glassPillText: { color: Colors.textPrimary, fontWeight: '600', fontSize: 14 },
+  glassCircle: {
+    width: 40,
+    height: 40,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  backBtnIcon: { color: Colors.textPrimary, fontSize: 16 },
+
 
   heroMid: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    gap: 16,
-    marginTop: 16,
+    paddingHorizontal: Spacing.xl,
+    gap: Spacing.md,
+    marginTop: Spacing.lg,
+  },
+  avatarHalo: {
+    width: 88,
+    height: 88,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   heroAvatar: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
+    width: 76,
+    height: 76,
+    borderRadius: Radius.pill,
     borderWidth: 3,
-    borderColor: Colors.teal,
   },
   connectionsBadge: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
   },
   connectionsText: { color: Colors.textPrimary, fontSize: 13, fontWeight: '600' },
-  socialsRow: {
-    flexDirection: 'row',
-    gap: 10,
-  },
-  socialIcon: { fontSize: 20 },
+  socialsRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm + 2 },
 
   heroBottom: {
     position: 'absolute',
-    bottom: 24,
-    left: 20,
-    right: 20,
+    bottom: Spacing.xl,
+    left: Spacing.xl,
+    right: Spacing.xl,
+    gap: Spacing.sm + 2,
   },
   heroName: {
-    fontSize: 52,
-    fontWeight: '900',
-    color: Colors.textPrimary,
-    lineHeight: 56,
-    letterSpacing: -1,
-    textShadowColor: 'rgba(0,0,0,0.6)',
+    ...Typography.display,
+    fontSize: 46,
+    lineHeight: 50,
+    textShadowColor: 'rgba(0,0,0,0.55)',
     textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 8,
+    textShadowRadius: 10,
   },
+  roleBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, flexWrap: 'wrap' },
   roleBadge: {
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
   },
   roleText: { color: Colors.textPrimary, fontWeight: '600', fontSize: 14 },
-  roleBadgeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, flexWrap: 'wrap' },
 
   // Plano
   planCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 20,
-    marginTop: 16,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 16,
+    marginHorizontal: Spacing.xl,
+    marginTop: Spacing.lg,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
-    borderColor: Colors.teal,
+    borderColor: Colors.accent,
+    ...Elevation.sm,
   },
-  planTitle: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
-  planSubtitle: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
-  planArrow: { fontSize: 26, color: Colors.teal, fontWeight: '300' },
+  planIcon: { marginRight: Spacing.md },
+  planTitle: { ...Typography.h3, fontSize: 16 },
+  planSubtitle: { ...Typography.caption, marginTop: 2 },
 
   // Sections
-  section: { padding: 20, paddingTop: 24 },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 1.5,
-    marginBottom: 14,
-  },
+  section: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl },
+  sectionLabel: { ...Typography.label, marginBottom: Spacing.md },
 
   // Widgets grid
-  widgetGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
+  widgetGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   widget: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 20,
-    padding: 16,
-    minHeight: 90,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
+    minHeight: 96,
     justifyContent: 'flex-end',
     borderWidth: 1,
     borderColor: Colors.border,
     overflow: 'hidden',
   },
-  widgetIcon: { fontSize: 28, marginBottom: 4 },
-  widgetBigNumber: {
-    fontSize: 42,
-    fontWeight: '900',
-    color: Colors.textPrimary,
-    lineHeight: 44,
-  },
-  widgetLabel: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary, marginTop: 2 },
-  widgetSubLabel: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
-  widgetTiny: { fontSize: 12, fontWeight: '600', color: Colors.textPrimary, marginTop: 2 },
+  widgetIcon: { marginBottom: Spacing.xs },
+  widgetBigNumber: { ...Typography.display, fontSize: 40, lineHeight: 42 },
+  widgetLabel: { ...Typography.bodyStrong, fontSize: 13, marginTop: 2 },
+  widgetSubLabel: { ...Typography.caption, fontSize: 11, marginTop: 1 },
+  widgetTiny: { ...Typography.bodyStrong, fontSize: 12, marginTop: 2 },
   widgetColorCode: {
     fontSize: 13,
     fontWeight: '700',
-    color: 'rgba(255,255,255,0.5)',
+    color: 'rgba(255,255,255,0.6)',
     marginBottom: 2,
   },
 
-  albumWidget: {
-    backgroundColor: Colors.bgCard,
-    padding: 0,
-    overflow: 'hidden',
-  },
-  albumCover: {
-    ...StyleSheet.absoluteFill,
-    width: '100%',
-    height: '100%',
-  },
-  albumOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
+  albumWidget: { padding: 0, overflow: 'hidden' },
+  albumCover: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
+  albumOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8,11,20,0.45)' },
   albumTitle: {
     position: 'absolute',
-    bottom: 12,
-    left: 12,
+    bottom: Spacing.md,
+    left: Spacing.md,
+    ...Typography.bodyStrong,
     fontSize: 13,
-    fontWeight: '700',
-    color: Colors.textPrimary,
   },
 
   // Bio
   bioCard: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  bioText: {
-    fontSize: 15,
-    color: Colors.textSecondary,
-    lineHeight: 22,
-  },
+  bioText: { ...Typography.body, color: Colors.textSecondary },
 
   // Tags
-  tagsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   influenceTag: {
-    backgroundColor: Colors.bgCard,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.pill,
     borderWidth: 1,
     borderColor: Colors.border,
   },
