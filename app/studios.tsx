@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../src/constants/colors';
+import { Spacing, Radius } from '../src/constants/theme';
+import { Typography } from '../src/constants/typography';
+import { Icon } from '../src/components/Icon';
 import { useProfile } from '../src/state/ProfileContext';
 import { rankStudiosByProximity } from '../src/lib/matchEngine';
 import { MOCK_STUDIOS, type Studio } from '../src/data/mockData';
@@ -35,7 +38,10 @@ function StudioCard({ studio }: { studio: Studio }) {
         <Text style={styles.description} numberOfLines={2}>
           {studio.description}
         </Text>
-        <Text style={styles.address}>📍 {studio.address}</Text>
+        <View style={styles.addressRow}>
+          <Icon name="location" size={13} color={Colors.textSecondary} />
+          <Text style={styles.address}>{studio.address}</Text>
+        </View>
         <View style={styles.amenitiesRow}>
           {studio.amenities.map((a) => (
             <View key={a} style={styles.amenityTag}>
@@ -59,7 +65,7 @@ export default function StudiosScreen() {
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-          <Text style={styles.headerIcon}>‹</Text>
+          <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Estúdios e espaços</Text>
         <View style={styles.headerBtn} />
@@ -79,47 +85,52 @@ export default function StudiosScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
   },
   headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  headerIcon: { fontSize: 32, color: Colors.textPrimary, lineHeight: 32 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  headerTitle: { ...Typography.h3, fontSize: 18 },
 
-  content: { padding: 20 },
-  subtitle: { color: Colors.textSecondary, fontSize: 15, marginBottom: 16 },
+  content: { padding: Spacing.xl },
+  subtitle: { ...Typography.body, color: Colors.textSecondary, marginBottom: Spacing.lg },
 
   card: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 18,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border,
-    marginBottom: 14,
+    marginBottom: Spacing.md + 2,
   },
   image: { width: '100%', height: 140 },
-  body: { padding: 14, gap: 8 },
+  body: { padding: Spacing.md + 2, gap: Spacing.sm },
   topRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  kindBadge: { backgroundColor: Colors.blueMid, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
+  kindBadge: {
+    backgroundColor: Colors.elevated,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm,
+  },
   kindText: { color: Colors.textPrimary, fontSize: 11, fontWeight: '700' },
-  distance: { color: Colors.teal, fontSize: 13, fontWeight: '700' },
-  name: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
-  description: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
+  distance: { color: Colors.accent, fontSize: 13, fontWeight: '700' },
+  name: { ...Typography.h3, fontSize: 18 },
+  description: { ...Typography.body, fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
+  addressRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
   address: { color: Colors.textSecondary, fontSize: 13 },
-  amenitiesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  amenitiesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs + 2 },
   amenityTag: {
-    backgroundColor: Colors.bgElevated,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    backgroundColor: Colors.elevated,
+    paddingHorizontal: Spacing.sm + 2,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm - 2,
   },
   amenityText: { color: Colors.textSecondary, fontSize: 12 },
-  price: { color: Colors.teal, fontSize: 15, fontWeight: '800', marginTop: 2 },
+  price: { color: Colors.accent, fontSize: 15, fontWeight: '800', marginTop: 2 },
 });

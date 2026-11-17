@@ -13,14 +13,18 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../src/constants/colors';
+import { Spacing, Radius, Elevation } from '../src/constants/theme';
+import { Typography } from '../src/constants/typography';
+import { Icon, IconName } from '../src/components/Icon';
+import { GlassView } from '../src/components/GlassView';
 import { useProfile } from '../src/state/ProfileContext';
 import { FREE_DAILY_SWIPES } from '../src/lib/monetization';
 
-const PRO_BENEFITS = [
-  { icon: '♾️', title: 'Recomendações ilimitadas', desc: 'Sem limite diário de swipes.' },
-  { icon: '⭐', title: 'Destaque no feed', desc: 'Seu perfil aparece mais para os outros.' },
-  { icon: '💼', title: 'Acesso a vagas pagas', desc: 'Veja e candidate-se a gigs remuneradas.' },
-  { icon: '🏅', title: 'Selo Pro no perfil', desc: 'Mais credibilidade nas conexões.' },
+const PRO_BENEFITS: { icon: IconName; title: string; desc: string }[] = [
+  { icon: 'infinite', title: 'Recomendações ilimitadas', desc: 'Sem limite diário de swipes.' },
+  { icon: 'star', title: 'Destaque no feed', desc: 'Seu perfil aparece mais para os outros.' },
+  { icon: 'briefcase', title: 'Acesso a vagas pagas', desc: 'Veja e candidate-se a gigs remuneradas.' },
+  { icon: 'ribbon', title: 'Selo Pro no perfil', desc: 'Mais credibilidade nas conexões.' },
 ];
 
 export default function UpgradeScreen() {
@@ -60,13 +64,17 @@ export default function UpgradeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-          <Text style={styles.headerIcon}>✕</Text>
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.85}>
+          <GlassView intensity={60} radius={Radius.pill} style={styles.headerBtn}>
+            <Icon name="close" size={18} color={Colors.textPrimary} />
+          </GlassView>
         </TouchableOpacity>
       </View>
 
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <Text style={styles.logo}>🎸</Text>
+        <View style={styles.logoHalo}>
+          <Icon name="musical-notes" size={40} color={Colors.accent} />
+        </View>
         <Text style={styles.title}>SoundMatch Pro</Text>
         <Text style={styles.subtitle}>
           {isPro
@@ -77,7 +85,9 @@ export default function UpgradeScreen() {
         <View style={styles.benefits}>
           {PRO_BENEFITS.map((b) => (
             <View key={b.title} style={styles.benefitRow}>
-              <Text style={styles.benefitIcon}>{b.icon}</Text>
+              <View style={styles.benefitIcon}>
+                <Icon name={b.icon} size={20} color={Colors.accent} />
+              </View>
               <View style={{ flex: 1 }}>
                 <Text style={styles.benefitTitle}>{b.title}</Text>
                 <Text style={styles.benefitDesc}>{b.desc}</Text>
@@ -104,7 +114,7 @@ export default function UpgradeScreen() {
             disabled={processing}
           >
             {processing ? (
-              <ActivityIndicator color={Colors.bg} />
+              <ActivityIndicator color={Colors.base} />
             ) : (
               <Text style={styles.subscribeText}>Assinar o Pro</Text>
             )}
@@ -121,72 +131,85 @@ export default function UpgradeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
-  header: { flexDirection: 'row', justifyContent: 'flex-end', padding: 12 },
+  header: { flexDirection: 'row', justifyContent: 'flex-end', padding: Spacing.md },
   headerBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.bgCard,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerIcon: { fontSize: 18, color: Colors.textPrimary },
 
-  content: { padding: 24, alignItems: 'center' },
-  logo: { fontSize: 56, marginBottom: 8 },
-  title: { fontSize: 30, fontWeight: '900', color: Colors.textPrimary, letterSpacing: -0.5 },
+  content: { padding: Spacing.xl, alignItems: 'center' },
+  logoHalo: {
+    width: 84,
+    height: 84,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  title: { ...Typography.h1 },
   subtitle: {
-    fontSize: 15,
+    ...Typography.body,
     color: Colors.textSecondary,
     textAlign: 'center',
-    marginTop: 8,
-    marginBottom: 28,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xxl,
   },
 
-  benefits: { alignSelf: 'stretch', gap: 16, marginBottom: 28 },
-  benefitRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  benefitIcon: { fontSize: 28, width: 36, textAlign: 'center' },
-  benefitTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  benefitDesc: { fontSize: 13, color: Colors.textSecondary, marginTop: 1 },
+  benefits: { alignSelf: 'stretch', gap: Spacing.lg, marginBottom: Spacing.xxl },
+  benefitRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md + 2 },
+  benefitIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  benefitTitle: { ...Typography.h3, fontSize: 16 },
+  benefitDesc: { ...Typography.caption, marginTop: 1 },
 
   priceCard: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 20,
-    paddingVertical: 20,
-    paddingHorizontal: 40,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    paddingVertical: Spacing.xl,
+    paddingHorizontal: Spacing.xxl + Spacing.sm,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: Colors.teal,
+    borderColor: Colors.accent,
+    ...Elevation.sm,
   },
-  price: { fontSize: 32, fontWeight: '900', color: Colors.teal },
-  pricePeriod: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  price: { ...Typography.display, fontSize: 32, lineHeight: 36, color: Colors.accent },
+  pricePeriod: { ...Typography.caption, marginTop: 2 },
 
   footer: {
-    padding: 20,
-    paddingBottom: 28,
+    padding: Spacing.xl,
+    paddingBottom: Spacing.xxl,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    gap: 10,
+    gap: Spacing.sm + 2,
   },
   subscribeBtn: {
-    backgroundColor: Colors.teal,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.lg,
     alignItems: 'center',
   },
-  subscribeBtnDisabled: { backgroundColor: Colors.bgCard },
-  subscribeText: { color: Colors.bg, fontSize: 16, fontWeight: '800' },
+  subscribeBtnDisabled: { backgroundColor: Colors.surface },
+  subscribeText: { ...Typography.button, fontSize: 16 },
   manageBtn: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.lg,
     alignItems: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  manageText: { color: Colors.textPrimary, fontSize: 15, fontWeight: '700' },
+  manageText: { ...Typography.bodyStrong, fontSize: 15 },
   disclaimer: { color: Colors.textMuted, fontSize: 12, textAlign: 'center' },
 });

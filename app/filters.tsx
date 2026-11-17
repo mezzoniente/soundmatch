@@ -11,6 +11,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../src/constants/colors';
+import { Spacing, Radius } from '../src/constants/theme';
+import { Typography } from '../src/constants/typography';
+import { Icon } from '../src/components/Icon';
 import { SelectChip } from '../src/components/SelectChip';
 import { useFilters } from '../src/state/FilterContext';
 import { INSTRUMENTS, SKILL_LEVELS, GENRE_SUGGESTIONS, COLLAB_GOALS } from '../src/constants/options';
@@ -62,7 +65,7 @@ export default function FiltersScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-          <Text style={styles.headerIcon}>‹</Text>
+          <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Filtros</Text>
         <TouchableOpacity onPress={clearAll} style={styles.clearBtn}>
@@ -155,46 +158,38 @@ export default function FiltersScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
   },
   headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  headerIcon: { fontSize: 32, color: Colors.textPrimary, lineHeight: 32 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
-  clearBtn: { paddingHorizontal: 12, height: 44, justifyContent: 'center' },
+  headerTitle: { ...Typography.h3, fontSize: 18 },
+  clearBtn: { paddingHorizontal: Spacing.md, height: 44, justifyContent: 'center' },
   clearText: { color: Colors.textSecondary, fontSize: 14, fontWeight: '600' },
 
-  content: { padding: 20 },
-  label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 10,
-  },
-  labelSpaced: { marginTop: 24 },
-  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  content: { padding: Spacing.xl },
+  label: { ...Typography.label, fontSize: 13, letterSpacing: 0.8, marginBottom: Spacing.sm + 2 },
+  labelSpaced: { marginTop: Spacing.xl },
+  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
 
   footer: {
-    padding: 20,
-    paddingBottom: 28,
+    padding: Spacing.xl,
+    paddingBottom: Spacing.xxl,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
   },
   applyBtn: {
-    backgroundColor: Colors.teal,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.lg,
     alignItems: 'center',
   },
-  applyText: { color: Colors.bg, fontSize: 16, fontWeight: '800' },
+  applyText: { ...Typography.button, fontSize: 16 },
 });

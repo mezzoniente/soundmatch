@@ -14,6 +14,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../src/constants/colors';
+import { Spacing, Radius } from '../src/constants/theme';
+import { Typography } from '../src/constants/typography';
+import { Icon } from '../src/components/Icon';
 import { FormField } from '../src/components/FormField';
 import { SelectChip } from '../src/components/SelectChip';
 import { useAuth } from '../src/state/AuthContext';
@@ -83,7 +86,7 @@ export default function PostEventScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-            <Text style={styles.headerIcon}>‹</Text>
+            <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Postar evento</Text>
           <View style={styles.headerBtn} />
@@ -183,7 +186,7 @@ export default function PostEventScreen() {
             disabled={!canSubmit || submitting}
           >
             {submitting ? (
-              <ActivityIndicator color={Colors.bg} />
+              <ActivityIndicator color={Colors.base} />
             ) : (
               <Text style={[styles.submitText, !canSubmit && styles.submitTextDisabled]}>
                 Publicar evento
@@ -199,48 +202,40 @@ export default function PostEventScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
   },
   headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  headerIcon: { fontSize: 32, color: Colors.textPrimary, lineHeight: 32 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  headerTitle: { ...Typography.h3, fontSize: 18 },
 
-  content: { padding: 20 },
-  label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 10,
-  },
-  spaced: { marginTop: 20 },
-  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  content: { padding: Spacing.xl },
+  label: { ...Typography.label, fontSize: 13, letterSpacing: 0.8, marginBottom: Spacing.sm + 2 },
+  spaced: { marginTop: Spacing.xl },
+  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   textArea: { minHeight: 90, textAlignVertical: 'top' },
-  error: { color: Colors.red, fontSize: 13, marginTop: 6 },
+  error: { color: Colors.danger, fontSize: 13, marginTop: Spacing.xs + 2 },
 
   footer: {
-    padding: 20,
-    paddingBottom: 28,
+    padding: Spacing.xl,
+    paddingBottom: Spacing.xxl,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
   },
   submitBtn: {
-    backgroundColor: Colors.teal,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.lg,
     alignItems: 'center',
   },
-  submitBtnDisabled: { backgroundColor: Colors.bgCard },
-  submitText: { color: Colors.bg, fontSize: 16, fontWeight: '800' },
+  submitBtnDisabled: { backgroundColor: Colors.surface },
+  submitText: { ...Typography.button, fontSize: 16 },
   submitTextDisabled: { color: Colors.textMuted },
 });
