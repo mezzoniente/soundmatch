@@ -15,6 +15,9 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { Colors } from '../../src/constants/colors';
+import { Spacing, Radius } from '../../src/constants/theme';
+import { Typography } from '../../src/constants/typography';
+import { Icon } from '../../src/components/Icon';
 import { MessageBubble } from '../../src/components/MessageBubble';
 import { useAuth } from '../../src/state/AuthContext';
 import {
@@ -136,7 +139,7 @@ export default function ConversationScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
-            <Text style={styles.backIcon}>‹</Text>
+            <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
           </TouchableOpacity>
           {dm ? (
             <Image source={{ uri: dm.avatar }} style={styles.headerAvatar} />
@@ -171,11 +174,12 @@ export default function ConversationScreen() {
         {/* Áudio anexado, aguardando envio */}
         {pendingAudio ? (
           <View style={styles.pendingAudio}>
+            <Icon name="musical-note" size={16} color={Colors.accent} />
             <Text style={styles.pendingText} numberOfLines={1}>
-              🎵 {pendingAudio.title}
+              {pendingAudio.title}
             </Text>
             <TouchableOpacity onPress={() => setPendingAudio(null)}>
-              <Text style={styles.pendingRemove}>✕</Text>
+              <Icon name="close" size={16} color={Colors.textSecondary} />
             </TouchableOpacity>
           </View>
         ) : null}
@@ -183,7 +187,7 @@ export default function ConversationScreen() {
         {/* Composer */}
         <View style={styles.composer}>
           <TouchableOpacity style={styles.attachBtn} onPress={attachAudio}>
-            <Text style={styles.attachIcon}>🎵</Text>
+            <Icon name="musical-note" size={18} color={Colors.textSecondary} />
           </TouchableOpacity>
           <TextInput
             style={styles.input}
@@ -198,7 +202,11 @@ export default function ConversationScreen() {
             onPress={send}
             disabled={!draft.trim() && !pendingAudio}
           >
-            <Text style={styles.sendIcon}>➤</Text>
+            <Icon
+              name="send"
+              size={18}
+              color={!draft.trim() && !pendingAudio ? Colors.textMuted : Colors.base}
+            />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>
@@ -209,70 +217,66 @@ export default function ConversationScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    gap: Spacing.sm + 2,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm + 2,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
   backBtn: { width: 36, height: 44, alignItems: 'center', justifyContent: 'center' },
-  backIcon: { fontSize: 30, color: Colors.textPrimary, lineHeight: 30 },
-  headerAvatar: { width: 38, height: 38, borderRadius: 19 },
-  headerAvatarSquare: { width: 38, height: 38, borderRadius: 10 },
-  headerTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  headerSubtitle: { fontSize: 12, color: Colors.textSecondary, marginTop: 1 },
+  headerAvatar: { width: 38, height: 38, borderRadius: Radius.pill },
+  headerAvatarSquare: { width: 38, height: 38, borderRadius: Radius.sm },
+  headerTitle: { ...Typography.h3, fontSize: 16 },
+  headerSubtitle: { ...Typography.caption, fontSize: 12, marginTop: 1 },
 
-  messagesList: { padding: 16, gap: 8 },
+  messagesList: { padding: Spacing.lg, gap: Spacing.sm },
 
   pendingAudio: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 10,
-    marginHorizontal: 12,
-    marginBottom: 4,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 12,
+    gap: Spacing.sm,
+    marginHorizontal: Spacing.md,
+    marginBottom: Spacing.xs,
+    paddingHorizontal: Spacing.md + 2,
+    paddingVertical: Spacing.sm + 2,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
     borderWidth: 1,
-    borderColor: Colors.teal,
+    borderColor: Colors.accent,
   },
   pendingText: { flex: 1, color: Colors.textPrimary, fontSize: 13 },
-  pendingRemove: { color: Colors.textSecondary, fontSize: 16, paddingHorizontal: 4 },
   composer: {
     flexDirection: 'row',
     alignItems: 'flex-end',
-    gap: 8,
-    padding: 12,
+    gap: Spacing.sm,
+    padding: Spacing.md,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
   },
   attachBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.bgCard,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  attachIcon: { fontSize: 18 },
   input: {
     flex: 1,
     maxHeight: 120,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm + 2,
     color: Colors.textPrimary,
     fontSize: 15,
     borderWidth: 1,
@@ -281,11 +285,10 @@ const styles = StyleSheet.create({
   sendBtn: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.teal,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  sendBtnDisabled: { backgroundColor: Colors.bgCard },
-  sendIcon: { color: Colors.bg, fontSize: 18, fontWeight: '900' },
+  sendBtnDisabled: { backgroundColor: Colors.surface },
 });

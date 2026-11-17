@@ -14,6 +14,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
+import { Spacing, Radius } from '../../src/constants/theme';
+import { Typography } from '../../src/constants/typography';
+import { Icon } from '../../src/components/Icon';
 import { MOCK_JAMS, MOCK_DMS, JamRoom, DMConversation } from '../../src/data/mockData';
 
 function JamCard({ jam, onPress }: { jam: JamRoom; onPress: () => void }) {
@@ -99,17 +102,17 @@ export default function ChatScreen() {
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.headerBtn}>
-            <Text style={styles.headerIcon}>⋯</Text>
+            <Icon name="ellipsis-horizontal" size={18} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Chats</Text>
           <TouchableOpacity style={styles.headerBtn}>
-            <Text style={styles.headerIcon}>✏️</Text>
+            <Icon name="create-outline" size={18} color={Colors.textPrimary} />
           </TouchableOpacity>
         </View>
 
         {/* Search bar */}
         <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>🔍</Text>
+          <Icon name="search" size={16} color={Colors.textMuted} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar conversa..."
@@ -124,7 +127,8 @@ export default function ChatScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>JAMS</Text>
             <TouchableOpacity style={styles.newBtn}>
-              <Text style={styles.newBtnText}>+ Nova Jam</Text>
+              <Icon name="add" size={14} color={Colors.base} />
+              <Text style={styles.newBtnText}>Nova Jam</Text>
             </TouchableOpacity>
           </View>
 
@@ -159,39 +163,38 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
   },
   headerBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.bgCard,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerIcon: { fontSize: 18, color: Colors.textPrimary },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  headerTitle: { ...Typography.h3, fontSize: 18 },
 
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginHorizontal: 20,
-    marginBottom: 16,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 14,
-    paddingHorizontal: 14,
+    marginHorizontal: Spacing.xl,
+    marginBottom: Spacing.lg,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.md + 2,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  searchIcon: { fontSize: 16, marginRight: 8 },
+  searchIcon: { marginRight: Spacing.sm },
   searchInput: {
     flex: 1,
     height: 44,
@@ -199,106 +202,102 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 
-  scrollContent: { paddingHorizontal: 20 },
+  scrollContent: { paddingHorizontal: Spacing.xl },
 
   sectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 12,
+    marginBottom: Spacing.md,
   },
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: Colors.textPrimary,
-    letterSpacing: 2,
-  },
+  sectionTitle: { ...Typography.label, fontSize: 13, color: Colors.textSecondary },
   newBtn: {
-    backgroundColor: Colors.teal,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.md + 2,
+    paddingVertical: Spacing.xs + 2,
+    borderRadius: Radius.md,
   },
-  newBtnText: { color: Colors.bg, fontWeight: '700', fontSize: 12 },
+  newBtnText: { ...Typography.bodyStrong, fontSize: 12, color: Colors.base },
 
   conversationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 12,
-    marginBottom: 10,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md,
+    marginBottom: Spacing.sm + 2,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   conversationCover: {
     width: 58,
     height: 58,
-    borderRadius: 12,
-    marginRight: 12,
+    borderRadius: Radius.md,
+    marginRight: Spacing.md,
   },
   dmAvatar: {
     width: 58,
     height: 58,
-    borderRadius: 29,
-    marginRight: 12,
+    borderRadius: Radius.pill,
+    marginRight: Spacing.md,
     borderWidth: 2,
-    borderColor: Colors.teal,
+    borderColor: Colors.accent,
   },
   conversationInfo: { flex: 1 },
   conversationHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 4,
+    marginBottom: Spacing.xs,
   },
   conversationName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: Colors.textPrimary,
+    ...Typography.bodyStrong,
     flex: 1,
-    marginRight: 8,
+    marginRight: Spacing.sm,
   },
-  conversationTime: { fontSize: 12, color: Colors.textSecondary },
+  conversationTime: { ...Typography.caption, fontSize: 12 },
   participantsRow: {
     flexDirection: 'row',
-    marginBottom: 4,
+    marginBottom: Spacing.xs,
   },
   participantAvatar: {
     width: 22,
     height: 22,
-    borderRadius: 11,
+    borderRadius: Radius.pill,
     borderWidth: 1.5,
-    borderColor: Colors.bg,
+    borderColor: Colors.base,
   },
   conversationLast: {
+    ...Typography.caption,
     fontSize: 13,
-    color: Colors.textSecondary,
   },
   conversationSender: {
     fontWeight: '600',
     color: Colors.textMuted,
   },
   conversationMeta: {
-    marginLeft: 8,
+    marginLeft: Spacing.sm,
     alignItems: 'flex-end',
     justifyContent: 'center',
   },
   unreadBadge: {
-    backgroundColor: Colors.teal,
-    borderRadius: 10,
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.sm,
     minWidth: 20,
     height: 20,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 5,
   },
-  unreadText: { color: Colors.bg, fontSize: 11, fontWeight: '800' },
+  unreadText: { color: Colors.base, fontSize: 11, fontWeight: '800' },
 
   emptyText: {
     color: Colors.textMuted,
     textAlign: 'center',
-    padding: 16,
+    padding: Spacing.lg,
     fontSize: 14,
   },
 });

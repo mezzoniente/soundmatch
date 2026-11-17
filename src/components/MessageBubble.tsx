@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Typography } from '../constants/typography';
 import { ChatAudioPreview } from './ChatAudioPreview';
 import { ChatLinkCard } from './ChatLinkCard';
 import { extractLink } from '../lib/linkDetection';
@@ -61,26 +63,26 @@ export function MessageBubble({ message, isMine, showSender }: MessageBubbleProp
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, maxWidth: '85%' },
+  row: { flexDirection: 'row', alignItems: 'flex-end', gap: Spacing.sm, maxWidth: '85%' },
   rowMine: { alignSelf: 'flex-end', justifyContent: 'flex-end' },
   rowTheirs: { alignSelf: 'flex-start' },
-  avatar: { width: 26, height: 26, borderRadius: 13 },
+  avatar: { width: 26, height: 26, borderRadius: Radius.pill },
   bubble: {
-    borderRadius: 18,
-    paddingHorizontal: 14,
-    paddingVertical: 9,
+    borderRadius: Radius.lg,
+    paddingHorizontal: Spacing.md + 2,
+    paddingVertical: Spacing.sm + 1,
   },
-  bubbleMine: { backgroundColor: Colors.teal, borderBottomRightRadius: 4 },
+  bubbleMine: { backgroundColor: Colors.accent, borderBottomRightRadius: Spacing.xs },
   bubbleTheirs: {
-    backgroundColor: Colors.bgCard,
-    borderBottomLeftRadius: 4,
+    backgroundColor: Colors.surface,
+    borderBottomLeftRadius: Spacing.xs,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  sender: { fontSize: 12, fontWeight: '700', color: Colors.teal, marginBottom: 2 },
-  text: { fontSize: 15, color: Colors.textPrimary, lineHeight: 20 },
-  attachment: { marginTop: 6 },
-  textMine: { color: Colors.bg },
-  time: { fontSize: 10, color: Colors.textSecondary, marginTop: 3, alignSelf: 'flex-end' },
-  timeMine: { color: 'rgba(10,14,26,0.6)' },
+  sender: { fontSize: 12, fontWeight: '700', color: Colors.accent, marginBottom: 2 },
+  text: { ...Typography.body, fontSize: 15, lineHeight: 20 },
+  attachment: { marginTop: Spacing.xs + 2 },
+  textMine: { color: Colors.base },
+  time: { ...Typography.caption, fontSize: 10, marginTop: 3, alignSelf: 'flex-end' },
+  timeMine: { color: 'rgba(8,11,20,0.6)' },
 });
