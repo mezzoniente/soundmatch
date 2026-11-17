@@ -16,6 +16,10 @@ import {
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
+import { Spacing, Radius, Elevation } from '../../src/constants/theme';
+import { Typography } from '../../src/constants/typography';
+import { Icon, IconName } from '../../src/components/Icon';
+import { GlassView } from '../../src/components/GlassView';
 import {
   MOCK_ARTISTS,
   MOCK_OPENINGS,
@@ -46,17 +50,18 @@ const { width: W, height: H } = Dimensions.get('window');
 const SWIPE_THRESHOLD = W * 0.35;
 
 const GOAL_COLORS: Record<string, string> = {
-  'Banda Fixa': Colors.teal,
+  'Banda Fixa': Colors.accent,
   'Colaboração Pontual': Colors.blue,
-  'Jam Session': Colors.gold,
-  'Trabalho Remunerado': Colors.green,
+  'Jam Session': Colors.warning,
+  'Trabalho Remunerado': Colors.success,
   'Substituição Temporária': '#E67E22',
 };
 
 function MatchReasonPill({ reason }: { reason: string }) {
   return (
     <View style={styles.pill}>
-      <Text style={styles.pillText}>✓ {reason}</Text>
+      <Icon name="checkmark" size={12} color={Colors.success} />
+      <Text style={styles.pillText}>{reason}</Text>
     </View>
   );
 }
@@ -72,20 +77,22 @@ function ArtistCard({
     <TouchableOpacity onPress={onPress} activeOpacity={0.95} style={styles.card}>
       {/* Cover hero */}
       <Image source={{ uri: artist.coverImage }} style={styles.cardCover} resizeMode="cover" />
-      <View style={styles.cardOverlay} />
+      {/* Scrim em camadas: garante contraste do texto claro sobre fotos claras */}
+      <View style={styles.cardScrimTop} />
+      <View style={styles.cardScrimBottom} />
 
       {/* Top bar */}
       <View style={styles.cardTop}>
-        <View style={[styles.goalBadge, { backgroundColor: GOAL_COLORS[artist.goals[0]] ?? Colors.teal }]}>
+        <View style={[styles.goalBadge, { backgroundColor: GOAL_COLORS[artist.goals[0]] ?? Colors.accent }]}>
           <Text style={styles.goalText}>
             {artist.goals[0]}
             {artist.goals.length > 1 ? ` +${artist.goals.length - 1}` : ''}
           </Text>
         </View>
         {artist.matchScore !== undefined && (
-          <View style={styles.matchBadge}>
+          <GlassView intensity={60} radius={Radius.md} borderColor={Colors.accent} style={styles.matchBadge}>
             <Text style={styles.matchText}>{artist.matchScore}% match</Text>
-          </View>
+          </GlassView>
         )}
       </View>
 
@@ -106,13 +113,16 @@ function ArtistCard({
               <Text style={styles.instrumentText}>{inst}</Text>
             </View>
           ))}
-          <View style={[styles.instrumentTag, { backgroundColor: Colors.blueMid }]}>
-            <Text style={styles.instrumentText}>{artist.level}</Text>
+          <View style={[styles.instrumentTag, styles.levelTag]}>
+            <Text style={styles.levelText}>{artist.level}</Text>
           </View>
         </View>
 
         {/* Location */}
-        <Text style={styles.locationText}>📍 {artist.location}</Text>
+        <View style={styles.locationRow}>
+          <Icon name="location" size={13} color={Colors.textSecondary} />
+          <Text style={styles.locationText}>{artist.location}</Text>
+        </View>
 
         {/* Match reasons */}
         {artist.matchReasons && (
@@ -133,6 +143,29 @@ function ArtistCard({
  * os filtros mudam, evitando sincronizar estado via setState em effect.
  */
 type SearchMode = 'people' | 'openings' | 'events';
+
+function ModeButton({
+  icon,
+  label,
+  active,
+  onPress,
+}: {
+  icon: IconName;
+  label: string;
+  active: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      style={[styles.modeBtn, active && styles.modeBtnActive]}
+      onPress={onPress}
+      activeOpacity={0.85}
+    >
+      <Icon name={icon} size={16} color={active ? Colors.base : Colors.textSecondary} />
+      <Text style={[styles.modeText, active && styles.modeTextActive]}>{label}</Text>
+    </TouchableOpacity>
+  );
+}
 
 export default function DiscoverScreen() {
   const { profile } = useProfile();
@@ -157,30 +190,24 @@ export default function DiscoverScreen() {
     <SafeAreaView style={styles.container}>
       {/* Toggle Pessoas / Vagas / Eventos */}
       <View style={styles.modeToggle}>
-        <TouchableOpacity
-          style={[styles.modeBtn, mode === 'people' && styles.modeBtnActive]}
+        <ModeButton
+          icon="people-outline"
+          label="Pessoas"
+          active={mode === 'people'}
           onPress={() => setMode('people')}
-        >
-          <Text style={[styles.modeText, mode === 'people' && styles.modeTextActive]}>
-            👤 Pessoas
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.modeBtn, mode === 'openings' && styles.modeBtnActive]}
+        />
+        <ModeButton
+          icon="clipboard-outline"
+          label="Vagas"
+          active={mode === 'openings'}
           onPress={() => setMode('openings')}
-        >
-          <Text style={[styles.modeText, mode === 'openings' && styles.modeTextActive]}>
-            📋 Vagas
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.modeBtn, mode === 'events' && styles.modeBtnActive]}
+        />
+        <ModeButton
+          icon="calendar-outline"
+          label="Eventos"
+          active={mode === 'events'}
           onPress={() => setMode('events')}
-        >
-          <Text style={[styles.modeText, mode === 'events' && styles.modeTextActive]}>
-            🎪 Eventos
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
 
       {mode === 'people' ? (
@@ -222,7 +249,8 @@ function OpeningsFeed() {
       <View style={styles.openingsHeader}>
         <Text style={styles.openingsTitle}>Vagas abertas</Text>
         <TouchableOpacity style={styles.postBtn} onPress={() => router.push('/post-opening')}>
-          <Text style={styles.postBtnText}>+ Postar vaga</Text>
+          <Icon name="add" size={16} color={Colors.base} />
+          <Text style={styles.postBtnText}>Postar vaga</Text>
         </TouchableOpacity>
       </View>
 
@@ -237,7 +265,7 @@ function OpeningsFeed() {
         >
           {openings.length === 0 ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>📋</Text>
+              <Icon name="clipboard-outline" size={56} color={Colors.textMuted} />
               <Text style={styles.emptyTitle}>Nenhuma vaga ainda</Text>
               <Text style={styles.emptySubtitle}>Seja o primeiro a postar uma vaga.</Text>
             </View>
@@ -277,7 +305,8 @@ function EventsFeed() {
       <View style={styles.openingsHeader}>
         <Text style={styles.openingsTitle}>Eventos</Text>
         <TouchableOpacity style={styles.postBtn} onPress={() => router.push('/post-event')}>
-          <Text style={styles.postBtnText}>+ Postar evento</Text>
+          <Icon name="add" size={16} color={Colors.base} />
+          <Text style={styles.postBtnText}>Postar evento</Text>
         </TouchableOpacity>
       </View>
 
@@ -292,7 +321,7 @@ function EventsFeed() {
         >
           {events.length === 0 ? (
             <View style={styles.emptyState}>
-              <Text style={styles.emptyIcon}>🎪</Text>
+              <Icon name="calendar-outline" size={56} color={Colors.textMuted} />
               <Text style={styles.emptyTitle}>Nenhum evento ainda</Text>
               <Text style={styles.emptySubtitle}>Poste uma demanda para encontrar músicos.</Text>
             </View>
@@ -453,15 +482,16 @@ function DiscoverFeed({
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerBtn}>
-          <Text style={styles.headerIcon}>⋯</Text>
+          <Icon name="ellipsis-horizontal" size={18} color={Colors.textPrimary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.searchBtn} onPress={() => router.push('/filters')}>
+          <Icon name="search" size={16} color={Colors.textSecondary} />
           <Text style={styles.searchText}>
-            🔍  {filterCount > 0 ? `${filterCount} filtro(s) ativo(s)` : 'Buscar e filtrar'}
+            {filterCount > 0 ? `${filterCount} filtro(s) ativo(s)` : 'Buscar e filtrar'}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.headerBtn} onPress={() => router.push('/filters')}>
-          <Text style={styles.headerIcon}>⚙</Text>
+          <Icon name="options" size={18} color={Colors.textPrimary} />
           {filterCount > 0 && (
             <View style={styles.filterBadge}>
               <Text style={styles.filterBadgeText}>{filterCount}</Text>
@@ -474,7 +504,7 @@ function DiscoverFeed({
       <View style={styles.cardsArea}>
         {limitReached ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>⏳</Text>
+            <Icon name="hourglass-outline" size={56} color={Colors.textMuted} />
             <Text style={styles.emptyTitle}>Limite diário atingido</Text>
             <Text style={styles.emptySubtitle}>
               Você usou seus {FREE_DAILY_SWIPES} swipes de hoje. Assine o Pro para
@@ -486,7 +516,11 @@ function DiscoverFeed({
           </View>
         ) : queue.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyIcon}>{filterCount > 0 ? '🔍' : '🎵'}</Text>
+            <Icon
+              name={filterCount > 0 ? 'search-outline' : 'musical-notes'}
+              size={56}
+              color={Colors.textMuted}
+            />
             <Text style={styles.emptyTitle}>
               {filterCount > 0 && recommended.length === 0
                 ? 'Nenhum resultado'
@@ -519,7 +553,7 @@ function DiscoverFeed({
                   style={styles.cardCover}
                   resizeMode="cover"
                 />
-                <View style={styles.cardOverlay} />
+                <View style={styles.cardScrimBottom} />
                 <View style={styles.cardBottom}>
                   <Text style={styles.artistName}>{queue[1].name}</Text>
                 </View>
@@ -564,26 +598,28 @@ function DiscoverFeed({
       {queue.length > 0 && (
         <View style={styles.actions}>
           <TouchableOpacity style={[styles.actionBtn, styles.passBtn]} onPress={swipeLeft}>
-            <Text style={styles.actionIcon}>✕</Text>
+            <Icon name="close" size={26} color={Colors.danger} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionBtn, styles.saveBtn]}>
-            <Text style={styles.actionIcon}>🔖</Text>
+            <Icon name="bookmark-outline" size={22} color={Colors.textMuted} />
           </TouchableOpacity>
           <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]} onPress={swipeRight}>
-            <Text style={styles.actionIcon}>✓</Text>
+            <Icon name="checkmark" size={26} color={Colors.base} />
           </TouchableOpacity>
         </View>
       )}
 
       {/* Feedback overlay */}
       {actionFeedback === 'accept' && (
-        <View style={[styles.feedbackOverlay, { borderColor: Colors.green }]}>
-          <Text style={[styles.feedbackText, { color: Colors.green }]}>ACEITO ✓</Text>
+        <View style={[styles.feedbackOverlay, { borderColor: Colors.success }]}>
+          <Icon name="checkmark-circle" size={30} color={Colors.success} />
+          <Text style={[styles.feedbackText, { color: Colors.success }]}>ACEITO</Text>
         </View>
       )}
       {actionFeedback === 'pass' && (
-        <View style={[styles.feedbackOverlay, { borderColor: Colors.red }]}>
-          <Text style={[styles.feedbackText, { color: Colors.red }]}>PASSA ✕</Text>
+        <View style={[styles.feedbackOverlay, { borderColor: Colors.danger }]}>
+          <Icon name="close-circle" size={30} color={Colors.danger} />
+          <Text style={[styles.feedbackText, { color: Colors.danger }]}>PASSA</Text>
         </View>
       )}
     </View>
@@ -595,62 +631,72 @@ const CARD_H = H * 0.68;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   feedBody: { flex: 1 },
 
-  // Toggle Pessoas/Vagas
+  // Toggle Pessoas/Vagas/Eventos
   modeToggle: {
     flexDirection: 'row',
-    gap: 8,
-    marginHorizontal: 20,
-    marginTop: 8,
-    marginBottom: 4,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 14,
-    padding: 4,
+    gap: Spacing.sm,
+    marginHorizontal: Spacing.xl,
+    marginTop: Spacing.sm,
+    marginBottom: Spacing.xs,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.xs,
   },
-  modeBtn: { flex: 1, paddingVertical: 10, borderRadius: 10, alignItems: 'center' },
-  modeBtnActive: { backgroundColor: Colors.teal },
-  modeText: { color: Colors.textSecondary, fontSize: 14, fontWeight: '700' },
-  modeTextActive: { color: Colors.bg },
+  modeBtn: {
+    flex: 1,
+    flexDirection: 'row',
+    gap: Spacing.xs + 2,
+    paddingVertical: Spacing.sm + 2,
+    borderRadius: Radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modeBtnActive: { backgroundColor: Colors.accent },
+  modeText: { ...Typography.bodyStrong, fontSize: 14, color: Colors.textSecondary },
+  modeTextActive: { color: Colors.base },
 
-  // Vagas
+  // Vagas / Eventos
   openingsHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
   },
-  openingsTitle: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
+  openingsTitle: { ...Typography.h2 },
   postBtn: {
-    backgroundColor: Colors.teal,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.md + 2,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.md,
   },
-  postBtnText: { color: Colors.bg, fontSize: 13, fontWeight: '700' },
+  postBtnText: { ...Typography.bodyStrong, fontSize: 13, color: Colors.base },
   openingsLoading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  openingsList: { paddingHorizontal: 20, paddingTop: 4, gap: 12 },
+  openingsList: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xs, gap: Spacing.md },
 
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
   },
   headerBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.bgCard,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerIcon: { fontSize: 18, color: Colors.textPrimary },
   filterBadge: {
     position: 'absolute',
     top: 2,
@@ -658,21 +704,22 @@ const styles = StyleSheet.create({
     minWidth: 18,
     height: 18,
     borderRadius: 9,
-    backgroundColor: Colors.teal,
+    backgroundColor: Colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  filterBadgeText: { color: Colors.bg, fontSize: 10, fontWeight: '800' },
+  filterBadgeText: { color: Colors.base, fontSize: 10, fontWeight: '800' },
   searchBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.bgCard,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 22,
+    gap: Spacing.sm,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.sm + 2,
+    borderRadius: Radius.pill,
   },
-  searchText: { color: Colors.textSecondary, fontSize: 14 },
+  searchText: { ...Typography.body, fontSize: 14, color: Colors.textSecondary },
 
   cardsArea: {
     flex: 1,
@@ -682,140 +729,159 @@ const styles = StyleSheet.create({
 
   card: {
     position: 'absolute',
-    width: W - 32,
+    width: W - Spacing.xl * 2,
     height: CARD_H,
-    borderRadius: 24,
+    borderRadius: Radius.lg,
     overflow: 'hidden',
-    backgroundColor: Colors.bgCard,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.5,
-    shadowRadius: 20,
-    elevation: 12,
+    backgroundColor: Colors.surface,
+    ...Elevation.lg,
   },
   cardBehind: {
     transform: [{ scale: 0.95 }],
-    top: 12,
+    top: Spacing.md,
   },
   cardCover: {
     ...StyleSheet.absoluteFill,
     width: '100%',
     height: '100%',
   },
-  cardOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'transparent',
+  // Scrim superior: escurece o topo para os badges lerem bem
+  cardScrimTop: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: 120,
+    backgroundColor: 'rgba(8,11,20,0.45)',
+  },
+  // Scrim inferior: base escura garantindo contraste de nome/tags
+  cardScrimBottom: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    height: '55%',
+    backgroundColor: 'rgba(8,11,20,0.55)',
   },
   cardTop: {
     position: 'absolute',
-    top: 16,
-    left: 16,
-    right: 16,
+    top: Spacing.lg,
+    left: Spacing.lg,
+    right: Spacing.lg,
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
   },
   goalBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
+    borderRadius: Radius.md,
   },
   goalText: { color: '#fff', fontSize: 12, fontWeight: '700' },
   matchBadge: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.teal,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
   },
-  matchText: { color: Colors.teal, fontSize: 12, fontWeight: '700' },
+  matchText: { color: Colors.accent, fontSize: 12, fontWeight: '700' },
 
   cardBottom: {
     position: 'absolute',
     bottom: 0,
     left: 0,
     right: 0,
-    padding: 20,
-    paddingBottom: 24,
-    backgroundColor: 'rgba(0,0,0,0.75)',
+    padding: Spacing.xl,
+    paddingBottom: Spacing.xl,
   },
   artistRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    marginBottom: 10,
+    gap: Spacing.md,
+    marginBottom: Spacing.sm + 2,
   },
   avatar: {
     width: 48,
     height: 48,
-    borderRadius: 24,
+    borderRadius: Radius.pill,
     borderWidth: 2,
-    borderColor: Colors.teal,
+    borderColor: Colors.accent,
   },
   artistName: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: Colors.textPrimary,
-    letterSpacing: -0.3,
+    ...Typography.display,
+    fontSize: 24,
+    lineHeight: 28,
+    textShadowColor: 'rgba(0,0,0,0.5)',
+    textShadowOffset: { width: 0, height: 2 },
+    textShadowRadius: 8,
   },
   artistRole: {
-    fontSize: 13,
-    color: Colors.textSecondary,
+    ...Typography.caption,
     marginTop: 1,
   },
   tagsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 8,
+    gap: Spacing.xs + 2,
+    marginBottom: Spacing.sm,
   },
   instrumentTag: {
-    backgroundColor: 'rgba(0, 212, 200, 0.2)',
+    backgroundColor: Colors.accentSoft,
     borderWidth: 1,
-    borderColor: Colors.teal,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
+    borderColor: Colors.accent,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs,
+    borderRadius: Radius.sm - 2,
   },
-  instrumentText: { color: Colors.teal, fontSize: 12, fontWeight: '600' },
+  instrumentText: { color: Colors.accent, fontSize: 12, fontWeight: '600' },
+  levelTag: {
+    backgroundColor: Colors.glass,
+    borderColor: Colors.glassBorder,
+  },
+  levelText: { color: Colors.textPrimary, fontSize: 12, fontWeight: '600' },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
   locationText: {
+    ...Typography.caption,
     color: Colors.textSecondary,
-    fontSize: 13,
-    marginBottom: 8,
   },
   pillsRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
+    gap: Spacing.xs + 2,
   },
   pill: {
-    backgroundColor: 'rgba(46, 204, 113, 0.15)',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    backgroundColor: Colors.successSoft,
     borderWidth: 1,
-    borderColor: Colors.green,
-    paddingHorizontal: 8,
+    borderColor: Colors.success,
+    paddingHorizontal: Spacing.sm,
     paddingVertical: 3,
-    borderRadius: 6,
+    borderRadius: Radius.sm - 4,
   },
-  pillText: { color: Colors.green, fontSize: 11, fontWeight: '600' },
+  pillText: { color: Colors.success, fontSize: 11, fontWeight: '600' },
 
   stamp: {
     position: 'absolute',
     zIndex: 10,
     top: 60,
-    paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderRadius: 8,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.sm,
     borderWidth: 4,
   },
   stampLike: {
-    left: 20,
-    borderColor: Colors.green,
+    left: Spacing.xl,
+    borderColor: Colors.success,
     transform: [{ rotate: '-20deg' }],
   },
   stampNope: {
-    right: 20,
-    borderColor: Colors.red,
+    right: Spacing.xl,
+    borderColor: Colors.danger,
     transform: [{ rotate: '20deg' }],
   },
   stampText: {
@@ -829,53 +895,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
-    paddingVertical: 16,
-    paddingBottom: 24,
+    gap: Spacing.xl,
+    paddingVertical: Spacing.lg,
+    paddingBottom: Spacing.xl,
   },
   actionBtn: {
     width: 60,
     height: 60,
-    borderRadius: 30,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    ...Elevation.md,
   },
-  passBtn: { backgroundColor: Colors.bgCard, borderWidth: 2, borderColor: Colors.red },
-  saveBtn: { backgroundColor: Colors.bgCard, borderWidth: 2, borderColor: Colors.textMuted },
-  acceptBtn: { backgroundColor: Colors.teal },
-  actionIcon: { fontSize: 22 },
+  passBtn: { backgroundColor: Colors.surface, borderWidth: 2, borderColor: Colors.danger },
+  saveBtn: { backgroundColor: Colors.surface, borderWidth: 2, borderColor: Colors.textMuted },
+  acceptBtn: { backgroundColor: Colors.accent },
 
   emptyState: {
     alignItems: 'center',
-    gap: 12,
-    padding: 32,
+    gap: Spacing.md,
+    padding: Spacing.xxl,
   },
-  emptyIcon: { fontSize: 64 },
-  emptyTitle: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary },
-  emptySubtitle: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center' },
+  emptyTitle: { ...Typography.h2, textAlign: 'center' },
+  emptySubtitle: { ...Typography.body, color: Colors.textSecondary, textAlign: 'center' },
   resetBtn: {
-    marginTop: 8,
-    backgroundColor: Colors.teal,
-    paddingHorizontal: 28,
-    paddingVertical: 12,
-    borderRadius: 24,
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.xxl,
+    paddingVertical: Spacing.md,
+    borderRadius: Radius.lg,
   },
-  resetText: { color: Colors.bg, fontWeight: '700', fontSize: 15 },
+  resetText: { ...Typography.button, fontSize: 15 },
 
   feedbackOverlay: {
     position: 'absolute',
     top: H * 0.35,
     alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
     borderWidth: 4,
-    borderRadius: 12,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
-    backgroundColor: 'rgba(0,0,0,0.4)',
+    borderRadius: Radius.sm,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.sm + 2,
+    backgroundColor: Colors.overlay,
   },
   feedbackText: {
     fontSize: 32,
