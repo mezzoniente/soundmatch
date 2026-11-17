@@ -28,6 +28,7 @@ import { useProfile } from '../../src/state/ProfileContext';
 import { useFilters } from '../../src/state/FilterContext';
 import { useUsage } from '../../src/state/UsageContext';
 import { canSwipe, FREE_DAILY_SWIPES } from '../../src/lib/monetization';
+import { withAlpha } from '../../src/lib/adaptiveColor';
 import {
   rankCandidates,
   applyFilters,
@@ -305,6 +306,24 @@ function EventsFeed() {
   );
 }
 
+/**
+ * Camada de fundo tingida pela vibe do artista. Faz fade-in ao montar; usada
+ * com `key={color}` para criar uma transição suave entre cards sem guardar a
+ * cor anterior em estado (evita setState/ref no render).
+ */
+function VibeBackdrop({ color }: { color: string }) {
+  const [opacity] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    Animated.timing(opacity, { toValue: 1, duration: 500, useNativeDriver: true }).start();
+  }, [opacity]);
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[StyleSheet.absoluteFill, { backgroundColor: withAlpha(color, 0.16), opacity }]}
+    />
+  );
+}
+
 function DiscoverFeed({
   recommended,
   filterCount,
@@ -322,6 +341,11 @@ function DiscoverFeed({
   const [queue, setQueue] = useState<Artist[]>(recommended);
   const [accepted, setAccepted] = useState<string[]>([]);
   const [actionFeedback, setActionFeedback] = useState<'accept' | 'pass' | null>(null);
+
+  // Fundo adaptativo: tinge a tela com a vibe do artista no topo da fila.
+  // A camada de fundo remonta a cada vibe nova (via key) e faz fade-in,
+  // criando a transição suave sem guardar a cor anterior em ref/state.
+  const currentVibe = queue[0]?.vibeColor ?? Colors.accent;
 
   // Valor animado da posição do cartão. Guardado em state com inicializador
   // preguiçoso (não é um ref) para que as interpolações derivadas possam ser
@@ -423,6 +447,9 @@ function DiscoverFeed({
 
   return (
     <View style={styles.feedBody}>
+      {/* Fundo adaptativo tingido pela vibe; remonta e faz fade a cada card */}
+      <VibeBackdrop key={currentVibe} color={currentVibe} />
+
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerBtn}>
