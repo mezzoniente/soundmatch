@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/colors';
+import { Icon } from '../Icon';
 import { SelectChip } from '../SelectChip';
 import { FormField } from '../FormField';
 import {
@@ -162,14 +163,19 @@ export function GoalsForm({
             onPress={() => toggleGoal(g.value)}
             style={[styles.goalCard, selected && styles.goalCardSelected]}
           >
-            <Text style={styles.goalIcon}>{g.icon}</Text>
+            <Icon
+              name={g.icon}
+              size={22}
+              color={selected ? Colors.accent : Colors.textSecondary}
+              style={styles.goalIcon}
+            />
             <View style={{ flex: 1 }}>
               <Text style={[styles.goalTitle, selected && styles.goalTitleSelected]}>
                 {g.value}
               </Text>
               <Text style={styles.goalDesc}>{g.description}</Text>
             </View>
-            {selected && <Text style={styles.goalCheck}>✓</Text>}
+            {selected && <Icon name="checkmark" size={18} color={Colors.accent} />}
           </TouchableOpacity>
         );
       })}
@@ -355,11 +361,10 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
   },
   goalCardSelected: { borderColor: Colors.teal, backgroundColor: 'rgba(0, 212, 200, 0.08)' },
-  goalIcon: { fontSize: 26 },
+  goalIcon: { width: 28, textAlign: 'center' },
   goalTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
   goalTitleSelected: { color: Colors.teal },
   goalDesc: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
-  goalCheck: { fontSize: 18, color: Colors.teal, fontWeight: '800' },
 
   scheduleGrid: { marginTop: 4 },
   scheduleHeaderRow: { flexDirection: 'row', marginBottom: 8 },

@@ -6,6 +6,7 @@ import type {
   TimeSlot,
   Weekday,
 } from '../data/mockData';
+import type { IconName } from '../components/Icon';
 
 /** Instrumentos selecionáveis no onboarding. */
 export const INSTRUMENTS: Instrument[] = [
@@ -54,40 +55,40 @@ export const GENRE_SUGGESTIONS: string[] = [
 ];
 
 /** Objetivos de colaboração, com descrição para exibir no wizard. */
-export const COLLAB_GOALS: { value: CollabGoal; description: string; icon: string }[] = [
+export const COLLAB_GOALS: { value: CollabGoal; description: string; icon: IconName }[] = [
   {
     value: 'Banda Fixa',
     description: 'Projeto de longo prazo, ensaios regulares e shows.',
-    icon: '🎸',
+    icon: 'people',
   },
   {
     value: 'Colaboração Pontual',
     description: 'Uma música, um cover ou um projeto específico.',
-    icon: '🎵',
+    icon: 'musical-notes',
   },
   {
     value: 'Jam Session',
     description: 'Tocar junto de forma casual, sem compromisso.',
-    icon: '🎷',
+    icon: 'pulse',
   },
   {
     value: 'Trabalho Remunerado',
     description: 'Sessões de gravação e shows pagos.',
-    icon: '💰',
+    icon: 'cash',
   },
   {
     value: 'Substituição Temporária',
     description: 'Cobrir um músico em um show ou período.',
-    icon: '🔁',
+    icon: 'repeat',
   },
 ];
 
 /** Níveis de equipamento disponíveis. */
-export const EQUIPMENT_LEVELS: { value: EquipmentLevel; icon: string }[] = [
-  { value: 'Estúdio próprio', icon: '🎚️' },
-  { value: 'Equipamento portátil', icon: '🎒' },
-  { value: 'Apenas instrumento', icon: '🎻' },
-  { value: 'Sem equipamento', icon: '🚫' },
+export const EQUIPMENT_LEVELS: { value: EquipmentLevel; icon: IconName }[] = [
+  { value: 'Estúdio próprio', icon: 'headset' },
+  { value: 'Equipamento portátil', icon: 'bag' },
+  { value: 'Apenas instrumento', icon: 'musical-note' },
+  { value: 'Sem equipamento', icon: 'ban' },
 ];
 
 /** Dias da semana, na ordem de exibição da grade de disponibilidade. */

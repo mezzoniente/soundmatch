@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, TextInput, StyleSheet, TextInputProps } from 'react-native';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Typography } from '../constants/typography';
 
 interface FormFieldProps extends TextInputProps {
   label: string;
@@ -24,23 +26,16 @@ export function FormField({ label, hint, style, ...inputProps }: FormFieldProps)
 }
 
 const styles = StyleSheet.create({
-  wrapper: { marginBottom: 20 },
-  label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 6,
-  },
-  hint: { fontSize: 13, color: Colors.textMuted, marginBottom: 8 },
+  wrapper: { marginBottom: Spacing.xl },
+  label: { ...Typography.label, fontSize: 13, letterSpacing: 0.8, marginBottom: Spacing.xs + 2 },
+  hint: { fontSize: 13, color: Colors.textMuted, marginBottom: Spacing.sm },
   input: {
-    backgroundColor: Colors.bgCard,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
-    borderRadius: 14,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: Radius.md,
+    paddingHorizontal: Spacing.md + 2,
+    paddingVertical: Spacing.md,
     color: Colors.textPrimary,
     fontSize: 15,
   },
