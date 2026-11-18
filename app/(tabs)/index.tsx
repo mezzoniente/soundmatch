@@ -12,7 +12,6 @@ import {
   Platform,
   StatusBar as RNStatusBar,
   ScrollView,
-  ActivityIndicator,
 } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
@@ -20,6 +19,8 @@ import { Spacing, Radius, Elevation } from '../../src/constants/theme';
 import { Typography } from '../../src/constants/typography';
 import { Icon, IconName } from '../../src/components/Icon';
 import { GlassView } from '../../src/components/GlassView';
+import { PressableScale } from '../../src/components/PressableScale';
+import { SkeletonList } from '../../src/components/Skeleton';
 import {
   MOCK_ARTISTS,
   MOCK_OPENINGS,
@@ -255,9 +256,7 @@ function OpeningsFeed() {
       </View>
 
       {loading ? (
-        <View style={styles.openingsLoading}>
-          <ActivityIndicator color={Colors.accent} />
-        </View>
+        <SkeletonList />
       ) : (
         <ScrollView
           contentContainerStyle={styles.openingsList}
@@ -311,9 +310,7 @@ function EventsFeed() {
       </View>
 
       {loading ? (
-        <View style={styles.openingsLoading}>
-          <ActivityIndicator color={Colors.accent} />
-        </View>
+        <SkeletonList />
       ) : (
         <ScrollView
           contentContainerStyle={styles.openingsList}
@@ -597,15 +594,23 @@ function DiscoverFeed({
       {/* Action buttons */}
       {queue.length > 0 && (
         <View style={styles.actions}>
-          <TouchableOpacity style={[styles.actionBtn, styles.passBtn]} onPress={swipeLeft}>
+          <PressableScale
+            style={[styles.actionBtn, styles.passBtn]}
+            onPress={swipeLeft}
+            activeScale={0.88}
+          >
             <Icon name="close" size={26} color={Colors.danger} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, styles.saveBtn]}>
+          </PressableScale>
+          <PressableScale style={[styles.actionBtn, styles.saveBtn]} activeScale={0.88}>
             <Icon name="bookmark-outline" size={22} color={Colors.textMuted} />
-          </TouchableOpacity>
-          <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]} onPress={swipeRight}>
+          </PressableScale>
+          <PressableScale
+            style={[styles.actionBtn, styles.acceptBtn]}
+            onPress={swipeRight}
+            activeScale={0.88}
+          >
             <Icon name="checkmark" size={26} color={Colors.base} />
-          </TouchableOpacity>
+          </PressableScale>
         </View>
       )}
 
@@ -679,7 +684,6 @@ const styles = StyleSheet.create({
     borderRadius: Radius.md,
   },
   postBtnText: { ...Typography.bodyStrong, fontSize: 13, color: Colors.base },
-  openingsLoading: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   openingsList: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xs, gap: Spacing.md },
 
   header: {

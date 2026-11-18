@@ -221,11 +221,19 @@ consistência.
 - [ ] Revisão fina de `SafeArea`, alinhamento e justificação em telas densas
 - [ ] Reestruturar telas densas remanescentes para mais respiro e hierarquia
 
-### Fase V6 — Movimento e microinterações
-- [ ] Suavizar o gesto de swipe (curvas, resistência, feedback visual)
-- [ ] Transições fluidas de entrada/saída entre telas e modais
-- [ ] Feedback de toque em botões e cards (scale/opacity com spring)
-- [ ] Animar estados vazios e carregamento (skeletons)
+### Fase V6 — Movimento e microinterações ✅ (essencial)
+- [x] **Feedback de toque** em botões e cards — `PressableScale` (scale + opacity com mola,
+  `Animated` nativo). Aplicado nos botões de ação, CTAs primários e cards tocáveis.
+- [x] **Skeletons** de carregamento — `Skeleton`/`SkeletonCard`/`SkeletonList` (pulso de
+  opacidade) no lugar dos spinners nos feeds de Vagas/Eventos.
+- [~] Suavizar o gesto de swipe — já usa `Animated`+`PanResponder`; ajuste fino adiado
+  (baixo retorno, risco de regressão).
+- [~] Transições de tela — o expo-router já aplica as nativas; customização profunda
+  renderia pouco sem `react-native-reanimated` (incompatível com Expo Go). Adiado.
+
+> Sem `react-native-reanimated` (ver §6), o movimento usa `Animated` nativo com
+> `useNativeDriver`. Isso cobre bem feedback de toque, pulsos e fades; animações
+> baseadas em gesto/layout mais complexas ficam fora de escopo até haver dev build.
 
 ### Fase V7 — Polimento final
 - [ ] Revisão tela a tela comparando com o "antes" da V0
@@ -243,7 +251,7 @@ consistência.
 | `expo-splash-screen` | Segurar a UI até as fontes carregarem | ✅ Instalado |
 | `@expo-google-fonts/inter` | Fonte de corpo/UI (Inter) | ✅ Instalado |
 | Clash Display (Fontshare / ITF Free Font) | Fonte display (títulos, nomes) | ✅ Arquivos locais em `assets/fonts/` |
-| `@expo/vector-icons` | Ícones vetoriais (substituir emojis) | Vem com o Expo — usar na V4 |
+| `@react-native-vector-icons/ionicons` | Ícones vetoriais (set Ionicons) | ✅ Instalado; usado no `Icon` (Expo Go via import dinâmico) |
 | `react-native-image-colors` *(futuro)* | Extração de cor real da foto | Exige development build; hoje usamos `vibeColor` |
 | `react-native-reanimated` *(a avaliar)* | Animações fluidas | Removido antes por incompatibilidade com Expo Go; reavaliar só se o `Animated` nativo não bastar |
 
