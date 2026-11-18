@@ -83,7 +83,7 @@ export default function TabsLayout() {
 
 const styles = StyleSheet.create({
   tabBar: {
-    backgroundColor: Colors.bgCard,
+    backgroundColor: Colors.surface,
     borderTopColor: Colors.border,
     borderTopWidth: 1,
     height: 72,
@@ -100,6 +100,6 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   tabLabelFocused: {
-    color: Colors.teal,
+    color: Colors.accent,
   },
 });

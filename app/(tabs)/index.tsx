@@ -256,7 +256,7 @@ function OpeningsFeed() {
 
       {loading ? (
         <View style={styles.openingsLoading}>
-          <ActivityIndicator color={Colors.teal} />
+          <ActivityIndicator color={Colors.accent} />
         </View>
       ) : (
         <ScrollView
@@ -312,7 +312,7 @@ function EventsFeed() {
 
       {loading ? (
         <View style={styles.openingsLoading}>
-          <ActivityIndicator color={Colors.teal} />
+          <ActivityIndicator color={Colors.accent} />
         </View>
       ) : (
         <ScrollView

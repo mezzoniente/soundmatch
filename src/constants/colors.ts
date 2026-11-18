@@ -2,11 +2,11 @@
  * Paleta do SoundMatch — Design System V1.
  *
  * Organizada por papéis: neutros em camadas, superfícies de vidro (glass),
- * acento de identidade (teal) e cores semânticas. Pares texto/fundo pensados
+ * acento de identidade e cores semânticas. Pares texto/fundo pensados
  * para contraste WCAG AA.
  *
- * Os nomes legados (bg, bgCard, blue, etc.) são mantidos como aliases no final
- * para que as telas ainda não migradas continuem funcionando durante a transição.
+ * A migração do design system está concluída: toda a UI usa os papéis abaixo.
+ * Os antigos aliases (bg, bgCard, teal, etc.) foram removidos.
  */
 export const Colors = {
   // ---- Neutros em camadas (profundidade: base -> superfície -> elevado) ----
@@ -63,20 +63,7 @@ export const Colors = {
   /** Gradiente de base usado no rodapé de cartões com foto (cor final). */
   scrim: 'rgba(8, 11, 20, 0.92)',
 
-  // =========================================================================
-  // Aliases legados — mantêm as telas não migradas funcionando.
-  // Serão removidos quando toda a UI usar os tokens novos.
-  // =========================================================================
-  bg: '#080B14',
-  bgCard: '#121725',
-  bgElevated: '#1B2234',
-  teal: '#00D4C8',
-  tealDark: '#039B92',
+  // ---- Cor auxiliar ----
+  /** Azul de identidade secundária (usado como cor do objetivo "Colaboração Pontual"). */
   blue: '#1A2C8E',
-  blueLight: '#2D4DB5',
-  blueMid: '#1E3A5F',
-  gold: '#FBBF24',
-  red: '#F87171',
-  green: '#34D399',
-  borderLight: '#33405C',
 };
