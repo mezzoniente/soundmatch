@@ -41,23 +41,28 @@ que roda no Expo Go, mas tem comportamento diferente por plataforma:
   `BlurTargetView` e passar a ref ao `BlurView` (`blurMethod="dimezisBlurView"`). Mais
   trabalhoso e com custo de performance.
 
-Por isso adotamos **dois níveis de "glass"**, aplicados conforme o contexto:
+Por isso adotamos **dois níveis de "glass"**, aplicados conforme o contexto (abordagem
+revisada após validar no Android, onde o `BlurView` sem `BlurTargetView` só renderiza um
+painel translúcido, sem desfoque):
 
-1. **Glass real (`expo-blur`)** — reservado para poucas superfícies de alto impacto onde
-   o blur do fundo importa: **tab bar**, **headers flutuantes**, **modais/paywall**.
-2. **Glass "falso" (translúcido)** — superfície semi-transparente (`rgba`) + borda clara
-   sutil + sombra, **sem blur**. Barato, consistente entre plataformas, para a maioria
-   dos **cards** (perfil, vagas, eventos, mensagens). Visualmente coerente com o glass real.
+1. **Glass tonal (padrão, sem blur)** — superfície translúcida em camadas: preenchimento
+   semitransparente + faixa de luz no topo + borda de luz + sombra. **Idêntico em iOS e
+   Android** e barato. É o padrão da maioria dos cards/controles (vagas, eventos,
+   mensagens, badges, paywall).
+2. **Glass real (`expo-blur`)** — reservado a poucos pontos de alto impacto **sobre
+   conteúdo rico** (foto), onde o desfoque realmente aparece: os **heros de perfil**
+   (meu perfil e perfil público). No Android, exige envolver a camada de fundo num
+   `BlurTargetView` e passar a ref ao `BlurView` com `blurMethod="dimezisBlurView"`.
 
 Diretriz: blur é um recurso caro e pontual; a maior parte da sensação "glass" vem da
 translucidez + borda de luz + profundidade de sombra, não do blur em si.
 
 **Implementação (`src/components/GlassView.tsx`).** Os dois níveis vivem num só
-componente: `variant="blur"` (real, `expo-blur`, `tint="dark"`, `intensity` configurável
-— o piloto usa `75`) e `variant="translucent"` (falso, sem blur). O componente aplica a
-borda de luz, `overflow: 'hidden'` (para o raio recortar o conteúdo) e a elevação, de
-modo que as telas não repitam esses detalhes. Aceita `tintColor` para receber o
-tingimento adaptativo da vibe (ver 3.3).
+componente: `variant="tonal"` (padrão, sem blur) e `variant="blur"` (real; aceita
+`blurTarget` — a ref do `BlurTargetView` — para o blur real no Android). O componente
+aplica a faixa de luz, a borda, `overflow: 'hidden'` e a elevação, de modo que as telas
+não repitam esses detalhes. Aceita `tintColor` para o tingimento adaptativo da vibe
+(ver 3.3).
 
 ---
 
@@ -82,9 +87,10 @@ Os fundamentos (V1), a tipografia (V2), o sistema de glass (V3) e os ícones vet
 - **Espaçamento/raios/elevação (`theme.ts`):** escalas formais `Spacing`
   (4/8/12/16/24/32/48), `Radius` (sm 10 / md 16 / lg 24 / xl 28 / pill 999) e `Elevation`
   (none/sm/md/lg).
-- **Glass (`src/components/GlassView.tsx`):** componente único com dois modos — `blur`
-  (real, via `expo-blur`) e `translucent` (falso, rgba + borda). Centraliza borda de luz,
-  `overflow: 'hidden'`, raio e sombra.
+- **Glass (`src/components/GlassView.tsx`):** componente único com dois modos — `tonal`
+  (padrão, translúcido em camadas, sem blur, consistente iOS/Android) e `blur` (real, via
+  `expo-blur` + `BlurTargetView` no Android, usado só nos heros de perfil). Centraliza
+  faixa de luz, borda, `overflow: 'hidden'`, raio e sombra.
 - **Ícones (`src/components/Icon.tsx`):** wrapper do set **Ionicons** de
   `@react-native-vector-icons` (import dinâmico, funciona no Expo Go). Tipo `IconName`
   exportado; tamanho e cor padronizados.

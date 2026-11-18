@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, ComponentRef } from 'react';
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
   Dimensions,
   Alert,
 } from 'react-native';
+import { BlurTargetView } from 'expo-blur';
 import { useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
 import { Spacing, Radius, Elevation } from '../../src/constants/theme';
@@ -42,6 +43,9 @@ export default function MyProfileScreen() {
   const { signOut } = useAuth();
   const completeness = evaluateCompleteness(p);
 
+  // Alvo de blur do hero (capa + scrims) para o blur real no Android.
+  const heroBlurTarget = useRef<ComponentRef<typeof View> | null>(null);
+
   // Paleta adaptativa derivada da vibe do artista — tinge o hero e os realces.
   const palette = paletteFromVibe(p.vibeColor);
 
@@ -57,21 +61,35 @@ export default function MyProfileScreen() {
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* Hero */}
         <View style={styles.heroSection}>
-          <Image source={{ uri: p.coverImage }} style={styles.heroCover} resizeMode="cover" />
-          {/* Scrim em camadas + tingimento adaptativo com a vibe do artista */}
-          <View style={styles.heroScrimTop} />
-          <View style={styles.heroScrimBottom} />
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: palette.tintedBg }]} />
+          {/* Camada desfocável: capa + scrims + tingimento adaptativo da vibe */}
+          <BlurTargetView ref={heroBlurTarget} style={StyleSheet.absoluteFill}>
+            <Image source={{ uri: p.coverImage }} style={styles.heroCover} resizeMode="cover" />
+            <View style={styles.heroScrimTop} />
+            <View style={styles.heroScrimBottom} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: palette.tintedBg }]} />
+          </BlurTargetView>
 
           {/* Top bar — controles com blur de vidro real */}
           <View style={styles.heroTopBar}>
             <TouchableOpacity activeOpacity={0.85} onPress={() => router.push('/edit-profile')}>
-              <GlassView intensity={75} radius={Radius.pill} style={styles.glassPill}>
+              <GlassView
+                variant="blur"
+                intensity={75}
+                blurTarget={heroBlurTarget}
+                radius={Radius.pill}
+                style={styles.glassPill}
+              >
                 <Text style={styles.glassPillText}>Editar perfil</Text>
               </GlassView>
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.85} onPress={handleSignOut}>
-              <GlassView intensity={75} radius={Radius.pill} style={styles.glassCircle}>
+              <GlassView
+                variant="blur"
+                intensity={75}
+                blurTarget={heroBlurTarget}
+                radius={Radius.pill}
+                style={styles.glassCircle}
+              >
                 <Icon name="power" size={18} color={Colors.textPrimary} />
               </GlassView>
             </TouchableOpacity>
@@ -85,7 +103,13 @@ export default function MyProfileScreen() {
                 style={[styles.heroAvatar, { borderColor: palette.base }]}
               />
             </View>
-            <GlassView intensity={75} radius={Radius.pill} style={styles.connectionsBadge}>
+            <GlassView
+              variant="blur"
+              intensity={75}
+              blurTarget={heroBlurTarget}
+              radius={Radius.pill}
+              style={styles.connectionsBadge}
+            >
               <Text style={styles.connectionsText}>{p.connections} conexões</Text>
             </GlassView>
             <View style={styles.socialsRow}>
@@ -105,7 +129,13 @@ export default function MyProfileScreen() {
           <View style={styles.heroBottom}>
             <Text style={styles.heroName}>{p.name}</Text>
             <View style={styles.roleBadgeRow}>
-              <GlassView intensity={75} radius={Radius.pill} style={styles.roleBadge}>
+              <GlassView
+                variant="blur"
+                intensity={75}
+                blurTarget={heroBlurTarget}
+                radius={Radius.pill}
+                style={styles.roleBadge}
+              >
                 <Text style={styles.roleText}>{p.role}</Text>
               </GlassView>
               {isVerified(p) && <VerifiedBadge />}

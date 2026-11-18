@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef, ComponentRef } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   StatusBar as RNStatusBar,
   Dimensions,
 } from 'react-native';
+import { BlurTargetView } from 'expo-blur';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MOCK_ARTISTS, MOCK_REVIEWS } from '../../src/data/mockData';
 import { Colors } from '../../src/constants/colors';
@@ -52,6 +53,10 @@ export default function ArtistProfileScreen() {
   const { profile: me } = useProfile();
   const baseArtist = MOCK_ARTISTS.find((a) => a.id === id);
 
+  // Alvo de blur do hero (capa + scrims) para o blur real no Android. Declarado
+  // antes de qualquer early return para não violar as regras de hooks.
+  const heroBlurTarget = useRef<ComponentRef<typeof View> | null>(null);
+
   // Recalcula a compatibilidade com o motor real, em vez dos valores do mock.
   const match = useMemo(
     () => (baseArtist ? computeMatch(me, baseArtist) : undefined),
@@ -86,20 +91,35 @@ export default function ArtistProfileScreen() {
             do hero fica empilhado numa coluna só, sem posicionamento absoluto
             concorrente — evita a sobreposição anterior. */}
         <View style={styles.heroSection}>
-          <Image source={{ uri: artist.coverImage }} style={styles.heroCover} resizeMode="cover" />
-          <View style={styles.heroScrimTop} />
-          <View style={styles.heroScrimBottom} />
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: palette.tintedBg }]} />
+          {/* Camada desfocável: capa + scrims. O BlurView dos controles lê daqui. */}
+          <BlurTargetView ref={heroBlurTarget} style={StyleSheet.absoluteFill}>
+            <Image source={{ uri: artist.coverImage }} style={styles.heroCover} resizeMode="cover" />
+            <View style={styles.heroScrimTop} />
+            <View style={styles.heroScrimBottom} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: palette.tintedBg }]} />
+          </BlurTargetView>
 
-          {/* Top actions — glass real */}
+          {/* Top actions — blur real sobre a foto */}
           <View style={styles.heroTopBar}>
             <TouchableOpacity activeOpacity={0.85} onPress={() => router.back()}>
-              <GlassView intensity={60} radius={Radius.pill} style={styles.circleBtn}>
+              <GlassView
+                variant="blur"
+                intensity={60}
+                blurTarget={heroBlurTarget}
+                radius={Radius.pill}
+                style={styles.circleBtn}
+              >
                 <Icon name="chevron-back" size={22} color={Colors.textPrimary} />
               </GlassView>
             </TouchableOpacity>
             <TouchableOpacity activeOpacity={0.85}>
-              <GlassView intensity={60} radius={Radius.pill} style={styles.circleBtn}>
+              <GlassView
+                variant="blur"
+                intensity={60}
+                blurTarget={heroBlurTarget}
+                radius={Radius.pill}
+                style={styles.circleBtn}
+              >
                 <Icon name="ellipsis-horizontal" size={18} color={Colors.textPrimary} />
               </GlassView>
             </TouchableOpacity>
@@ -122,7 +142,13 @@ export default function ArtistProfileScreen() {
 
             {/* Conexões + socials, numa linha só, com glass */}
             <View style={styles.heroSubRow}>
-              <GlassView intensity={60} radius={Radius.pill} style={styles.connectionsBadge}>
+              <GlassView
+                variant="blur"
+                intensity={60}
+                blurTarget={heroBlurTarget}
+                radius={Radius.pill}
+                style={styles.connectionsBadge}
+              >
                 <Text style={styles.connectionsText}>{artist.connections} conexões</Text>
               </GlassView>
               <View style={styles.socialsRow}>
