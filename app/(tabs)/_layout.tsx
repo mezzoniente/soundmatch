@@ -21,7 +21,12 @@ function TabIcon({
         size={24}
         color={focused ? Colors.accent : Colors.textMuted}
       />
-      <Text style={[styles.tabLabel, focused && styles.tabLabelFocused]}>{label}</Text>
+      <Text
+        style={[styles.tabLabel, focused && styles.tabLabelFocused]}
+        numberOfLines={1}
+      >
+        {label}
+      </Text>
     </View>
   );
 }
@@ -93,6 +98,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 3,
     paddingTop: 6,
+    width: 72,
   },
   tabLabel: {
     fontSize: 10,
