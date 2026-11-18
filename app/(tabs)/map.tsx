@@ -12,20 +12,23 @@ import {
 import MapView, { Marker, Circle, PROVIDER_DEFAULT } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
+import { Spacing, Radius } from '../../src/constants/theme';
+import { Typography } from '../../src/constants/typography';
+import { Icon, IconName } from '../../src/components/Icon';
 import { MAP_MARKERS } from '../../src/data/mockData';
 
 const SCALES = ['1:500', '1:1000', '1:5000', '1:10000'];
 
 const MARKER_COLORS: Record<string, string> = {
-  artist: Colors.teal,
-  event: Colors.gold,
+  artist: Colors.accent,
+  event: Colors.warning,
   vaga: '#E67E22',
 };
 
-const MARKER_ICONS: Record<string, string> = {
-  artist: '🎸',
-  event: '🎤',
-  vaga: '📋',
+const MARKER_ICONS: Record<string, IconName> = {
+  artist: 'musical-notes',
+  event: 'calendar',
+  vaga: 'clipboard',
 };
 
 type FilterType = 'all' | 'artist' | 'event' | 'vaga';
@@ -52,13 +55,14 @@ export default function MapScreen() {
       {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.headerBtn}>
-          <Text style={styles.headerIcon}>⋯</Text>
+          <Icon name="ellipsis-horizontal" size={18} color={Colors.textPrimary} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.searchBtn}>
-          <Text style={styles.searchText}>🔍  Buscar</Text>
+          <Icon name="search" size={16} color={Colors.textSecondary} />
+          <Text style={styles.searchText}>Buscar</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.headerBtn}>
-          <Text style={styles.headerIcon}>◁</Text>
+          <Icon name="options" size={18} color={Colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
@@ -68,7 +72,7 @@ export default function MapScreen() {
           <Text style={styles.scaleText}>{scale}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.settingsBtn}>
-          <Text style={styles.settingsIcon}>⚙️</Text>
+          <Icon name="settings" size={18} color={Colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -79,17 +83,24 @@ export default function MapScreen() {
         style={styles.filterScroll}
         contentContainerStyle={styles.filterContent}
       >
-        {(['all', 'artist', 'event', 'vaga'] as FilterType[]).map((f) => (
-          <TouchableOpacity
-            key={f}
-            style={[styles.filterPill, filter === f && styles.filterPillActive]}
-            onPress={() => setFilter(f)}
-          >
-            <Text style={[styles.filterText, filter === f && styles.filterTextActive]}>
-              {f === 'all' ? 'Todos' : f === 'artist' ? '🎸 Artistas' : f === 'event' ? '🎤 Eventos' : '📋 Vagas'}
-            </Text>
-          </TouchableOpacity>
-        ))}
+        {(['all', 'artist', 'event', 'vaga'] as FilterType[]).map((f) => {
+          const active = filter === f;
+          const label =
+            f === 'all' ? 'Todos' : f === 'artist' ? 'Artistas' : f === 'event' ? 'Eventos' : 'Vagas';
+          const contentColor = active ? Colors.base : Colors.textSecondary;
+          return (
+            <TouchableOpacity
+              key={f}
+              style={[styles.filterPill, active && styles.filterPillActive]}
+              onPress={() => setFilter(f)}
+            >
+              {f !== 'all' && (
+                <Icon name={MARKER_ICONS[f]} size={13} color={contentColor} />
+              )}
+              <Text style={[styles.filterText, { color: contentColor }]}>{label}</Text>
+            </TouchableOpacity>
+          );
+        })}
       </ScrollView>
 
       {/* Map */}
@@ -133,7 +144,11 @@ export default function MapScreen() {
                     selected === marker.id && styles.markerSelected,
                   ]}
                 >
-                  <Text style={styles.markerIcon}>{MARKER_ICONS[marker.type]}</Text>
+                  <Icon
+                    name={MARKER_ICONS[marker.type]}
+                    size={16}
+                    color={MARKER_COLORS[marker.type]}
+                  />
                 </View>
               </Marker>
             </React.Fragment>
@@ -145,7 +160,11 @@ export default function MapScreen() {
       {selectedMarker && (
         <View style={styles.popup}>
           <View style={styles.popupLeft}>
-            <Text style={styles.popupIcon}>{MARKER_ICONS[selectedMarker.type]}</Text>
+            <Icon
+              name={MARKER_ICONS[selectedMarker.type]}
+              size={22}
+              color={MARKER_COLORS[selectedMarker.type]}
+            />
           </View>
           <View style={{ flex: 1 }}>
             <Text style={styles.popupName}>{selectedMarker.name}</Text>
@@ -158,7 +177,7 @@ export default function MapScreen() {
             </Text>
           </View>
           <TouchableOpacity onPress={() => setSelected(null)} style={styles.popupClose}>
-            <Text style={styles.popupCloseText}>✕</Text>
+            <Icon name="close" size={18} color={Colors.textSecondary} />
           </TouchableOpacity>
         </View>
       )}
@@ -166,11 +185,11 @@ export default function MapScreen() {
       {/* Bottom buttons */}
       <View style={styles.bottomBtns}>
         <TouchableOpacity style={styles.studiosBtn} onPress={() => router.push('/studios')}>
-          <Text style={styles.studiosIcon}>🎛️</Text>
+          <Icon name="headset" size={18} color={Colors.base} />
           <Text style={styles.studiosLabel}>Estúdios perto</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.bottomBtn}>
-          <Text style={styles.bottomBtnIcon}>📍</Text>
+          <Icon name="locate" size={22} color={Colors.textPrimary} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -180,47 +199,47 @@ export default function MapScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
   },
   headerBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.bgCard,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  headerIcon: { fontSize: 18, color: Colors.textPrimary },
   searchBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.bgCard,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 22,
+    gap: Spacing.sm,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.sm + 2,
+    borderRadius: Radius.pill,
   },
-  searchText: { color: Colors.textSecondary, fontSize: 14 },
+  searchText: { ...Typography.body, fontSize: 14, color: Colors.textSecondary },
 
   controlsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    marginBottom: 8,
+    paddingHorizontal: Spacing.xl,
+    marginBottom: Spacing.sm,
   },
   scaleBadge: {
-    backgroundColor: Colors.bgCard,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.sm,
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -228,34 +247,35 @@ const styles = StyleSheet.create({
   settingsBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: Colors.bgCard,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  settingsIcon: { fontSize: 18 },
 
-  filterScroll: { maxHeight: 44, marginBottom: 8 },
-  filterContent: { paddingHorizontal: 20, gap: 8 },
+  filterScroll: { maxHeight: 44, marginBottom: Spacing.sm },
+  filterContent: { paddingHorizontal: Spacing.xl, gap: Spacing.sm },
   filterPill: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: Colors.bgCard,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs + 2,
+    paddingHorizontal: Spacing.md + 2,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.lg,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   filterPillActive: {
-    backgroundColor: Colors.teal,
-    borderColor: Colors.teal,
+    backgroundColor: Colors.accent,
+    borderColor: Colors.accent,
   },
-  filterText: { color: Colors.textSecondary, fontSize: 13, fontWeight: '600' },
-  filterTextActive: { color: Colors.bg },
+  filterText: { fontSize: 13, fontWeight: '600' },
 
   mapContainer: {
     flex: 1,
-    marginHorizontal: 16,
-    borderRadius: 20,
+    marginHorizontal: Spacing.lg,
+    borderRadius: Radius.lg,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.border,
@@ -265,8 +285,8 @@ const styles = StyleSheet.create({
   markerContainer: {
     width: 36,
     height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    borderRadius: Radius.pill,
+    backgroundColor: 'rgba(8,11,20,0.75)',
     borderWidth: 2,
     alignItems: 'center',
     justifyContent: 'center',
@@ -275,61 +295,56 @@ const styles = StyleSheet.create({
     transform: [{ scale: 1.3 }],
     borderWidth: 3,
   },
-  markerIcon: { fontSize: 16 },
 
   popup: {
-    margin: 16,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 14,
+    margin: Spacing.lg,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md + 2,
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: Spacing.md,
     borderWidth: 1,
     borderColor: Colors.border,
   },
   popupLeft: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: Colors.bgElevated,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.elevated,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  popupIcon: { fontSize: 22 },
-  popupName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
-  popupType: { fontSize: 12, color: Colors.textSecondary, marginTop: 2 },
-  popupClose: { padding: 4 },
-  popupCloseText: { color: Colors.textSecondary, fontSize: 18 },
+  popupName: { ...Typography.bodyStrong, fontSize: 15 },
+  popupType: { ...Typography.caption, fontSize: 12, marginTop: 2 },
+  popupClose: { padding: Spacing.xs },
 
   bottomBtns: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: 32,
-    paddingVertical: 16,
+    paddingHorizontal: Spacing.xxl,
+    paddingVertical: Spacing.lg,
   },
   bottomBtn: {
     width: 52,
     height: 52,
-    borderRadius: 26,
-    backgroundColor: Colors.bgCard,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.surface,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  bottomBtnIcon: { fontSize: 22 },
   studiosBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: Spacing.sm,
     height: 52,
-    paddingHorizontal: 18,
-    borderRadius: 26,
-    backgroundColor: Colors.teal,
+    paddingHorizontal: Spacing.lg + 2,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.accent,
   },
-  studiosIcon: { fontSize: 20 },
-  studiosLabel: { color: Colors.bg, fontSize: 14, fontWeight: '800' },
+  studiosLabel: { color: Colors.base, fontSize: 14, fontWeight: '800' },
 });
 
 // Dark map style matching the app theme
