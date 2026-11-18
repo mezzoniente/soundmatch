@@ -13,6 +13,9 @@ import {
   Alert,
 } from 'react-native';
 import { Colors } from '../src/constants/colors';
+import { Spacing, Radius } from '../src/constants/theme';
+import { Typography } from '../src/constants/typography';
+import { Icon } from '../src/components/Icon';
 import { FormField } from '../src/components/FormField';
 import { useAuth } from '../src/state/AuthContext';
 
@@ -81,7 +84,9 @@ export default function AuthScreen() {
         >
           {/* Brand */}
           <View style={styles.brand}>
-            <Text style={styles.logo}>🎸</Text>
+            <View style={styles.logoHalo}>
+              <Icon name="musical-notes" size={40} color={Colors.accent} />
+            </View>
             <Text style={styles.appName}>SoundMatch</Text>
             <Text style={styles.tagline}>Conecte-se com músicos de verdade.</Text>
           </View>
@@ -127,7 +132,7 @@ export default function AuthScreen() {
               disabled={!canSubmit || submitting}
             >
               {submitting ? (
-                <ActivityIndicator color={Colors.bg} />
+                <ActivityIndicator color={Colors.base} />
               ) : (
                 <Text style={styles.submitText}>{isSignup ? 'Criar conta' : 'Entrar'}</Text>
               )}
@@ -149,32 +154,40 @@ export default function AuthScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
-  content: { flexGrow: 1, justifyContent: 'center', padding: 24 },
-  brand: { alignItems: 'center', marginBottom: 40 },
-  logo: { fontSize: 56, marginBottom: 12 },
-  appName: { fontSize: 32, fontWeight: '900', color: Colors.textPrimary, letterSpacing: -0.5 },
-  tagline: { fontSize: 15, color: Colors.textSecondary, marginTop: 8 },
+  content: { flexGrow: 1, justifyContent: 'center', padding: Spacing.xl },
+  brand: { alignItems: 'center', marginBottom: Spacing.xxxl },
+  logoHalo: {
+    width: 84,
+    height: 84,
+    borderRadius: Radius.pill,
+    backgroundColor: Colors.accentSoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  appName: { ...Typography.h1, fontSize: 32 },
+  tagline: { ...Typography.body, color: Colors.textSecondary, marginTop: Spacing.sm },
   form: {},
-  title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginBottom: 20 },
+  title: { ...Typography.h2, marginBottom: Spacing.xl },
   error: {
-    color: Colors.red,
+    color: Colors.danger,
     fontSize: 14,
-    marginBottom: 12,
-    marginTop: -8,
+    marginBottom: Spacing.md,
+    marginTop: -Spacing.sm,
   },
   submitBtn: {
-    backgroundColor: Colors.teal,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.lg,
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: Spacing.sm,
   },
-  submitBtnDisabled: { backgroundColor: Colors.bgCard },
-  submitText: { color: Colors.bg, fontSize: 16, fontWeight: '800' },
-  toggle: { marginTop: 20, alignItems: 'center' },
+  submitBtnDisabled: { backgroundColor: Colors.surface },
+  submitText: { ...Typography.button, fontSize: 16 },
+  toggle: { marginTop: Spacing.xl, alignItems: 'center' },
   toggleText: { color: Colors.textSecondary, fontSize: 14 },
-  toggleLink: { color: Colors.teal, fontWeight: '700' },
+  toggleLink: { color: Colors.accent, fontWeight: '700' },
 });

@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors } from '../src/constants/colors';
+import { Spacing, Radius } from '../src/constants/theme';
+import { Typography } from '../src/constants/typography';
+import { Icon } from '../src/components/Icon';
 import { useProfile, ProfileDraft } from '../src/state/ProfileContext';
 import {
   IdentityForm,
@@ -193,7 +196,11 @@ export default function OnboardingScreen() {
             style={styles.backBtn}
             disabled={step === 0}
           >
-            <Text style={[styles.backIcon, step === 0 && styles.backIconHidden]}>‹</Text>
+            <Icon
+              name="chevron-back"
+              size={26}
+              color={step === 0 ? 'transparent' : Colors.textPrimary}
+            />
           </TouchableOpacity>
           <Text style={styles.stepLabel}>
             {step + 1} / {STEPS.length} · {STEPS[step]}
@@ -288,51 +295,49 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.md,
   },
   backBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
-  backIcon: { fontSize: 30, color: Colors.textPrimary, lineHeight: 30 },
-  backIconHidden: { opacity: 0 },
   stepLabel: { color: Colors.textSecondary, fontSize: 13, fontWeight: '600' },
 
   progressTrack: {
     height: 4,
-    backgroundColor: Colors.bgCard,
-    marginHorizontal: 20,
+    backgroundColor: Colors.surface,
+    marginHorizontal: Spacing.xl,
     borderRadius: 2,
     overflow: 'hidden',
   },
-  progressFill: { height: 4, backgroundColor: Colors.teal, borderRadius: 2 },
+  progressFill: { height: 4, backgroundColor: Colors.accent, borderRadius: 2 },
 
   body: { flex: 1 },
-  bodyContent: { padding: 20, paddingBottom: 32 },
+  bodyContent: { padding: Spacing.xl, paddingBottom: Spacing.xxl },
 
-  stepTitleWrap: { marginBottom: 16, marginTop: 8 },
-  stepTitle: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary, letterSpacing: -0.5 },
-  stepSubtitle: { fontSize: 15, color: Colors.textSecondary, marginTop: 6 },
+  stepTitleWrap: { marginBottom: Spacing.lg, marginTop: Spacing.sm },
+  stepTitle: { ...Typography.h1, fontSize: 26, lineHeight: 32 },
+  stepSubtitle: { ...Typography.body, color: Colors.textSecondary, marginTop: Spacing.xs + 2 },
 
   footer: {
-    padding: 20,
-    paddingBottom: 28,
+    padding: Spacing.xl,
+    paddingBottom: Spacing.xxl,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
   },
   nextBtn: {
-    backgroundColor: Colors.teal,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.lg,
     alignItems: 'center',
   },
-  nextBtnDisabled: { backgroundColor: Colors.bgCard },
-  nextText: { color: Colors.bg, fontSize: 16, fontWeight: '800' },
+  nextBtnDisabled: { backgroundColor: Colors.surface },
+  nextText: { ...Typography.button, fontSize: 16 },
   nextTextDisabled: { color: Colors.textMuted },
 });
