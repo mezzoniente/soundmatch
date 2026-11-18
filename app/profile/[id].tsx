@@ -14,6 +14,11 @@ import {
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { MOCK_ARTISTS, MOCK_REVIEWS } from '../../src/data/mockData';
 import { Colors } from '../../src/constants/colors';
+import { Spacing, Radius, Elevation } from '../../src/constants/theme';
+import { Typography } from '../../src/constants/typography';
+import { Icon } from '../../src/components/Icon';
+import { GlassView } from '../../src/components/GlassView';
+import { paletteFromVibe } from '../../src/lib/adaptiveColor';
 import { useProfile } from '../../src/state/ProfileContext';
 import { computeMatch } from '../../src/lib/matchEngine';
 import { MatchBreakdown } from '../../src/components/MatchBreakdown';
@@ -30,13 +35,13 @@ import { VerifiedBadge } from '../../src/components/VerifiedBadge';
 import { isVerified, collaborationsFromReviews } from '../../src/lib/trust';
 
 const { width: W } = Dimensions.get('window');
-const WIDGET_HALF = (W - 48) / 2;
+const WIDGET_HALF = (W - Spacing.xl * 2 - Spacing.sm) / 2;
 
 const GOAL_COLORS: Record<string, string> = {
-  'Banda Fixa': Colors.teal,
+  'Banda Fixa': Colors.accent,
   'Colaboração Pontual': Colors.blue,
-  'Jam Session': Colors.gold,
-  'Trabalho Remunerado': Colors.green,
+  'Jam Session': Colors.warning,
+  'Trabalho Remunerado': Colors.success,
   'Substituição Temporária': '#E67E22',
 };
 
@@ -71,56 +76,65 @@ export default function ArtistProfileScreen() {
 
   const verified = isVerified(artist);
   const reviews = MOCK_REVIEWS[artist.id] ?? [];
+  const palette = paletteFromVibe(artist.vibeColor);
 
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        {/* Hero section */}
+        {/* Hero: cover + scrim em camadas + tingimento adaptativo. Tudo dentro
+            do hero fica empilhado numa coluna só, sem posicionamento absoluto
+            concorrente — evita a sobreposição anterior. */}
         <View style={styles.heroSection}>
           <Image source={{ uri: artist.coverImage }} style={styles.heroCover} resizeMode="cover" />
-          <View style={styles.heroOverlay} />
+          <View style={styles.heroScrimTop} />
+          <View style={styles.heroScrimBottom} />
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: palette.tintedBg }]} />
 
-          {/* Top actions */}
+          {/* Top actions — glass real */}
           <View style={styles.heroTopBar}>
-            <TouchableOpacity style={styles.menuBtn}>
-              <Text style={styles.menuBtnText}>⋯</Text>
+            <TouchableOpacity activeOpacity={0.85} onPress={() => router.back()}>
+              <GlassView intensity={60} radius={Radius.pill} style={styles.circleBtn}>
+                <Icon name="chevron-back" size={22} color={Colors.textPrimary} />
+              </GlassView>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.searchBtn}>
-              <Text style={styles.searchText}>🔍  Buscar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.closeBtn} onPress={() => router.back()}>
-              <Text style={styles.closeBtnText}>◁</Text>
+            <TouchableOpacity activeOpacity={0.85}>
+              <GlassView intensity={60} radius={Radius.pill} style={styles.circleBtn}>
+                <Icon name="ellipsis-horizontal" size={18} color={Colors.textPrimary} />
+              </GlassView>
             </TouchableOpacity>
           </View>
 
-          {/* Name hero */}
-          <View style={styles.heroName}>
-            <Text style={styles.heroNameText}>{artist.name}</Text>
-            {verified && (
-              <View style={styles.verifiedRow}>
-                <VerifiedBadge />
+          {/* Avatar com halo adaptativo */}
+          <View style={styles.heroCenter}>
+            <View style={[styles.avatarHalo, { backgroundColor: palette.halo }]}>
+              <Image
+                source={{ uri: artist.avatar }}
+                style={[styles.heroAvatar, { borderColor: palette.base }]}
+              />
+            </View>
+
+            <View style={styles.nameRow}>
+              <Text style={styles.heroNameText}>{artist.name}</Text>
+              {verified && <VerifiedBadge compact />}
+            </View>
+            <Text style={styles.heroRole}>{artist.role}</Text>
+
+            {/* Conexões + socials, numa linha só, com glass */}
+            <View style={styles.heroSubRow}>
+              <GlassView intensity={60} radius={Radius.pill} style={styles.connectionsBadge}>
+                <Text style={styles.connectionsText}>{artist.connections} conexões</Text>
+              </GlassView>
+              <View style={styles.socialsRow}>
+                {artist.socials.instagram && (
+                  <Icon name="logo-instagram" size={20} color={Colors.textSecondary} />
+                )}
+                {artist.socials.youtube && (
+                  <Icon name="logo-youtube" size={20} color={Colors.textSecondary} />
+                )}
+                {artist.socials.spotify && (
+                  <Icon name="musical-notes" size={20} color={Colors.textSecondary} />
+                )}
               </View>
-            )}
-          </View>
-
-          {/* Photo card */}
-          <View style={styles.photoCard}>
-            <Image source={{ uri: artist.avatar }} style={styles.photoImage} resizeMode="cover" />
-            <View style={styles.photoOverlay} />
-            <View style={styles.photoMeta}>
-              <Text style={styles.photoRole}>{artist.role}</Text>
-            </View>
-          </View>
-
-          {/* Connections + socials */}
-          <View style={styles.heroSubRow}>
-            <View style={styles.connectionsBadge}>
-              <Text style={styles.connectionsText}>{artist.connections} Conexões</Text>
-            </View>
-            <View style={styles.socialsRow}>
-              {artist.socials.instagram && <Text style={styles.socialIcon}>📷</Text>}
-              {artist.socials.youtube && <Text style={styles.socialIcon}>▶️</Text>}
-              {artist.socials.spotify && <Text style={styles.socialIcon}>🎵</Text>}
             </View>
           </View>
         </View>
@@ -137,9 +151,12 @@ export default function ArtistProfileScreen() {
           <Text style={styles.sectionLabel}>PERFIL ARTÍSTICO</Text>
           <View style={styles.widgetGrid}>
             <View style={[styles.widget, { width: WIDGET_HALF }]}>
-              <Text style={styles.widgetIcon}>
-                {artist.instruments[0] === 'Voz' ? '🎤' : '🎸'}
-              </Text>
+              <Icon
+                name={artist.instruments[0] === 'Voz' ? 'mic' : 'musical-notes'}
+                size={26}
+                color={Colors.accent}
+                style={styles.widgetIcon}
+              />
               <Text style={styles.widgetLabel}>{artist.instruments.join(', ')}</Text>
             </View>
             <View style={[styles.widget, { width: WIDGET_HALF }]}>
@@ -151,11 +168,11 @@ export default function ArtistProfileScreen() {
               <Text style={[styles.widgetLabel, { color: '#ffffffcc' }]}>{artist.vibeColorName}</Text>
             </View>
             <View style={[styles.widget, { width: WIDGET_HALF }]}>
-              <Text style={styles.widgetIcon}>⭐</Text>
+              <Icon name="star" size={26} color={Colors.warning} style={styles.widgetIcon} />
               <Text style={styles.widgetTiny}>{artist.level}</Text>
             </View>
             <View style={[styles.widget, { width: WIDGET_HALF }]}>
-              <Text style={styles.widgetIcon}>🎵</Text>
+              <Icon name="disc" size={26} color={Colors.accent} style={styles.widgetIcon} />
               <Text style={styles.widgetLabel}>{artist.genres[0]}</Text>
               {artist.genres[1] && <Text style={styles.widgetSub}>{artist.genres[1]}</Text>}
             </View>
@@ -178,7 +195,7 @@ export default function ArtistProfileScreen() {
                 key={goal}
                 style={[
                   styles.goalBadge,
-                  { backgroundColor: GOAL_COLORS[goal] ?? Colors.teal },
+                  { backgroundColor: GOAL_COLORS[goal] ?? Colors.accent },
                 ]}
               >
                 <Text style={styles.goalText}>{goal}</Text>
@@ -211,7 +228,7 @@ export default function ArtistProfileScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionLabel}>LOCALIZAÇÃO</Text>
           <View style={styles.locationCard}>
-            <Text style={styles.locationIcon}>📍</Text>
+            <Icon name="location" size={18} color={Colors.accent} />
             <Text style={styles.locationText}>{artist.location}</Text>
           </View>
         </View>
@@ -248,13 +265,13 @@ export default function ArtistProfileScreen() {
       {/* Bottom action buttons */}
       <View style={styles.actionsBar}>
         <TouchableOpacity style={[styles.actionBtn, styles.passBtn]} onPress={() => router.back()}>
-          <Text style={styles.actionIcon}>✕</Text>
+          <Icon name="close" size={26} color={Colors.danger} />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionBtn, styles.saveBtn]}>
-          <Text style={styles.actionIcon}>🔖</Text>
+          <Icon name="bookmark-outline" size={22} color={Colors.textMuted} />
         </TouchableOpacity>
         <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]}>
-          <Text style={styles.actionIcon}>✓</Text>
+          <Icon name="checkmark" size={26} color={Colors.base} />
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -264,159 +281,114 @@ export default function ArtistProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
-  notFound: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: 16 },
+  notFound: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: Spacing.lg },
   notFoundText: { color: Colors.textPrimary, fontSize: 18 },
   backButton: {
-    backgroundColor: Colors.teal,
-    paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 24,
+    backgroundColor: Colors.accent,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.md,
+    borderRadius: Radius.lg,
   },
-  backButtonText: { color: Colors.bg, fontWeight: '700' },
+  backButtonText: { color: Colors.base, fontWeight: '700' },
 
-  heroSection: { position: 'relative', paddingBottom: 16 },
-  heroCover: {
+  // Hero empilhado (sem sobreposição): cover de fundo + coluna de conteúdo.
+  heroSection: { position: 'relative', paddingBottom: Spacing.lg, minHeight: 360 },
+  heroCover: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
+  heroScrimTop: {
     position: 'absolute',
     top: 0,
     left: 0,
     right: 0,
-    height: 320,
+    height: 120,
+    backgroundColor: 'rgba(8,11,20,0.4)',
   },
-  heroOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    height: 320,
-    backgroundColor: 'rgba(10,14,26,0.55)',
+  heroScrimBottom: {
+    ...StyleSheet.absoluteFill,
+    backgroundColor: 'rgba(8,11,20,0.55)',
   },
 
   heroTopBar: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 14,
+    paddingHorizontal: Spacing.xl,
+    paddingTop: Spacing.md,
   },
-  menuBtn: {
+  circleBtn: {
     width: 40,
     height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.4)',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  menuBtnText: { color: Colors.textPrimary, fontSize: 18 },
-  searchBtn: {
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 22,
-  },
-  searchText: { color: Colors.textSecondary, fontSize: 14 },
-  closeBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  closeBtnText: { color: Colors.textPrimary, fontSize: 16 },
 
-  heroName: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 16 },
+  heroCenter: {
+    alignItems: 'center',
+    paddingHorizontal: Spacing.xl,
+    marginTop: Spacing.lg,
+  },
+  avatarHalo: {
+    width: 128,
+    height: 128,
+    borderRadius: Radius.pill,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: Spacing.md,
+  },
+  heroAvatar: {
+    width: 112,
+    height: 112,
+    borderRadius: Radius.pill,
+    borderWidth: 3,
+  },
+  nameRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   heroNameText: {
-    fontSize: 44,
-    fontWeight: '900',
-    color: Colors.textPrimary,
-    lineHeight: 48,
-    letterSpacing: -0.5,
+    ...Typography.display,
+    fontSize: 34,
+    lineHeight: 38,
+    textAlign: 'center',
     textShadowColor: 'rgba(0,0,0,0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 8,
   },
-  verifiedRow: { flexDirection: 'row', marginTop: 8 },
-
-  photoCard: {
-    marginHorizontal: 20,
-    height: 260,
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 16,
-  },
-  photoImage: {
-    ...StyleSheet.absoluteFill,
-    width: '100%',
-    height: '100%',
-  },
-  photoOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.25)',
-  },
-  photoMeta: {
-    position: 'absolute',
-    bottom: 12,
-    right: 12,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-  },
-  photoRole: { color: Colors.textPrimary, fontWeight: '600', fontSize: 13 },
+  heroRole: { ...Typography.bodyStrong, color: Colors.textSecondary, marginTop: 2 },
 
   heroSubRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    gap: 12,
+    gap: Spacing.md,
+    marginTop: Spacing.md,
   },
   connectionsBadge: {
-    backgroundColor: 'rgba(0,0,0,0.4)',
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 2,
   },
   connectionsText: { color: Colors.textPrimary, fontSize: 13, fontWeight: '600' },
-  socialsRow: { flexDirection: 'row', gap: 10 },
-  socialIcon: { fontSize: 20 },
+  socialsRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm + 2 },
 
-  matchWrapper: { margin: 20 },
+  matchWrapper: { margin: Spacing.xl },
 
-  section: { paddingHorizontal: 20, paddingTop: 20 },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 1.5,
-    marginBottom: 12,
-  },
+  section: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl },
+  sectionLabel: { ...Typography.label, marginBottom: Spacing.md },
 
-  widgetGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  widgetGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   widget: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 20,
-    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.lg,
+    padding: Spacing.lg,
     minHeight: 90,
     justifyContent: 'flex-end',
     borderWidth: 1,
     borderColor: Colors.border,
     overflow: 'hidden',
   },
-  widgetIcon: { fontSize: 28, marginBottom: 4 },
-  widgetBigNumber: {
-    fontSize: 40,
-    fontWeight: '900',
-    color: Colors.textPrimary,
-    lineHeight: 42,
-  },
-  widgetLabel: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary, marginTop: 2 },
-  widgetSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
-  widgetTiny: { fontSize: 12, fontWeight: '600', color: Colors.textPrimary, marginTop: 2 },
+  widgetIcon: { marginBottom: Spacing.xs },
+  widgetBigNumber: { ...Typography.display, fontSize: 40, lineHeight: 42 },
+  widgetLabel: { ...Typography.bodyStrong, fontSize: 13, marginTop: 2 },
+  widgetSub: { ...Typography.caption, fontSize: 11, marginTop: 1 },
+  widgetTiny: { ...Typography.bodyStrong, fontSize: 12, marginTop: 2 },
   widgetColorCode: {
     fontSize: 12,
     fontWeight: '700',
@@ -425,47 +397,39 @@ const styles = StyleSheet.create({
   },
 
   albumWidget: { padding: 0, overflow: 'hidden' },
-  albumCover: {
-    ...StyleSheet.absoluteFill,
-    width: '100%',
-    height: '100%',
-  },
-  albumOverlay: {
-    ...StyleSheet.absoluteFill,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
+  albumCover: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
+  albumOverlay: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(8,11,20,0.5)' },
   albumTitle: {
     position: 'absolute',
-    bottom: 12,
-    left: 12,
+    bottom: Spacing.md,
+    left: Spacing.md,
+    ...Typography.bodyStrong,
     fontSize: 13,
-    fontWeight: '700',
-    color: Colors.textPrimary,
   },
 
   goalBadge: {
     alignSelf: 'flex-start',
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 24,
+    paddingHorizontal: Spacing.xl,
+    paddingVertical: Spacing.sm + 2,
+    borderRadius: Radius.lg,
   },
   goalText: { color: '#fff', fontWeight: '700', fontSize: 14 },
 
   bioCard: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  bioText: { fontSize: 15, color: Colors.textSecondary, lineHeight: 22 },
+  bioText: { ...Typography.body, color: Colors.textSecondary, lineHeight: 22 },
 
-  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  tagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   tag: {
-    backgroundColor: Colors.bgCard,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.md + 2,
+    paddingVertical: Spacing.sm,
+    borderRadius: Radius.pill,
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -474,14 +438,13 @@ const styles = StyleSheet.create({
   locationCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 14,
+    gap: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md + 2,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  locationIcon: { fontSize: 20 },
   locationText: { color: Colors.textPrimary, fontSize: 14, fontWeight: '600' },
 
   actionsBar: {
@@ -492,28 +455,22 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 20,
-    paddingVertical: 16,
-    paddingBottom: 32,
-    backgroundColor: Colors.bgCard,
+    gap: Spacing.xl,
+    paddingVertical: Spacing.lg,
+    paddingBottom: Spacing.xxl,
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
   },
   actionBtn: {
     width: 60,
     height: 60,
-    borderRadius: 30,
+    borderRadius: Radius.pill,
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 6,
+    ...Elevation.md,
   },
-  passBtn: { backgroundColor: Colors.bgCard, borderWidth: 2, borderColor: Colors.red },
-  saveBtn: { backgroundColor: Colors.bgCard, borderWidth: 2, borderColor: Colors.textMuted },
-  acceptBtn: { backgroundColor: Colors.teal },
-  actionIcon: { fontSize: 22 },
+  passBtn: { backgroundColor: Colors.surface, borderWidth: 2, borderColor: Colors.danger },
+  saveBtn: { backgroundColor: Colors.surface, borderWidth: 2, borderColor: Colors.textMuted },
+  acceptBtn: { backgroundColor: Colors.accent },
 });
-
