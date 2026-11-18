@@ -18,6 +18,7 @@ import { Spacing, Radius, Elevation } from '../../src/constants/theme';
 import { Typography } from '../../src/constants/typography';
 import { Icon } from '../../src/components/Icon';
 import { GlassView } from '../../src/components/GlassView';
+import { PressableScale } from '../../src/components/PressableScale';
 import { paletteFromVibe } from '../../src/lib/adaptiveColor';
 import { useProfile } from '../../src/state/ProfileContext';
 import { computeMatch } from '../../src/lib/matchEngine';
@@ -264,15 +265,19 @@ export default function ArtistProfileScreen() {
 
       {/* Bottom action buttons */}
       <View style={styles.actionsBar}>
-        <TouchableOpacity style={[styles.actionBtn, styles.passBtn]} onPress={() => router.back()}>
+        <PressableScale
+          style={[styles.actionBtn, styles.passBtn]}
+          onPress={() => router.back()}
+          activeScale={0.88}
+        >
           <Icon name="close" size={26} color={Colors.danger} />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, styles.saveBtn]}>
+        </PressableScale>
+        <PressableScale style={[styles.actionBtn, styles.saveBtn]} activeScale={0.88}>
           <Icon name="bookmark-outline" size={22} color={Colors.textMuted} />
-        </TouchableOpacity>
-        <TouchableOpacity style={[styles.actionBtn, styles.acceptBtn]}>
+        </PressableScale>
+        <PressableScale style={[styles.actionBtn, styles.acceptBtn]} activeScale={0.88}>
           <Icon name="checkmark" size={26} color={Colors.base} />
-        </TouchableOpacity>
+        </PressableScale>
       </View>
     </SafeAreaView>
   );

@@ -14,6 +14,7 @@ import { Colors } from '../src/constants/colors';
 import { Spacing, Radius } from '../src/constants/theme';
 import { Typography } from '../src/constants/typography';
 import { Icon } from '../src/components/Icon';
+import { PressableScale } from '../src/components/PressableScale';
 import { SelectChip } from '../src/components/SelectChip';
 import { useFilters } from '../src/state/FilterContext';
 import { INSTRUMENTS, SKILL_LEVELS, GENRE_SUGGESTIONS, COLLAB_GOALS } from '../src/constants/options';
@@ -145,11 +146,11 @@ export default function FiltersScreen() {
 
       {/* Footer */}
       <View style={styles.footer}>
-        <TouchableOpacity style={styles.applyBtn} onPress={apply}>
+        <PressableScale style={styles.applyBtn} onPress={apply}>
           <Text style={styles.applyText}>
             Aplicar{count > 0 ? ` (${count})` : ''}
           </Text>
-        </TouchableOpacity>
+        </PressableScale>
       </View>
     </SafeAreaView>
   );

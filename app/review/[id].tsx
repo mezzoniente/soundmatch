@@ -17,6 +17,7 @@ import { Colors } from '../../src/constants/colors';
 import { Spacing, Radius } from '../../src/constants/theme';
 import { Typography } from '../../src/constants/typography';
 import { Icon } from '../../src/components/Icon';
+import { PressableScale } from '../../src/components/PressableScale';
 import { FormField } from '../../src/components/FormField';
 import { useAuth } from '../../src/state/AuthContext';
 import { submitReview } from '../../src/lib/reviewsRepository';
@@ -107,7 +108,7 @@ export default function ReviewScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
-          <TouchableOpacity
+          <PressableScale
             style={[styles.submitBtn, (!canSubmit || submitting) && styles.submitBtnDisabled]}
             onPress={submit}
             disabled={!canSubmit || submitting}
@@ -119,7 +120,7 @@ export default function ReviewScreen() {
                 Enviar avaliação
               </Text>
             )}
-          </TouchableOpacity>
+          </PressableScale>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

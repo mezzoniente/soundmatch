@@ -15,6 +15,7 @@ import { Colors } from '../../src/constants/colors';
 import { Spacing, Radius } from '../../src/constants/theme';
 import { Typography } from '../../src/constants/typography';
 import { Icon } from '../../src/components/Icon';
+import { PressableScale } from '../../src/components/PressableScale';
 import { useProfile } from '../../src/state/ProfileContext';
 import { EDIT_SECTIONS, EditSectionKey } from '../../src/constants/editSections';
 import {
@@ -243,7 +244,7 @@ export default function EditSectionScreen() {
         {/* A seção de fotos salva automaticamente ao enviar, sem botão. */}
         {section !== 'photos' && (
           <View style={styles.footer}>
-            <TouchableOpacity
+            <PressableScale
               style={[styles.saveBtn, !canSave && styles.saveBtnDisabled]}
               onPress={handleSave}
               disabled={!canSave}
@@ -251,7 +252,7 @@ export default function EditSectionScreen() {
               <Text style={[styles.saveText, !canSave && styles.saveTextDisabled]}>
                 Salvar alterações
               </Text>
-            </TouchableOpacity>
+            </PressableScale>
           </View>
         )}
       </KeyboardAvoidingView>

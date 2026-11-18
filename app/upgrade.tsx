@@ -17,6 +17,7 @@ import { Spacing, Radius, Elevation } from '../src/constants/theme';
 import { Typography } from '../src/constants/typography';
 import { Icon, IconName } from '../src/components/Icon';
 import { GlassView } from '../src/components/GlassView';
+import { PressableScale } from '../src/components/PressableScale';
 import { useProfile } from '../src/state/ProfileContext';
 import { FREE_DAILY_SWIPES } from '../src/lib/monetization';
 
@@ -104,11 +105,11 @@ export default function UpgradeScreen() {
 
       <View style={styles.footer}>
         {isPro ? (
-          <TouchableOpacity style={styles.manageBtn} onPress={downgrade}>
+          <PressableScale style={styles.manageBtn} onPress={downgrade}>
             <Text style={styles.manageText}>Voltar ao plano gratuito</Text>
-          </TouchableOpacity>
+          </PressableScale>
         ) : (
-          <TouchableOpacity
+          <PressableScale
             style={[styles.subscribeBtn, processing && styles.subscribeBtnDisabled]}
             onPress={subscribe}
             disabled={processing}
@@ -118,7 +119,7 @@ export default function UpgradeScreen() {
             ) : (
               <Text style={styles.subscribeText}>Assinar o Pro</Text>
             )}
-          </TouchableOpacity>
+          </PressableScale>
         )}
         <Text style={styles.disclaimer}>
           Pagamento não integrado nesta versão (demonstração).

@@ -15,6 +15,7 @@ import { Colors } from '../src/constants/colors';
 import { Spacing, Radius } from '../src/constants/theme';
 import { Typography } from '../src/constants/typography';
 import { Icon } from '../src/components/Icon';
+import { PressableScale } from '../src/components/PressableScale';
 import { useProfile, ProfileDraft } from '../src/state/ProfileContext';
 import {
   IdentityForm,
@@ -277,7 +278,7 @@ export default function OnboardingScreen() {
 
         {/* Footer */}
         <View style={styles.footer}>
-          <TouchableOpacity
+          <PressableScale
             style={[styles.nextBtn, !canAdvance && styles.nextBtnDisabled]}
             onPress={handleNext}
             disabled={!canAdvance}
@@ -285,7 +286,7 @@ export default function OnboardingScreen() {
             <Text style={[styles.nextText, !canAdvance && styles.nextTextDisabled]}>
               {isLastStep ? 'Concluir perfil' : 'Continuar'}
             </Text>
-          </TouchableOpacity>
+          </PressableScale>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

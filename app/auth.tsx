@@ -16,6 +16,7 @@ import { Colors } from '../src/constants/colors';
 import { Spacing, Radius } from '../src/constants/theme';
 import { Typography } from '../src/constants/typography';
 import { Icon } from '../src/components/Icon';
+import { PressableScale } from '../src/components/PressableScale';
 import { FormField } from '../src/components/FormField';
 import { useAuth } from '../src/state/AuthContext';
 
@@ -126,7 +127,7 @@ export default function AuthScreen() {
 
             {error && <Text style={styles.error}>{error}</Text>}
 
-            <TouchableOpacity
+            <PressableScale
               style={[styles.submitBtn, (!canSubmit || submitting) && styles.submitBtnDisabled]}
               onPress={handleSubmit}
               disabled={!canSubmit || submitting}
@@ -136,7 +137,7 @@ export default function AuthScreen() {
               ) : (
                 <Text style={styles.submitText}>{isSignup ? 'Criar conta' : 'Entrar'}</Text>
               )}
-            </TouchableOpacity>
+            </PressableScale>
 
             <TouchableOpacity onPress={toggleMode} style={styles.toggle}>
               <Text style={styles.toggleText}>

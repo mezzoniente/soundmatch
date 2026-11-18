@@ -14,6 +14,7 @@ import { Colors } from '../../src/constants/colors';
 import { Spacing, Radius } from '../../src/constants/theme';
 import { Typography } from '../../src/constants/typography';
 import { Icon } from '../../src/components/Icon';
+import { PressableScale } from '../../src/components/PressableScale';
 import { useProfile } from '../../src/state/ProfileContext';
 import { EDIT_SECTIONS } from '../../src/constants/editSections';
 
@@ -36,10 +37,10 @@ export default function EditProfileHub() {
         <Text style={styles.subtitle}>Escolha o que deseja atualizar.</Text>
 
         {EDIT_SECTIONS.map((section) => (
-          <TouchableOpacity
+          <PressableScale
             key={section.key}
             style={styles.row}
-            activeOpacity={0.8}
+            activeScale={0.98}
             onPress={() => router.push(`/edit-profile/${section.key}`)}
           >
             <View style={styles.rowIconWrap}>
@@ -52,7 +53,7 @@ export default function EditProfileHub() {
               </Text>
             </View>
             <Icon name="chevron-forward" size={20} color={Colors.textMuted} />
-          </TouchableOpacity>
+          </PressableScale>
         ))}
 
         <View style={{ height: 24 }} />

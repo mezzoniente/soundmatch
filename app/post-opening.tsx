@@ -17,6 +17,7 @@ import { Colors } from '../src/constants/colors';
 import { Spacing, Radius } from '../src/constants/theme';
 import { Typography } from '../src/constants/typography';
 import { Icon } from '../src/components/Icon';
+import { PressableScale } from '../src/components/PressableScale';
 import { FormField } from '../src/components/FormField';
 import { SelectChip } from '../src/components/SelectChip';
 import { useAuth } from '../src/state/AuthContext';
@@ -167,7 +168,7 @@ export default function PostOpeningScreen() {
         </ScrollView>
 
         <View style={styles.footer}>
-          <TouchableOpacity
+          <PressableScale
             style={[styles.submitBtn, (!canSubmit || submitting) && styles.submitBtnDisabled]}
             onPress={submit}
             disabled={!canSubmit || submitting}
@@ -179,7 +180,7 @@ export default function PostOpeningScreen() {
                 Publicar vaga
               </Text>
             )}
-          </TouchableOpacity>
+          </PressableScale>
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
