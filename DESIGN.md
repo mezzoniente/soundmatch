@@ -65,16 +65,16 @@ tingimento adaptativo da vibe (ver 3.3).
 
 ### 3.1 Estado atual (`src/constants/` + `src/lib/`)
 
-Os fundamentos (V1), a tipografia (V2) e o sistema de glass (V3) já estão implementados.
-A tela-piloto é o **Perfil** (`app/(tabs)/profile.tsx`), onde a direção foi validada
-antes de propagar para o resto do app.
+Os fundamentos (V1), a tipografia (V2), o sistema de glass (V3) e os ícones vetoriais
+(V4) estão implementados e **aplicados em todo o app**. A tela-piloto foi o **Perfil**
+(`app/(tabs)/profile.tsx`), onde a direção foi validada antes de propagar.
 
 - **Cores (`colors.ts`):** paleta em papéis — neutros em camadas (`base`/`surface`/
   `elevated`/`elevatedHigh`), superfícies de vidro (`glass`/`glassStrong`/`glassBorder`/
   `glassTintDark`), acento (`accent #00D4C8` + `accentDark`/`accentSoft`), semânticos
   (`success`/`warning`/`danger` + variantes `*Soft`), texto (`textPrimary`/
-  `textSecondary`/`textMuted`), bordas e overlays. Os nomes antigos (`bg`, `bgCard`,
-  `teal`, etc.) permanecem como **aliases** para as telas ainda não migradas.
+  `textSecondary`/`textMuted`), bordas e overlays. Os aliases legados (`bg`, `bgCard`,
+  `teal`, etc.) foram removidos após a migração; resta `blue` como cor auxiliar.
 - **Tipografia (`typography.ts` + `src/lib/fonts.ts`):** **Inter** (corpo/UI) via
   `@expo-google-fonts/inter` e **Clash Display** (display) via arquivos locais em
   `assets/fonts/`, carregadas com `useFonts` no layout raiz (funciona no Expo Go). Escala
@@ -85,6 +85,9 @@ antes de propagar para o resto do app.
 - **Glass (`src/components/GlassView.tsx`):** componente único com dois modos — `blur`
   (real, via `expo-blur`) e `translucent` (falso, rgba + borda). Centraliza borda de luz,
   `overflow: 'hidden'`, raio e sombra.
+- **Ícones (`src/components/Icon.tsx`):** wrapper do set **Ionicons** de
+  `@react-native-vector-icons` (import dinâmico, funciona no Expo Go). Tipo `IconName`
+  exportado; tamanho e cor padronizados.
 - **Paleta adaptativa (`src/lib/adaptiveColor.ts`):** deriva uma paleta da "cor de vibe"
   do artista (`vibeColor`) — fundo/glass/borda tingidos e cor de texto legível por
   contraste. Ver seção 3.3.
@@ -139,26 +142,27 @@ contraste e legibilidade.
 
 ## 4. Problemas conhecidos
 
-Levantados na auditoria do código atual; a confirmar/expandir na Fase V0.
+Levantados na auditoria (V0). A maioria foi resolvida na propagação do design system;
+o que resta está marcado como **pendente**.
 
 ### Contraste e legibilidade
-- Cartões de swipe (`app/(tabs)/index.tsx`): `cardOverlay` é transparente — texto/badges
-  claros sobre a foto sem escurecimento, baixo contraste em imagens claras.
-- `textSecondary` (`#8899BB`) sobre `bgCard` pode ficar abaixo do WCAG AA em texto pequeno.
+- ✅ Cartões de swipe (`app/(tabs)/index.tsx`): o overlay transparente virou um scrim em
+  camadas, garantindo contraste do texto/badges sobre qualquer foto.
+- ✅ Texto de apoio: `textSecondary` foi reajustado (`#A6B2CF`) para contraste AA.
 
 ### Sobreposição e posicionamento
-- Hero do perfil do artista (`app/profile/[id].tsx`): nome grande, foto em card e linha de
-  conexões disputam a mesma região com posicionamento misto — risco de sobreposição em
-  telas menores.
-- **Emojis como ícones** em navegação e ações (⚡ 🗺 💬 👤, ⚙, ➤, ✓): renderização,
-  tamanho e alinhamento inconsistentes entre Android/iOS.
+- ✅ Hero do perfil do artista (`app/profile/[id].tsx`): reestruturado numa coluna única
+  (avatar com halo, nome em Clash Display), sem posicionamento absoluto concorrente.
+- ✅ **Emojis como ícones**: substituídos por ícones vetoriais (`@react-native-vector-icons`,
+  set Ionicons) em todo o app — navegação, ações, badges, marcadores do mapa.
 
 ### Consistência
-- Escala `Typography` praticamente não usada; fontes inline divergentes.
-- Tokens de cor não usados; espaçamentos e raios ad-hoc.
+- ✅ Escala `Typography` aplicada em todas as telas; fontes inline eliminadas.
+- ✅ Tokens de cor/espaçamento/raio usados em todo o app; aliases legados removidos.
 
-### Movimento
-- Fora o swipe (`Animated`), não há transições de tela nem feedback de toque animado.
+### Movimento (pendente — Fase V6)
+- Fora o swipe (`Animated`) e o fade do fundo adaptativo, ainda não há transições de tela
+  nem feedback de toque animado.
 
 ---
 
@@ -171,7 +175,13 @@ consistência.
 > **Ordem de execução adotada:** V1 (fundamentos) → V3 (sistema glass) → V2 (tipografia)
 > → V4 (ícones) → propagação para o resto do app → V5+ (layout, movimento, polimento).
 > V3 veio antes de V2 para que o componente de glass já existisse quando a propagação
-> começasse. A validação ocorre na tela-piloto (Perfil) antes de espalhar.
+> começasse. A validação ocorreu na tela-piloto (Perfil) antes de espalhar.
+>
+> **Propagação concluída ✅** — V1–V4 foram aplicadas a todo o app: as 4 abas (Discover,
+> Map, Chat, Perfil), o perfil público, os modais (filtros, upgrade, post-opening,
+> post-event, estúdios), as telas de entrada (auth, onboarding), o bloco de edição de
+> perfil, a tela de avaliar e toda a camada de componentes compartilhados. Os aliases
+> legados de cor foram removidos de `colors.ts`.
 
 ### Fase V0 — Auditoria
 - [x] Mapear telas e catalogar contraste, sobreposição, espaçamento e alinhamento (ver seção 4)
@@ -179,37 +189,37 @@ consistência.
 - [ ] Capturar o "antes" de cada tela
 
 ### Fase V1 — Fundamentos do design system ✅
-- [x] Nova **paleta** com papéis claros (neutros em camadas, glass, acento, semânticos) — `colors.ts`, com aliases legados
+- [x] Nova **paleta** com papéis claros (neutros em camadas, glass, acento, semânticos) — `colors.ts`
 - [x] Escala de **espaçamento** (`Spacing` em `theme.ts`)
 - [x] Escala de **raios** (`Radius` em `theme.ts`)
 - [x] Níveis de **elevação** (`Elevation` em `theme.ts`)
-- [x] Aplicados na tela-piloto (Perfil); tokens antigos mantidos como aliases até a propagação
-- [x] **Paleta adaptativa** por vibe do artista (`adaptiveColor.ts`) — hero do Perfil e fundo do swipe
+- [x] Aplicados em todo o app; aliases legados removidos
+- [x] **Paleta adaptativa** por vibe do artista (`adaptiveColor.ts`) — hero do Perfil/perfil público e fundo do swipe
 
 ### Fase V2 — Tipografia ✅
 - [x] Carregar **Inter** (corpo/interface) via `@expo-google-fonts/inter` + `useFonts`
 - [x] **Fonte display escolhida: Clash Display** (Fontshare / ITF Free Font License), arquivos locais em `assets/fonts/` (pesos Medium/Semibold/Bold)
 - [x] Carregamento com `SplashScreen` no layout raiz (segura a UI até as fontes prontas) — funciona no Expo Go
 - [x] Escala tipográfica consolidada em tokens (`typography.ts`) com `line-height`/`letter-spacing`; display = Clash, resto = Inter
-- [ ] Aplicar a escala em **todas as telas** (parte da propagação pós-V4)
+- [x] Escala aplicada em **todas as telas**
 
 ### Fase V3 — Sistema glass ✅
 - [x] `expo-blur` instalado e validado no Expo Go (iOS direto; Android funciona com `tint="dark"`)
 - [x] Componente **`GlassView`** reutilizável (`variant="blur"` real / `variant="translucent"` fallback)
-- [x] Aplicado na tela-piloto (controles e badges do hero do Perfil)
-- [ ] Aplicar glass real na **tab bar**, **headers** e **modais/paywall** (parte da propagação)
-- [ ] Migrar os cards para o padrão translúcido consistente (parte da propagação)
+- [x] Glass real aplicado nos pontos de alto impacto (hero do Perfil/perfil público, badge de match no swipe, fechar do paywall)
+- [ ] Glass real na **tab bar** (hoje superfície sólida — opcional; exige `BlurTargetView` no Android)
 
-### Fase V4 — Ícones
-- [ ] Substituir emojis por ícones vetoriais (`@expo/vector-icons`)
-- [ ] Padronizar tamanho, peso e alinhamento na navegação e ações
-- [ ] Pré-carregar a fonte de ícones no layout raiz (evitar "ícone invisível" no primeiro load)
+### Fase V4 — Ícones ✅
+- [x] Emojis substituídos por ícones vetoriais — escolhido **`@react-native-vector-icons`** (set Ionicons) no lugar de `@expo/vector-icons`, que está sendo descontinuado e tem pior suporte a Expo Go
+- [x] Wrapper **`Icon`** (`src/components/Icon.tsx`) padroniza set, tamanho e cor
+- [x] Tamanho/peso/alinhamento padronizados na navegação e ações
+- [x] Carregamento dinâmico do set (registra no 1º render; sem passo nativo no Expo Go)
 
 ### Fase V5 — Correção de layout e estrutura
-- [ ] Corrigir sobreposições (hero do perfil, overlays dos cartões de swipe)
-- [ ] Aplicar as escalas de espaçamento/raios em todas as telas
-- [ ] Revisar `SafeArea`, alinhamento e justificação de textos e grupos de botões
-- [ ] Reestruturar telas densas para respiro e hierarquia intuitiva
+- [x] Corrigir sobreposições: hero do perfil público reestruturado; overlays dos cartões de swipe com scrim
+- [x] Escalas de espaçamento/raios aplicadas em todas as telas
+- [ ] Revisão fina de `SafeArea`, alinhamento e justificação em telas densas
+- [ ] Reestruturar telas densas remanescentes para mais respiro e hierarquia
 
 ### Fase V6 — Movimento e microinterações
 - [ ] Suavizar o gesto de swipe (curvas, resistência, feedback visual)
