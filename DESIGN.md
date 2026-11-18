@@ -242,9 +242,15 @@ consistência.
 > baseadas em gesto/layout mais complexas ficam fora de escopo até haver dev build.
 
 ### Fase V7 — Polimento final
-- [ ] Revisão tela a tela comparando com o "antes" da V0
-- [ ] Acessibilidade (tamanhos de toque, labels, alto contraste opcional)
-- [ ] Ícone do app e splash alinhados à identidade glass
+- [x] **Acessibilidade** — `Icon` decorativo por padrão; `accessibilityRole="button"` +
+  `accessibilityLabel` nos botões só-ícone (navegação, ações, headers, estrelas de avaliar)
+- [x] **Ícone do app e splash** alinhados à identidade — símbolo da marca (guitarra/"W")
+  em branco sobre o fundo base `#080B14`; `icon`, `splash-icon`, adaptive foreground/
+  monochrome e favicon gerados a partir de `assets/brand-icon.png`; splash configurada no
+  `app.json` (fundo `#080B14`). A splash real só aparece em build standalone (no Expo Go
+  o sistema mostra o ícone).
+- [ ] Revisão fina tela a tela (contraste de alto contraste opcional, toques < 44px) —
+  acompanhamento contínuo
 
 ---
 
