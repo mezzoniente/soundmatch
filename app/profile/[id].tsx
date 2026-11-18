@@ -101,7 +101,12 @@ export default function ArtistProfileScreen() {
 
           {/* Top actions — blur real sobre a foto */}
           <View style={styles.heroTopBar}>
-            <TouchableOpacity activeOpacity={0.85} onPress={() => router.back()}>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={() => router.back()}
+              accessibilityRole="button"
+              accessibilityLabel="Voltar"
+            >
               <GlassView
                 variant="blur"
                 intensity={60}
@@ -112,7 +117,7 @@ export default function ArtistProfileScreen() {
                 <Icon name="chevron-back" size={22} color={Colors.textPrimary} />
               </GlassView>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.85}>
+            <TouchableOpacity activeOpacity={0.85} accessibilityRole="button" accessibilityLabel="Mais opções">
               <GlassView
                 variant="blur"
                 intensity={60}
@@ -295,13 +300,25 @@ export default function ArtistProfileScreen() {
           style={[styles.actionBtn, styles.passBtn]}
           onPress={() => router.back()}
           activeScale={0.88}
+          accessibilityRole="button"
+          accessibilityLabel="Passar"
         >
           <Icon name="close" size={26} color={Colors.danger} />
         </PressableScale>
-        <PressableScale style={[styles.actionBtn, styles.saveBtn]} activeScale={0.88}>
+        <PressableScale
+          style={[styles.actionBtn, styles.saveBtn]}
+          activeScale={0.88}
+          accessibilityRole="button"
+          accessibilityLabel="Salvar"
+        >
           <Icon name="bookmark-outline" size={22} color={Colors.textMuted} />
         </PressableScale>
-        <PressableScale style={[styles.actionBtn, styles.acceptBtn]} activeScale={0.88}>
+        <PressableScale
+          style={[styles.actionBtn, styles.acceptBtn]}
+          activeScale={0.88}
+          accessibilityRole="button"
+          accessibilityLabel="Aceitar"
+        >
           <Icon name="checkmark" size={26} color={Colors.base} />
         </PressableScale>
       </View>

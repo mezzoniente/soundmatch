@@ -54,24 +54,29 @@ export default function MapScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn}>
+        <TouchableOpacity style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Mais opções">
           <Icon name="ellipsis-horizontal" size={18} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.searchBtn}>
+        <TouchableOpacity style={styles.searchBtn} accessibilityRole="button" accessibilityLabel="Buscar">
           <Icon name="search" size={16} color={Colors.textSecondary} />
           <Text style={styles.searchText}>Buscar</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.headerBtn}>
+        <TouchableOpacity style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Configurações do mapa">
           <Icon name="options" size={18} color={Colors.textPrimary} />
         </TouchableOpacity>
       </View>
 
       {/* Scale + settings */}
       <View style={styles.controlsRow}>
-        <TouchableOpacity style={styles.scaleBadge} onPress={cycleScale}>
+        <TouchableOpacity
+          style={styles.scaleBadge}
+          onPress={cycleScale}
+          accessibilityRole="button"
+          accessibilityLabel={`Escala do mapa: ${scale}. Toque para alternar`}
+        >
           <Text style={styles.scaleText}>{scale}</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.settingsBtn}>
+        <TouchableOpacity style={styles.settingsBtn} accessibilityRole="button" accessibilityLabel="Ajustes">
           <Icon name="settings" size={18} color={Colors.textSecondary} />
         </TouchableOpacity>
       </View>
@@ -176,7 +181,7 @@ export default function MapScreen() {
                 : 'Vaga'}
             </Text>
           </View>
-          <TouchableOpacity onPress={() => setSelected(null)} style={styles.popupClose}>
+          <TouchableOpacity onPress={() => setSelected(null)} style={styles.popupClose} accessibilityRole="button" accessibilityLabel="Fechar">
             <Icon name="close" size={18} color={Colors.textSecondary} />
           </TouchableOpacity>
         </View>
@@ -188,7 +193,7 @@ export default function MapScreen() {
           <Icon name="headset" size={18} color={Colors.base} />
           <Text style={styles.studiosLabel}>Estúdios perto</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.bottomBtn}>
+        <TouchableOpacity style={styles.bottomBtn} accessibilityRole="button" accessibilityLabel="Centralizar na minha localização">
           <Icon name="locate" size={22} color={Colors.textPrimary} />
         </TouchableOpacity>
       </View>

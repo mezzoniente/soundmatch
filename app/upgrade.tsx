@@ -65,7 +65,7 @@ export default function UpgradeScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.85}>
+        <TouchableOpacity onPress={() => router.back()} activeOpacity={0.85} accessibilityRole="button" accessibilityLabel="Fechar">
           <GlassView intensity={60} radius={Radius.pill} style={styles.headerBtn}>
             <Icon name="close" size={18} color={Colors.textPrimary} />
           </GlassView>

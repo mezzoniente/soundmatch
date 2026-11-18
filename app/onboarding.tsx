@@ -196,6 +196,9 @@ export default function OnboardingScreen() {
             onPress={handleBack}
             style={styles.backBtn}
             disabled={step === 0}
+            accessibilityRole="button"
+            accessibilityLabel="Voltar ao passo anterior"
+            accessibilityElementsHidden={step === 0}
           >
             <Icon
               name="chevron-back"

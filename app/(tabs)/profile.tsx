@@ -82,7 +82,12 @@ export default function MyProfileScreen() {
                 <Text style={styles.glassPillText}>Editar perfil</Text>
               </GlassView>
             </TouchableOpacity>
-            <TouchableOpacity activeOpacity={0.85} onPress={handleSignOut}>
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleSignOut}
+              accessibilityRole="button"
+              accessibilityLabel="Sair da conta"
+            >
               <GlassView
                 variant="blur"
                 intensity={75}

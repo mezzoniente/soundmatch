@@ -478,16 +478,26 @@ function DiscoverFeed({
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity style={styles.headerBtn}>
+        <TouchableOpacity style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Mais opções">
           <Icon name="ellipsis-horizontal" size={18} color={Colors.textPrimary} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.searchBtn} onPress={() => router.push('/filters')}>
+        <TouchableOpacity
+          style={styles.searchBtn}
+          onPress={() => router.push('/filters')}
+          accessibilityRole="button"
+          accessibilityLabel="Buscar e filtrar"
+        >
           <Icon name="search" size={16} color={Colors.textSecondary} />
           <Text style={styles.searchText}>
             {filterCount > 0 ? `${filterCount} filtro(s) ativo(s)` : 'Buscar e filtrar'}
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.headerBtn} onPress={() => router.push('/filters')}>
+        <TouchableOpacity
+          style={styles.headerBtn}
+          onPress={() => router.push('/filters')}
+          accessibilityRole="button"
+          accessibilityLabel={filterCount > 0 ? `Filtros, ${filterCount} ativos` : 'Filtros'}
+        >
           <Icon name="options" size={18} color={Colors.textPrimary} />
           {filterCount > 0 && (
             <View style={styles.filterBadge}>
@@ -598,16 +608,25 @@ function DiscoverFeed({
             style={[styles.actionBtn, styles.passBtn]}
             onPress={swipeLeft}
             activeScale={0.88}
+            accessibilityRole="button"
+            accessibilityLabel="Passar"
           >
             <Icon name="close" size={26} color={Colors.danger} />
           </PressableScale>
-          <PressableScale style={[styles.actionBtn, styles.saveBtn]} activeScale={0.88}>
+          <PressableScale
+            style={[styles.actionBtn, styles.saveBtn]}
+            activeScale={0.88}
+            accessibilityRole="button"
+            accessibilityLabel="Salvar"
+          >
             <Icon name="bookmark-outline" size={22} color={Colors.textMuted} />
           </PressableScale>
           <PressableScale
             style={[styles.actionBtn, styles.acceptBtn]}
             onPress={swipeRight}
             activeScale={0.88}
+            accessibilityRole="button"
+            accessibilityLabel="Aceitar"
           >
             <Icon name="checkmark" size={26} color={Colors.base} />
           </PressableScale>

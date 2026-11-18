@@ -78,7 +78,7 @@ export default function PostOpeningScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Voltar">
             <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Postar vaga</Text>

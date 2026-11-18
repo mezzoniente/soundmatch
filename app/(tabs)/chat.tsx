@@ -101,11 +101,11 @@ export default function ChatScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity style={styles.headerBtn}>
+          <TouchableOpacity style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Mais opções">
             <Icon name="ellipsis-horizontal" size={18} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Chats</Text>
-          <TouchableOpacity style={styles.headerBtn}>
+          <TouchableOpacity style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Nova conversa">
             <Icon name="create-outline" size={18} color={Colors.textPrimary} />
           </TouchableOpacity>
         </View>

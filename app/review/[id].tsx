@@ -61,7 +61,7 @@ export default function ReviewScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
+          <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn} accessibilityRole="button" accessibilityLabel="Voltar">
             <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Avaliar</Text>
@@ -80,7 +80,14 @@ export default function ReviewScreen() {
           {/* Seletor de estrelas */}
           <View style={styles.starsPicker}>
             {[1, 2, 3, 4, 5].map((i) => (
-              <TouchableOpacity key={i} onPress={() => setRating(i)} hitSlop={8}>
+              <TouchableOpacity
+                key={i}
+                onPress={() => setRating(i)}
+                hitSlop={8}
+                accessibilityRole="button"
+                accessibilityLabel={`Dar ${i} ${i === 1 ? 'estrela' : 'estrelas'}`}
+                accessibilityState={{ selected: i <= rating }}
+              >
                 <Icon
                   name={i <= rating ? 'star' : 'star-outline'}
                   size={44}

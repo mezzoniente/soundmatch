@@ -27,5 +27,16 @@ export interface IconProps {
 }
 
 export function Icon({ name, size = 22, color = Colors.textPrimary, style }: IconProps) {
-  return <Ionicons name={name} size={size} color={color} style={style} />;
+  // Ícone é decorativo por padrão: o leitor de tela anuncia o controle que o
+  // contém (via accessibilityLabel do botão), não o nome do glyph.
+  return (
+    <Ionicons
+      name={name}
+      size={size}
+      color={color}
+      style={style}
+      accessible={false}
+      importantForAccessibility="no"
+    />
+  );
 }

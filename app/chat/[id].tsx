@@ -138,7 +138,12 @@ export default function ConversationScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => router.back()} style={styles.backBtn}>
+          <TouchableOpacity
+            onPress={() => router.back()}
+            style={styles.backBtn}
+            accessibilityRole="button"
+            accessibilityLabel="Voltar"
+          >
             <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
           </TouchableOpacity>
           {dm ? (
@@ -186,7 +191,12 @@ export default function ConversationScreen() {
 
         {/* Composer */}
         <View style={styles.composer}>
-          <TouchableOpacity style={styles.attachBtn} onPress={attachAudio}>
+          <TouchableOpacity
+            style={styles.attachBtn}
+            onPress={attachAudio}
+            accessibilityRole="button"
+            accessibilityLabel="Anexar áudio"
+          >
             <Icon name="musical-note" size={18} color={Colors.textSecondary} />
           </TouchableOpacity>
           <TextInput
@@ -201,6 +211,8 @@ export default function ConversationScreen() {
             style={[styles.sendBtn, !draft.trim() && !pendingAudio && styles.sendBtnDisabled]}
             onPress={send}
             disabled={!draft.trim() && !pendingAudio}
+            accessibilityRole="button"
+            accessibilityLabel="Enviar mensagem"
           >
             <Icon
               name="send"
