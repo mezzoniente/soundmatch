@@ -1,6 +1,8 @@
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Colors } from '../../constants/colors';
+import { Spacing, Radius } from '../../constants/theme';
+import { Typography } from '../../constants/typography';
 import { Icon } from '../Icon';
 import { SelectChip } from '../SelectChip';
 import { FormField } from '../FormField';
@@ -211,7 +213,7 @@ export function AvailabilityForm({
                 style={[styles.scheduleCell, active && styles.scheduleCellActive]}
                 onPress={() => toggleSlot(day, slot)}
               >
-                {active && <Text style={styles.scheduleCheck}>✓</Text>}
+                {active && <Icon name="checkmark" size={16} color={Colors.base} />}
               </TouchableOpacity>
             );
           })}
@@ -296,7 +298,7 @@ export function VibeForm({
               onPress={() => setVibe(v)}
               style={[styles.vibeSwatch, { backgroundColor: v.color }, selected && styles.vibeSwatchSelected]}
             >
-              {selected && <Text style={styles.vibeCheck}>✓</Text>}
+              {selected && <Icon name="checkmark" size={22} color="#fff" />}
             </TouchableOpacity>
           );
         })}
@@ -330,44 +332,40 @@ function TogglePill({
 }) {
   return (
     <TouchableOpacity onPress={onPress} style={[styles.togglePill, active && styles.togglePillActive]}>
-      <Text style={[styles.toggleText, active && styles.toggleTextActive]}>
-        {active ? '✓ ' : ''}
-        {label}
-      </Text>
+      {active && <Icon name="checkmark" size={14} color={Colors.base} style={styles.togglePillIcon} />}
+      <Text style={[styles.toggleText, active && styles.toggleTextActive]}>{label}</Text>
     </TouchableOpacity>
   );
 }
 
 const styles = StyleSheet.create({
   label: {
+    ...Typography.label,
     fontSize: 13,
-    fontWeight: '700',
-    color: Colors.textSecondary,
     letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 10,
+    marginBottom: Spacing.sm + 2,
   },
-  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  chipGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
 
-  goalList: { gap: 10 },
+  goalList: { gap: Spacing.sm + 2 },
   goalCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 16,
+    gap: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  goalCardSelected: { borderColor: Colors.teal, backgroundColor: 'rgba(0, 212, 200, 0.08)' },
+  goalCardSelected: { borderColor: Colors.accent, backgroundColor: Colors.accentSoft },
   goalIcon: { width: 28, textAlign: 'center' },
-  goalTitle: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
-  goalTitleSelected: { color: Colors.teal },
-  goalDesc: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  goalTitle: { ...Typography.h3, fontSize: 16 },
+  goalTitleSelected: { color: Colors.accent },
+  goalDesc: { ...Typography.caption, fontSize: 13, marginTop: 2 },
 
-  scheduleGrid: { marginTop: 4 },
-  scheduleHeaderRow: { flexDirection: 'row', marginBottom: 8 },
+  scheduleGrid: { marginTop: Spacing.xs },
+  scheduleHeaderRow: { flexDirection: 'row', marginBottom: Spacing.sm },
   scheduleHeaderText: {
     flex: 1,
     textAlign: 'center',
@@ -375,49 +373,51 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
   },
-  scheduleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
+  scheduleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm },
   scheduleDayCell: { width: 44 },
   scheduleDayLabel: { width: 44, color: Colors.textPrimary, fontSize: 14, fontWeight: '700' },
   scheduleCell: {
     flex: 1,
     height: 44,
-    marginHorizontal: 4,
-    borderRadius: 12,
-    backgroundColor: Colors.bgCard,
+    marginHorizontal: Spacing.xs,
+    borderRadius: Radius.sm,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  scheduleCellActive: { backgroundColor: Colors.teal, borderColor: Colors.teal },
-  scheduleCheck: { color: Colors.bg, fontWeight: '900', fontSize: 16 },
+  scheduleCellActive: { backgroundColor: Colors.accent, borderColor: Colors.accent },
 
-  toggleRow: { flexDirection: 'row', gap: 10 },
+  toggleRow: { flexDirection: 'row', gap: Spacing.sm + 2 },
   togglePill: {
     flex: 1,
-    paddingVertical: 14,
-    borderRadius: 14,
-    backgroundColor: Colors.bgCard,
+    flexDirection: 'row',
+    gap: Spacing.xs,
+    paddingVertical: Spacing.md + 2,
+    borderRadius: Radius.md,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
     alignItems: 'center',
+    justifyContent: 'center',
   },
-  togglePillActive: { backgroundColor: Colors.teal, borderColor: Colors.teal },
+  togglePillActive: { backgroundColor: Colors.accent, borderColor: Colors.accent },
+  togglePillIcon: { marginRight: 0 },
   toggleText: { color: Colors.textSecondary, fontSize: 14, fontWeight: '600' },
-  toggleTextActive: { color: Colors.bg },
+  toggleTextActive: { color: Colors.base },
 
-  vibeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginBottom: 12 },
+  vibeGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.md, marginBottom: Spacing.md },
   vibeSwatch: {
     width: 60,
     height: 60,
-    borderRadius: 16,
+    borderRadius: Radius.md,
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 3,
     borderColor: 'transparent',
   },
   vibeSwatchSelected: { borderColor: Colors.textPrimary },
-  vibeCheck: { color: '#fff', fontSize: 22, fontWeight: '900' },
   vibeName: { color: Colors.textPrimary, fontSize: 15, fontWeight: '600' },
 
   bioInput: { minHeight: 80, textAlignVertical: 'top' },

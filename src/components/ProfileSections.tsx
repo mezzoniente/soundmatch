@@ -1,6 +1,9 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors } from '../constants/colors';
+import { Spacing, Radius } from '../constants/theme';
+import { Typography } from '../constants/typography';
+import { Icon, IconName } from './Icon';
 import { WEEKDAYS, TIME_SLOTS } from '../constants/options';
 import type {
   AvailabilitySchedule,
@@ -9,11 +12,11 @@ import type {
   SoftSkills,
 } from '../data/mockData';
 
-const EQUIPMENT_ICONS: Record<EquipmentLevel, string> = {
-  'Estúdio próprio': '🎚️',
-  'Equipamento portátil': '🎒',
-  'Apenas instrumento': '🎻',
-  'Sem equipamento': '🚫',
+const EQUIPMENT_ICONS: Record<EquipmentLevel, IconName> = {
+  'Estúdio próprio': 'headset',
+  'Equipamento portátil': 'bag',
+  'Apenas instrumento': 'musical-note',
+  'Sem equipamento': 'ban',
 };
 
 /** Rótulo de seção padrão, reaproveitando o visual das telas de perfil. */
@@ -50,7 +53,7 @@ export function AvailabilityGrid({ schedule }: { schedule?: AvailabilitySchedule
                     key={slot}
                     style={[styles.gridCell, active && styles.gridCellActive]}
                   >
-                    {active && <Text style={styles.gridCheck}>●</Text>}
+                    {active && <Icon name="checkmark" size={14} color={Colors.accent} />}
                   </View>
                 );
               })}
@@ -69,7 +72,7 @@ export function EquipmentSection({ equipment }: { equipment?: EquipmentLevel }) 
     <View style={styles.section}>
       <SectionLabel>EQUIPAMENTO</SectionLabel>
       <View style={styles.inlineCard}>
-        <Text style={styles.inlineIcon}>{EQUIPMENT_ICONS[equipment]}</Text>
+        <Icon name={EQUIPMENT_ICONS[equipment]} size={22} color={Colors.accent} />
         <Text style={styles.inlineText}>{equipment}</Text>
       </View>
     </View>
@@ -85,13 +88,23 @@ export function BandExperienceSection({ experience }: { experience?: BandExperie
       <View style={styles.card}>
         <View style={styles.badgesRow}>
           <View style={[styles.badge, experience.playedLive ? styles.badgeOn : styles.badgeOff]}>
+            <Icon
+              name={experience.playedLive ? 'checkmark' : 'remove'}
+              size={13}
+              color={experience.playedLive ? Colors.success : Colors.textMuted}
+            />
             <Text style={experience.playedLive ? styles.badgeOnText : styles.badgeOffText}>
-              {experience.playedLive ? '✓' : '—'} Ao vivo
+              Ao vivo
             </Text>
           </View>
           <View style={[styles.badge, experience.recorded ? styles.badgeOn : styles.badgeOff]}>
+            <Icon
+              name={experience.recorded ? 'checkmark' : 'remove'}
+              size={13}
+              color={experience.recorded ? Colors.success : Colors.textMuted}
+            />
             <Text style={experience.recorded ? styles.badgeOnText : styles.badgeOffText}>
-              {experience.recorded ? '✓' : '—'} Gravou
+              Gravou
             </Text>
           </View>
           <View style={styles.badgeNeutral}>
@@ -133,24 +146,18 @@ export function SoftSkillsSection({ skills }: { skills?: SoftSkills }) {
 }
 
 const styles = StyleSheet.create({
-  section: { paddingHorizontal: 20, paddingTop: 20 },
-  sectionLabel: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 1.5,
-    marginBottom: 12,
-  },
+  section: { paddingHorizontal: Spacing.xl, paddingTop: Spacing.xl },
+  sectionLabel: { ...Typography.label, marginBottom: Spacing.md },
   card: {
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 14,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.md + 2,
     borderWidth: 1,
     borderColor: Colors.border,
   },
 
   // Availability grid
-  gridHeaderRow: { flexDirection: 'row', marginBottom: 8 },
+  gridHeaderRow: { flexDirection: 'row', marginBottom: Spacing.sm },
   gridHeaderText: {
     flex: 1,
     textAlign: 'center',
@@ -158,64 +165,70 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
   },
-  gridRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6 },
+  gridRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.xs + 2 },
   dayCell: { width: 40 },
   dayLabel: { width: 40, color: Colors.textPrimary, fontSize: 13, fontWeight: '700' },
   gridCell: {
     flex: 1,
     height: 30,
-    marginHorizontal: 4,
-    borderRadius: 8,
-    backgroundColor: Colors.bg,
+    marginHorizontal: Spacing.xs,
+    borderRadius: Radius.sm - 2,
+    backgroundColor: Colors.base,
     borderWidth: 1,
     borderColor: Colors.border,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  gridCellActive: { backgroundColor: 'rgba(0, 212, 200, 0.2)', borderColor: Colors.teal },
-  gridCheck: { color: Colors.teal, fontSize: 12 },
+  gridCellActive: { backgroundColor: Colors.accentSoft, borderColor: Colors.accent },
 
   // Equipment
   inlineCard: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    backgroundColor: Colors.bgCard,
-    borderRadius: 16,
-    padding: 16,
+    gap: Spacing.md,
+    backgroundColor: Colors.surface,
+    borderRadius: Radius.md,
+    padding: Spacing.lg,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  inlineIcon: { fontSize: 24 },
   inlineText: { color: Colors.textPrimary, fontSize: 15, fontWeight: '600' },
 
   // Band experience
-  badgesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  badge: { paddingHorizontal: 12, paddingVertical: 7, borderRadius: 12, borderWidth: 1 },
-  badgeOn: { backgroundColor: 'rgba(46, 204, 113, 0.15)', borderColor: Colors.green },
-  badgeOnText: { color: Colors.green, fontSize: 13, fontWeight: '600' },
-  badgeOff: { backgroundColor: Colors.bg, borderColor: Colors.border },
+  badgesRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
+  badge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 3,
+    borderRadius: Radius.sm,
+    borderWidth: 1,
+  },
+  badgeOn: { backgroundColor: Colors.successSoft, borderColor: Colors.success },
+  badgeOnText: { color: Colors.success, fontSize: 13, fontWeight: '600' },
+  badgeOff: { backgroundColor: Colors.base, borderColor: Colors.border },
   badgeOffText: { color: Colors.textMuted, fontSize: 13, fontWeight: '600' },
   badgeNeutral: {
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 12,
-    backgroundColor: Colors.blueMid,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.xs + 3,
+    borderRadius: Radius.sm,
+    backgroundColor: Colors.elevated,
   },
   badgeNeutralText: { color: Colors.textPrimary, fontSize: 13, fontWeight: '600' },
-  notes: { color: Colors.textSecondary, fontSize: 14, lineHeight: 20, marginTop: 12 },
+  notes: { color: Colors.textSecondary, fontSize: 14, lineHeight: 20, marginTop: Spacing.md },
 
   // Soft skills
-  skillRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  skillRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.md },
   skillLabel: { width: 130, color: Colors.textPrimary, fontSize: 13, fontWeight: '600' },
   skillBarTrack: {
     flex: 1,
     height: 8,
     borderRadius: 4,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     overflow: 'hidden',
-    marginHorizontal: 10,
+    marginHorizontal: Spacing.sm + 2,
   },
-  skillBarFill: { height: 8, borderRadius: 4, backgroundColor: Colors.teal },
+  skillBarFill: { height: 8, borderRadius: 4, backgroundColor: Colors.accent },
   skillValue: { width: 32, color: Colors.textSecondary, fontSize: 12, fontWeight: '600' },
 });

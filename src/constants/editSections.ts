@@ -1,4 +1,5 @@
 import type { Artist } from '../data/mockData';
+import type { IconName } from '../components/Icon';
 
 /** Chave de cada seção editável (bate com a rota /edit-profile/[section]). */
 export type EditSectionKey =
@@ -14,7 +15,7 @@ export type EditSectionKey =
 export interface EditSection {
   key: EditSectionKey;
   title: string;
-  icon: string;
+  icon: IconName;
   /** Resumo curto do estado atual, exibido no hub. */
   preview: (p: Artist) => string;
 }
@@ -23,7 +24,7 @@ export const EDIT_SECTIONS: EditSection[] = [
   {
     key: 'photos',
     title: 'Foto e banner',
-    icon: '🖼️',
+    icon: 'images',
     preview: (p) => {
       const has = [p.avatarUrl ? 'foto' : null, p.coverUrl ? 'banner' : null].filter(Boolean);
       return has.length ? has.join(' e ') + ' enviados' : 'Enviar foto de perfil e banner';
@@ -32,32 +33,32 @@ export const EDIT_SECTIONS: EditSection[] = [
   {
     key: 'identity',
     title: 'Identidade',
-    icon: '🪪',
+    icon: 'card',
     preview: (p) => [p.name, p.role].filter(Boolean).join(' · ') || 'Nome, idade, localização',
   },
   {
     key: 'instruments',
     title: 'Instrumentos e nível',
-    icon: '🎸',
+    icon: 'musical-notes',
     preview: (p) =>
       p.instruments.length ? `${p.instruments.join(', ')} · ${p.level}` : 'Nenhum instrumento',
   },
   {
     key: 'style',
     title: 'Estilo e influências',
-    icon: '🎵',
+    icon: 'disc',
     preview: (p) => (p.genres.length ? p.genres.join(', ') : 'Nenhum gênero'),
   },
   {
     key: 'goals',
     title: 'Objetivos',
-    icon: '🎯',
+    icon: 'flag',
     preview: (p) => (p.goals.length ? p.goals.join(', ') : 'Nenhum objetivo'),
   },
   {
     key: 'availability',
     title: 'Disponibilidade',
-    icon: '🗓️',
+    icon: 'calendar',
     preview: (p) => {
       const days = Object.keys(p.schedule ?? {});
       return days.length ? `${days.length} dia(s) marcados` : 'Sem disponibilidade';
@@ -66,13 +67,13 @@ export const EDIT_SECTIONS: EditSection[] = [
   {
     key: 'experience',
     title: 'Equipamento e experiência',
-    icon: '🎚️',
+    icon: 'headset',
     preview: (p) => p.equipment ?? 'Equipamento não informado',
   },
   {
     key: 'vibe',
     title: 'Vibe e bio',
-    icon: '🎨',
+    icon: 'color-palette',
     preview: (p) => p.vibeColorName,
   },
 ];

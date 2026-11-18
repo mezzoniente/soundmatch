@@ -12,6 +12,9 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Colors } from '../../src/constants/colors';
+import { Spacing, Radius } from '../../src/constants/theme';
+import { Typography } from '../../src/constants/typography';
+import { Icon } from '../../src/components/Icon';
 import { useProfile } from '../../src/state/ProfileContext';
 import { EDIT_SECTIONS, EditSectionKey } from '../../src/constants/editSections';
 import {
@@ -155,7 +158,7 @@ export default function EditSectionScreen() {
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-            <Text style={styles.headerIcon}>‹</Text>
+            <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Seção inválida</Text>
           <View style={styles.headerBtn} />
@@ -172,7 +175,7 @@ export default function EditSectionScreen() {
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()} style={styles.headerBtn}>
-            <Text style={styles.headerIcon}>‹</Text>
+            <Icon name="chevron-back" size={26} color={Colors.textPrimary} />
           </TouchableOpacity>
           <Text style={styles.headerTitle}>{sectionDef.title}</Text>
           <View style={styles.headerBtn} />
@@ -259,36 +262,35 @@ export default function EditSectionScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
     paddingTop: Platform.OS === 'android' ? RNStatusBar.currentHeight ?? 0 : 0,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 12,
-    paddingVertical: 12,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.md,
   },
   headerBtn: { width: 44, height: 44, alignItems: 'center', justifyContent: 'center' },
-  headerIcon: { fontSize: 32, color: Colors.textPrimary, lineHeight: 32 },
-  headerTitle: { fontSize: 18, fontWeight: '700', color: Colors.textPrimary },
+  headerTitle: { ...Typography.h3, fontSize: 18 },
 
-  content: { padding: 20 },
+  content: { padding: Spacing.xl },
 
   footer: {
-    padding: 20,
-    paddingBottom: 28,
+    padding: Spacing.xl,
+    paddingBottom: Spacing.xxl,
     borderTopWidth: 1,
     borderTopColor: Colors.border,
-    backgroundColor: Colors.bg,
+    backgroundColor: Colors.base,
   },
   saveBtn: {
-    backgroundColor: Colors.teal,
-    borderRadius: 16,
-    paddingVertical: 16,
+    backgroundColor: Colors.accent,
+    borderRadius: Radius.md,
+    paddingVertical: Spacing.lg,
     alignItems: 'center',
   },
-  saveBtnDisabled: { backgroundColor: Colors.bgCard },
-  saveText: { color: Colors.bg, fontSize: 16, fontWeight: '800' },
+  saveBtnDisabled: { backgroundColor: Colors.surface },
+  saveText: { ...Typography.button, fontSize: 16 },
   saveTextDisabled: { color: Colors.textMuted },
 });

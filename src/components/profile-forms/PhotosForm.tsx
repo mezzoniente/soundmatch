@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, Image, Alert, ActivityIndicator } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { Colors } from '../../constants/colors';
+import { Spacing, Radius } from '../../constants/theme';
+import { Typography } from '../../constants/typography';
+import { Icon } from '../Icon';
 import { uploadFile } from '../../lib/storage';
 import { useAuth } from '../../state/AuthContext';
 import { useProfile } from '../../state/ProfileContext';
@@ -66,7 +69,10 @@ export function PhotosForm() {
           {uploading === 'cover' ? (
             <ActivityIndicator color={Colors.textPrimary} />
           ) : (
-            <Text style={styles.overlayText}>🖼️  Trocar banner</Text>
+            <View style={styles.overlayRow}>
+              <Icon name="images" size={18} color={Colors.textPrimary} />
+              <Text style={styles.overlayText}>Trocar banner</Text>
+            </View>
           )}
         </View>
       </Pressable>
@@ -82,7 +88,7 @@ export function PhotosForm() {
             {uploading === 'avatar' ? (
               <ActivityIndicator color={Colors.textPrimary} />
             ) : (
-              <Text style={styles.avatarOverlayText}>📷</Text>
+              <Icon name="camera" size={24} color={Colors.textPrimary} />
             )}
           </View>
         </Pressable>
@@ -95,20 +101,13 @@ export function PhotosForm() {
 }
 
 const styles = StyleSheet.create({
-  label: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-    marginBottom: 10,
-  },
+  label: { ...Typography.label, fontSize: 13, letterSpacing: 0.8, marginBottom: Spacing.sm + 2 },
   bannerWrap: {
     width: '100%',
     aspectRatio: 16 / 9,
-    borderRadius: 16,
+    borderRadius: Radius.md,
     overflow: 'hidden',
-    backgroundColor: Colors.bgCard,
+    backgroundColor: Colors.surface,
     borderWidth: 1,
     borderColor: Colors.border,
   },
@@ -117,27 +116,27 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.35)',
+    backgroundColor: 'rgba(8,11,20,0.35)',
   },
+  overlayRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
   overlayText: { color: Colors.textPrimary, fontSize: 15, fontWeight: '700' },
 
-  avatarRow: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+  avatarRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.lg },
   avatarWrap: {
     width: 96,
     height: 96,
-    borderRadius: 48,
+    borderRadius: Radius.pill,
     overflow: 'hidden',
-    backgroundColor: Colors.bgCard,
+    backgroundColor: Colors.surface,
     borderWidth: 2,
-    borderColor: Colors.teal,
+    borderColor: Colors.accent,
   },
   avatar: { ...StyleSheet.absoluteFill, width: '100%', height: '100%' },
   avatarOverlay: {
     ...StyleSheet.absoluteFill,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0,0,0,0.3)',
+    backgroundColor: 'rgba(8,11,20,0.3)',
   },
-  avatarOverlayText: { fontSize: 26 },
   hint: { flex: 1, color: Colors.textSecondary, fontSize: 13, lineHeight: 19 },
 });
